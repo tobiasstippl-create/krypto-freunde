@@ -264,11 +264,13 @@ main{min-width:0}
 .app-streifen-knoepfe button{padding:6px 12px;font-size:13.5px}
 .app-streifen-zu{border:0;background:transparent;color:var(--muted);padding:6px 8px!important;cursor:pointer}
 .app-teilen{display:inline-block;vertical-align:-3px}
+.sich-streifen{border-color:color-mix(in srgb,#f0b429 55%,var(--line));background:color-mix(in srgb,#f0b429 9%,var(--surface))}
 .app-anleitung{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,14,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .app-anleitung-box{max-width:440px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 20px 16px;box-shadow:0 20px 60px -20px rgba(0,0,0,.6)}
 .app-anleitung-box h3{margin:0 0 10px}
 .app-anleitung-box p{margin:0 0 10px;color:var(--ink-2)}
 .app-anleitung-box .app-anleitung-klein{font-size:13px;color:var(--muted)}
+.app-anleitung-link{display:inline-flex;align-items:center;padding:8px 14px;border-radius:10px;background:var(--btn);color:var(--on-accent);text-decoration:none;font-weight:600}
 
 /* Karten */
 .sheet{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:20px;min-width:0}
@@ -774,6 +776,14 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
         <button type="button" class="primary app-installieren" hidden>Installieren</button>
         <button type="button" class="app-vollbild" hidden>Vollbild</button>
         <button type="button" class="app-streifen-zu" aria-label="Hinweis schließen">✕</button>
+      </div>
+    </div>
+
+    <div class="app-streifen sich-streifen" id="sich-streifen" hidden>
+      <p id="sich-streifen-text"></p>
+      <div class="app-streifen-knoepfe">
+        <button type="button" class="primary" id="sich-jetzt">Jetzt sichern</button>
+        <button type="button" id="sich-spaeter">Später</button>
       </div>
     </div>
 
@@ -4706,21 +4716,68 @@ const TREFFER = (function () {
 (function () {
   'use strict';
   // Kurse lassen sich neu holen; der eigene Kursschlüssel wandert mit, damit man ihn nur einmal einträgt
-  var PRAEFIX = 'krypto-freunde-', OHNE = { 'krypto-freunde-kurse': 1, 'krypto-freunde-ohne-kurs': 1, 'krypto-freunde-cg-ids': 1, 'krypto-freunde-wp-kurse': 1, 'krypto-freunde-wp-notzaehler': 1, 'krypto-freunde-wal-stand': 1 };
+  var STAND = 'krypto-freunde-sicherung-stand';
+  var PRAEFIX = 'krypto-freunde-', OHNE = { 'krypto-freunde-kurse': 1, 'krypto-freunde-ohne-kurs': 1, 'krypto-freunde-cg-ids': 1, 'krypto-freunde-wp-kurse': 1, 'krypto-freunde-wp-notzaehler': 1, 'krypto-freunde-wal-stand': 1,
+    'krypto-freunde-app-hinweis': 1, 'krypto-freunde-sicherung-stand': 1 };
   var $ = function (id) { return document.getElementById(id); };
   var status = $('sich-status');
   if (!status) return;
   function melde(text, warn) { status.textContent = text; status.className = 'note callout' + (warn ? ' warn' : ''); }
   function zwei(x) { return (x < 10 ? '0' : '') + x; }
+  function sammle() {
+    var daten = {};
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf(PRAEFIX) === 0 && !OHNE[k]) daten[k] = localStorage.getItem(k);
+    }
+    return daten;
+  }
+  // Fingerabdruck der gesicherten Daten: zeigt, ob sich seit der letzten Sicherung etwas geändert hat
+  function abdruck(daten) {
+    var s = Object.keys(daten).sort().map(function (k) { return k + '=' + daten[k]; }).join('\n'), h = 5381;
+    for (var i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+    return h.toString(36) + '.' + s.length;
+  }
+  // Nur echte Daten zählen (Buchungen, Bestände, Wertpapiere, Wallets), nicht Einstellungen wie die zuletzt offene Ansicht
+  function echteDaten(daten) {
+    function j(k) { try { return JSON.parse(daten[k] || 'null'); } catch (e) { return null; } }
+    var m = j('krypto-freunde-modell-2') || {}, wp = j('krypto-freunde-wertpapiere') || {}, wal = j('krypto-freunde-wallets') || {};
+    return (m.tx && m.tx.length > 0) || (m.cash > 0) || (m.extra && m.extra.length > 0)
+      || (m.pos || []).some(function (p) { return p && (p.stueck > 0 || p.einstand > 0); })
+      || (wp.liste && wp.liste.length > 0) || (wal.liste && wal.liste.length > 0);
+  }
+  function stand() { try { return JSON.parse(localStorage.getItem(STAND) || 'null') || {}; } catch (e) { return {}; } }
+  function merke(x) { try { var s = stand(); for (var k in x) s[k] = x[k]; localStorage.setItem(STAND, JSON.stringify(s)); } catch (e) { /* gesperrt */ } }
+  var datum = function (iso) { var d = new Date(iso); return isNaN(d) ? '?' : d.toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric', year: 'numeric' }); };
+  var tage = function (iso) { return Math.floor((Date.now() - Date.parse(iso)) / 864e5); };
+
+  // ---------- Erinnerung ----------
+  // Nichts sichern zu müssen ist der Normalfall: der Streifen kommt nur, wenn es Daten gibt, die in keiner Sicherung stecken.
+  var FRIST = 14, SPAETER = 7;
+  function erinnere() {
+    var st = $('sich-streifen'), daten;
+    try { daten = sammle(); } catch (e) { if (st) st.hidden = true; return; }
+    var s = stand(), hat = echteDaten(daten), neu = hat && s.abdruck !== abdruck(daten);
+    if (s.zuletzt) melde('Letzte Sicherung am ' + datum(s.zuletzt) + (neu ? ', seitdem hat sich etwas geändert.' : ', seitdem unverändert.'), neu && tage(s.zuletzt) >= FRIST);
+    if (!st) return;
+    var zeigen = neu && (!s.zuletzt || tage(s.zuletzt) >= FRIST) && !(s.spaeter && Date.now() < Date.parse(s.spaeter));
+    if (zeigen) {
+      $('sich-streifen-text').textContent = s.zuletzt
+        ? 'Letzte Sicherung vor ' + tage(s.zuletzt) + ' Tagen. Seitdem hat sich etwas geändert. Deine Daten liegen nur in diesem Browser; geht er verloren, hilft nur die Sicherungsdatei.'
+        : 'Noch keine Sicherung. Deine Daten liegen nur in diesem Browser; wird er zurückgesetzt oder das Gerät gewechselt, sind sie ohne Sicherungsdatei weg.';
+    }
+    st.hidden = !zeigen;
+  }
+  if ($('sich-streifen')) {
+    $('sich-jetzt').addEventListener('click', function () { $('sich-speichern').click(); });
+    $('sich-spaeter').addEventListener('click', function () { merke({ spaeter: new Date(Date.now() + SPAETER * 864e5).toISOString() }); erinnere(); });
+  }
+  // Den Browser bitten, die Daten nicht von selbst aufzuräumen (wirkt vor allem in Chrome/Android und installierten Apps)
+  try { if (navigator.storage && navigator.storage.persist && echteDaten(sammle())) navigator.storage.persist().catch(function () {}); } catch (e) { /* egal */ }
 
   $('sich-speichern').addEventListener('click', function () {
     var daten = {};
-    try {
-      for (var i = 0; i < localStorage.length; i++) {
-        var k = localStorage.key(i);
-        if (k && k.indexOf(PRAEFIX) === 0 && !OHNE[k]) daten[k] = localStorage.getItem(k);
-      }
-    } catch (e) { melde('Der Speicher dieses Browsers ist nicht zugänglich (privates Fenster?). Eine Sicherung ist so nicht möglich.', true); return; }
+    try { daten = sammle(); } catch (e) { melde('Der Speicher dieses Browsers ist nicht zugänglich (privates Fenster?). Eine Sicherung ist so nicht möglich.', true); return; }
     if (!Object.keys(daten).length) { melde('Es gibt noch nichts zu sichern. Lies zuerst eine Datei ein.', true); return; }
     var n = new Date(), name = 'krypto-sicherung-' + n.getFullYear() + '-' + zwei(n.getMonth() + 1) + '-' + zwei(n.getDate()) + '.json';
     var blob = new Blob([JSON.stringify({ app: 'krypto-freunde', v: 1, erstellt: n.toISOString(), daten: daten })], { type: 'application/json' });
@@ -4728,7 +4785,9 @@ const TREFFER = (function () {
     a.href = URL.createObjectURL(blob); a.download = name;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 60000);
-    melde('Sicherung „' + name + '“ gespeichert. Am anderen Gerät öffnest du die App und wählst „Sicherung laden“.');
+    merke({ zuletzt: n.toISOString(), abdruck: abdruck(daten), spaeter: null });
+    erinnere();
+    melde('Sicherung „' + name + '“ gespeichert. Am anderen Gerät öffnest du die App und wählst „Sicherung laden“. Bewahre die Datei außerhalb des Browsers auf, z. B. in der Cloud.');
   });
 
   $('sich-laden').addEventListener('click', function () { $('sich-datei').click(); });
@@ -4750,10 +4809,19 @@ const TREFFER = (function () {
           if (k && k.indexOf(PRAEFIX) === 0 && !OHNE[k]) localStorage.removeItem(k);
         }
         keys.forEach(function (k) { localStorage.setItem(k, s.daten[k]); });
+        // Eine geladene Sicherung gilt als gesichert (Stand der Datei)
+        var geladen = {}; keys.forEach(function (k) { geladen[k] = s.daten[k]; });
+        merke({ zuletzt: isNaN(wann) ? new Date().toISOString() : wann.toISOString(), abdruck: abdruck(geladen), spaeter: null });
       } catch (e) { melde('Die Sicherung ließ sich nicht speichern (Speicher voll oder gesperrt).', true); return; }
       location.reload();
     }).catch(function () { melde('Die Datei ließ sich nicht lesen.', true); });
   });
+
+  // Erst prüfen, wenn die App ihre Daten geschrieben hat (Start, Import übernehmen, Wallet/Wertpapier gespeichert)
+  setTimeout(erinnere, 1500);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') erinnere(); });
+  window.addEventListener('storage', erinnere);
+  window.SICHERUNG = { pruefe: erinnere };
 })();
 </script>
 <script>
@@ -5599,7 +5667,9 @@ const TREFFER = (function () {
   var android = /Android/.test(ua);
   var browser = /Edg(A|iOS)?\//.test(ua) ? 'edge' : /SamsungBrowser/.test(ua) ? 'samsung' : /OPR\/|Opera/.test(ua) ? 'opera'
     : /Firefox\//.test(ua) ? 'firefox' : /Chrome\//.test(ua) ? 'chrome' : /Safari\//.test(ua) ? 'safari' : 'anderer';
+  var WEB = 'https://tobiasstippl-create.github.io/krypto-freunde/';
   function anleitung() {
+    if (!online) return 'Du hast gerade die Datei geöffnet. Aus einer Datei kann der Browser keine App machen. Öffne dafür den Link zur App und installiere sie dort. Deine Daten nimmst du über „Sicherung“ (Portfolio) mit: hier speichern, dort laden.';
     if (ios) return 'Unten (auf dem iPad oben) auf Teilen tippen, dann „Zum Home-Bildschirm“. Danach die App über das neue Symbol öffnen.';
     if (android) {
       if (browser === 'samsung') return 'Unten auf das Menü ≡ tippen, dann „Seite hinzufügen zu“ und „Startbildschirm“.';
@@ -5623,12 +5693,19 @@ const TREFFER = (function () {
       document.body.appendChild(d);
     }
     d.querySelector('p').textContent = anleitung();
+    var link = d.querySelector('.app-anleitung-link');
+    if (!online && !link) {
+      link = document.createElement('a');
+      link.className = 'app-anleitung-link'; link.href = WEB; link.target = '_blank'; link.rel = 'noopener';
+      link.textContent = 'App-Link öffnen';
+      d.querySelector('.btns').prepend(link);
+    }
     d.hidden = false;
     d.querySelector('button').focus();
   }
 
   function zeigeStreifen() {
-    var install = !installiert && online && !(ios && klein());
+    var install = !installiert && !(online && ios && klein());
     alle('.app-installieren').forEach(function (b) { b.hidden = !install; });
     alle('.app-vollbild').forEach(function (b) { b.hidden = !kannVollbild; });
     var sagen = '';
