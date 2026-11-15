@@ -253,6 +253,7 @@ main{min-width:0}
 .slot{min-width:0}
 #ansichten.hat-daten #import{order:1}
 #ansichten.hat-daten #sicherung{order:2}
+#ansichten:not(.hat-daten) .subnav button[data-ziel="import"]{order:-1}
 #umschichten{order:-1}
 .kopf .schmal{display:none}
 @media (max-width:620px){.kopf .breit{display:none}.kopf .schmal{display:inline}}
@@ -884,7 +885,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
       <section class="sheet" id="wertpapiere" aria-labelledby="h-wertpapiere">
         <header>
           <h2 id="h-wertpapiere">Wertpapiere</h2>
-          <p>Aktien und ETFs von flatex, Trade Republic oder anderen Banken trägst du hier von Hand ein: Stückzahl und Einstandswert stehen in deiner Depotübersicht. Der Kurs kommt einmal am Tag über Alpha Vantage (Xetra in Euro). Wertpapiere laufen getrennt vom Krypto-Modell; Bandbreite, Risiko und Steuer rechnen nur mit Krypto.</p>
+          <p>Aktien und ETFs von Trade Republic kommen automatisch mit dem Import der Transaktionsdatei. Von flatex und anderen Banken trägst du sie hier von Hand ein: Stückzahl und Einstandswert stehen in deiner Depotübersicht. Der Kurs kommt einmal am Tag über Alpha Vantage (Xetra in Euro). Wertpapiere laufen getrennt vom Krypto-Modell; Bandbreite, Risiko und Steuer rechnen nur mit Krypto.</p>
         </header>
         <p class="note callout" id="wp-status"></p>
         <div class="scroll"><table id="wp-tabelle"></table></div>
