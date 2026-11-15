@@ -968,6 +968,29 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
           <h2 id="h-wallets">Wallets</h2>
           <p>Eigene Wallets (MetaMask, Ledger, Phantom …) über ihre öffentliche Adresse. Die App liest nur den aktuellen Bestand aus der Blockchain; Kaufpreise stehen dort nicht, den Einstand trägst du bei Bedarf selbst ein. Wertverlauf und Steuer kommen weiter aus den Dateien deiner Börsen.</p>
         </header>
+        <details class="note callout" id="wal-umfang" open>
+          <summary style="cursor:pointer;font-weight:600;margin-bottom:.4em">Was funktioniert und was nicht</summary>
+          <p style="margin:0 0 .3em"><b>Das funktioniert:</b></p>
+          <ul style="margin:0 0 .6em;padding-left:1.2em">
+            <li><b>Ethereum-Adressen (0x…)</b>, z. B. MetaMask, Rabby, Ledger: Ethereum, Arbitrum, Base, Optimism, Polygon und BNB Chain auf einmal, mit Coins und gängigen Tokens</li>
+            <li><b>Bitcoin</b>: eine einzelne Adresse (bc1…, 1…, 3…)</li>
+            <li><b>Tron</b> (T…): TRX, auch gestakt, sowie USDT und USDC</li>
+            <li><b>Solana</b>: nur SOL</li>
+            <li><b>Dogecoin</b> und <b>Litecoin</b></li>
+            <li>ENS-Namen (name.eth) und Adressen aus QR-Codes</li>
+          </ul>
+          <p style="margin:0 0 .3em"><b>Das funktioniert nicht:</b></p>
+          <ul style="margin:0;padding-left:1.2em">
+            <li><b>xpub/zpub</b> von Ledger oder Trezor: bitte stattdessen die Bitcoin-Empfangsadresse (bc1…) eintragen. Liegen deine Bitcoin auf mehreren Adressen, zählt nur die eingetragene.</li>
+            <li><b>Solana-Tokens</b> (USDC, Memecoins …): nur SOL wird gezählt</li>
+            <li><b>XRP, Cardano, Cosmos</b> und andere Netze</li>
+            <li><b>Auf BNB Chain</b> nur BNB, USDT, USDC, FDUSD, BTCB, ETH und CAKE, andere Tokens fehlen</li>
+            <li><b>Kleine und unbekannte Tokens</b> ohne echten Handel oder unter 1 € werden ausgeblendet, damit gefälschte Airdrops den Wert nicht verfälschen</li>
+            <li><b>Sehr große Wallets</b> mit hunderten Tokens: einzelne Netze brechen ab und erscheinen als „nicht erreichbar“</li>
+            <li><b>Kaufpreise und Verlauf</b>: die Blockchain kennt nur den heutigen Bestand. Den Einstand trägst du selbst ein. Wallets fließen nicht in Wertverlauf und Steuer ein.</li>
+            <li>Seed-Phrase und privater Schlüssel werden nie gebraucht und abgelehnt</li>
+          </ul>
+        </details>
         <p class="note callout" id="wal-status"></p>
         <div class="scroll"><table id="wal-tabelle"></table></div>
         <div class="btns">
@@ -978,8 +1001,8 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
           <h3 id="wal-form-titel">Wallet hinzufügen</h3>
           <div class="field">
             <label for="wal-adresse">Öffentliche Adresse</label>
-            <input type="text" id="wal-adresse" placeholder="0x…, bc1… oder Solana-Adresse" spellcheck="false" autocapitalize="off" required>
-            <small id="wal-netz-info">Erkannt werden Ethereum und kompatible Netze (Arbitrum, Base, Optimism, Polygon), Bitcoin und Solana. Gib niemals deine Seed-Phrase oder einen privaten Schlüssel ein; die braucht die App nicht.</small>
+            <input type="text" id="wal-adresse" placeholder="0x…, bc1…, T…, name.eth oder Solana-Adresse" spellcheck="false" autocapitalize="off" required>
+            <small id="wal-netz-info">Erkannt werden Ethereum und kompatible Netze (Arbitrum, Base, Optimism, Polygon, BNB Chain), Bitcoin, Solana, Tron, Dogecoin und Litecoin, auch ENS-Namen (name.eth). Gib niemals deine Seed-Phrase oder einen privaten Schlüssel ein; die braucht die App nicht.</small>
           </div>
           <div class="field">
             <label for="wal-name">Name</label>
@@ -5106,7 +5129,7 @@ const TREFFER = (function () {
     { id: 'eth', name: 'Ethereum', host: 'eth.blockscout.com', nativ: 'ETH' },
     { id: 'arb', name: 'Arbitrum', host: 'arbitrum.blockscout.com', nativ: 'ETH' },
     { id: 'base', name: 'Base', host: 'base.blockscout.com', nativ: 'ETH' },
-    { id: 'op', name: 'Optimism', host: 'optimism.blockscout.com', nativ: 'ETH' },
+    { id: 'op', name: 'Optimism', host: 'explorer.optimism.io', nativ: 'ETH' },
     { id: 'pol', name: 'Polygon', host: 'polygon.blockscout.com', nativ: 'POL' }
   ];
   // Verpackte Coins und Brücken-Varianten mit dem Kurs des Originals bewerten
@@ -5133,15 +5156,72 @@ const TREFFER = (function () {
   var daten = lies(KEY, { v: 1, liste: [] });
   if (!daten || !Array.isArray(daten.liste)) daten = { v: 1, liste: [] };
   var stand = lies(STAND, {}) || {};
-
-  function netz(a) {
-    a = (a || '').trim();
-    if (/^0x[0-9a-fA-F]{40}$/.test(a)) return 'evm';
-    if (/^(bc1[02-9ac-hj-np-z]{11,87}|[13][1-9A-HJ-NP-Za-km-z]{25,34})$/.test(a)) return 'btc';
-    if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(a)) return 'sol';
-    return '';
+  function ordneEin() {
+  // Bis 16.11. wurden Tron-, Dogecoin-, Litecoin- und XRP-Adressen fälschlich als Solana eingetragen: neu einordnen
+  (function () {
+    var neu = false;
+    daten.liste.forEach(function (w) {
+      var e = erkenne(w.adresse);
+      if (e.netz && e.netz !== 'ens' && e.netz !== w.netz) { w.netz = e.netz; delete stand[w.adresse]; neu = true; }
+      else if (!e.netz && !w.fremd) { w.fremd = e.fremd || 'unbekanntes Netz'; delete stand[w.adresse]; neu = true; }
+    });
+    if (neu) { schreib(KEY, daten); schreib(STAND, stand); }
+  })();
   }
-  var NETZNAME = { evm: 'Ethereum & Co.', btc: 'Bitcoin', sol: 'Solana' };
+
+  // Base58 (Bitcoin-Alphabet) in Bytes; null bei fremden Zeichen
+  var B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  function b58(s) {
+    var bytes = [0];
+    for (var i = 0; i < s.length; i++) {
+      var c = B58.indexOf(s[i]);
+      if (c < 0) return null;
+      for (var j = 0; j < bytes.length; j++) { c += bytes[j] * 58; bytes[j] = c & 255; c >>= 8; }
+      while (c) { bytes.push(c & 255); c >>= 8; }
+    }
+    for (var k = 0; k < s.length && s[k] === '1'; k++) bytes.push(0);
+    return bytes.reverse();
+  }
+  // Eingabe säubern: QR-Links (ethereum:0x…@1?value=…), Leerzeichen, Großschreibung bei bech32
+  function saeubere(a) {
+    a = String(a || '').trim().replace(/^[a-z]+:(\/\/)?/i, function (p) { return /^(ethereum|bitcoin|solana|tron|litecoin|dogecoin):/i.test(p) ? '' : p; });
+    a = a.replace(/[?#].*$/, '').replace(/@\d+$/, '').trim();
+    if (/^(bc1|ltc1)[0-9a-z]+$/i.test(a) && (a === a.toUpperCase() || a === a.toLowerCase())) a = a.toLowerCase();
+    return a;
+  }
+  // Ergebnis: { netz } für unterstützte Netze, { fremd: 'Name' } für erkannte, aber nicht unterstützte, sonst {}
+  function erkenne(roh) {
+    var a = saeubere(roh);
+    if (/^0x[0-9a-fA-F]{40}$/.test(a)) return { adresse: a, netz: 'evm' };
+    if (/^[a-z0-9-]+(\.[a-z0-9-]+)*\.eth$/i.test(a)) return { adresse: a.toLowerCase(), netz: 'ens' };
+    if (/^bc1[02-9ac-hj-np-z]{11,87}$/.test(a)) return { adresse: a, netz: 'btc' };
+    if (/^ltc1[02-9ac-hj-np-z]{11,87}$/.test(a)) return { adresse: a, netz: 'ltc' };
+    if (/^[xyzt]pub[1-9A-HJ-NP-Za-km-z]{100,112}$/.test(a) || /^[YZ]pub/.test(a)) return { adresse: a, fremd: 'xpub' };
+    if (/^addr1[0-9a-z]{50,}$/.test(a)) return { adresse: a, fremd: 'Cardano' };
+    if (/^(cosmos|osmo|bnb|terra|inj|sei|celestia)1[0-9a-z]{30,}$/.test(a)) return { adresse: a, fremd: a.replace(/1.*$/, '').toUpperCase() };
+    var b = /^[1-9A-HJ-NP-Za-km-z]{25,44}$/.test(a) ? b58(a) : null;
+    if (b && b.length === 32) return { adresse: a, netz: 'sol' };
+    // XRP (r…) nutzt ein eigenes Alphabet, ergibt hier also keine bekannte Kennung
+    if (b && /^r/.test(a) && a.length <= 35) return { adresse: a, fremd: 'XRP' };
+    if (b && b.length === 25) {
+      var v = b[0];
+      if (v === 0x00 || v === 0x05) return { adresse: a, netz: 'btc' };
+      if (v === 0x41) return { adresse: a, netz: 'tron' };
+      if (v === 0x1e || v === 0x16) return { adresse: a, netz: 'doge' };
+      if (v === 0x30 || v === 0x32) return { adresse: a, netz: 'ltc' };
+      return { adresse: a, fremd: 'unbekanntes Netz' };
+    }
+    return { adresse: a };
+  }
+  function netz(a) { return erkenne(a).netz || ''; }
+  var NETZNAME = { evm: 'Ethereum & Co.', btc: 'Bitcoin', sol: 'Solana', tron: 'Tron', doge: 'Dogecoin', ltc: 'Litecoin', ens: 'ENS-Name' };
+  var FREMD = {
+    xpub: 'Das ist ein erweiterter öffentlicher Schlüssel (xpub/zpub), wie ihn Ledger oder Trezor zeigen. Den kann die App nicht lesen. Trag bitte stattdessen deine Bitcoin-Empfangsadresse ein (beginnt mit bc1…, in Ledger Live unter „Empfangen“).',
+    Cardano: 'Das ist eine Cardano-Adresse. Cardano wird noch nicht unterstützt.',
+    XRP: 'Das ist eine XRP-Adresse. XRP wird noch nicht unterstützt.'
+  };
+  function fremdText(f) { return FREMD[f] || (f === 'unbekanntes Netz' ? 'Diese Adresse gehört zu einem Netz, das die App nicht kennt.' : 'Das ist eine Adresse im Netz ' + f + '. Dieses Netz wird noch nicht unterstützt.'); }
+  ordneEin();
 
   // Kurse: Bitvavo-Kurse der App (letzter Tagesschluss), sonst Dollarkurs von Blockscout
   var kursCache = null;
@@ -5192,8 +5272,70 @@ const TREFFER = (function () {
             vol: parseFloat(t.volume_24h) || 0, mk: parseFloat(t.circulating_market_cap) || 0 });
         });
       }).catch(function () { fehler.push(k.name); });
-    })).then(function () { return { posten: posten, fehler: fehler }; });
+    }).concat(ladeBsc(a).then(function (p) { posten.push.apply(posten, p); }, function () { fehler.push('BNB Chain'); })))
+      .then(function () { return { posten: posten, fehler: fehler }; });
   }
+  // BNB Chain: kein freies Blockscout, daher öffentliche RPC mit BNB und den großen Tokens
+  var BSC_RPC = ['https://bsc-dataseed.binance.org/', 'https://bsc-rpc.publicnode.com'];
+  var BSC_TOK = [
+    { sym: 'USDT', name: 'Tether USD', c: '0x55d398326f99059fF775485246999027B3197955' },
+    { sym: 'USDC', name: 'USD Coin', c: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d' },
+    { sym: 'FDUSD', name: 'First Digital USD', c: '0xc5f0f7b66764F6ec8C8Dff7BA683102295E16409' },
+    { sym: 'BTCB', name: 'Bitcoin (BNB Chain)', c: '0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c', wie: 'BTC' },
+    { sym: 'ETH', name: 'Ethereum (BNB Chain)', c: '0x2170Ed0880ac9A755fd29B2688956BD959F933F8' },
+    { sym: 'CAKE', name: 'PancakeSwap', c: '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82' },
+    { sym: 'WBNB', name: 'Wrapped BNB', c: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', wie: 'BNB' }
+  ];
+  function ladeBsc(a) {
+    var adr = a.slice(2).toLowerCase(), auf = [{ jsonrpc: '2.0', id: 0, method: 'eth_getBalance', params: [a, 'latest'] }];
+    BSC_TOK.forEach(function (t, i) {
+      auf.push({ jsonrpc: '2.0', id: i + 1, method: 'eth_call', params: [{ to: t.c, data: '0x70a08231' + '000000000000000000000000' + adr }, 'latest'] });
+    });
+    function versuch(n) {
+      return hol(BSC_RPC[n], auf).catch(function (e) { if (n + 1 < BSC_RPC.length) return versuch(n + 1); throw e; });
+    }
+    return versuch(0).then(function (antw) {
+      if (!Array.isArray(antw)) throw new Error('BSC');
+      var p = [];
+      antw.forEach(function (r) {
+        if (!r || r.error || !r.result || r.result === '0x') return;
+        var m = Number(BigInt(r.result)) / 1e18;
+        if (!(m > 0)) return;
+        if (r.id === 0) p.push({ sym: 'BNB', name: 'BNB', kette: 'BNB Chain', menge: m, usd: 0 });
+        else { var t = BSC_TOK[r.id - 1]; p.push({ sym: t.wie || t.sym, name: t.name, kette: 'BNB Chain', menge: m, usd: /USD/.test(t.sym) ? 1 : 0 }); }
+      });
+      return p;
+    });
+  }
+  // Tron: TRX (frei + gestakt) und die großen Stablecoins
+  var TRON_TOK = { TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t: { sym: 'USDT', name: 'Tether USD', dez: 6 }, TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8: { sym: 'USDC', name: 'USD Coin', dez: 6 } };
+  function ladeTron(a) {
+    return hol('https://api.trongrid.io/v1/accounts/' + a).then(function (j) {
+      var d = j && j.data && j.data[0], p = [];
+      if (!d) return { posten: [], fehler: [] };   // Adresse noch nie benutzt
+      var frei = (d.balance || 0) / 1e6, fest = 0;
+      (d.frozenV2 || []).forEach(function (f) { fest += (f.amount || 0) / 1e6; });
+      if (frei + fest > 0) p.push({ sym: 'TRX', name: fest > 0 ? 'Tron, davon ' + nfq.format(fest) + ' gestakt' : 'Tron', kette: 'Tron', menge: frei + fest, usd: 0 });
+      (d.trc20 || []).forEach(function (o) {
+        Object.keys(o).forEach(function (c) {
+          var t = TRON_TOK[c]; if (!t) return;
+          var m = teile(o[c], t.dez);
+          if (m > 0) p.push({ sym: t.sym, name: t.name, kette: 'Tron', menge: m, usd: 1 });
+        });
+      });
+      return { posten: p, fehler: [] };
+    });
+  }
+  // Dogecoin und Litecoin über BlockCypher (ohne Schlüssel, knappes Stundenlimit)
+  function ladeBc(kette, sym, name) {
+    return function (a) {
+      return hol('https://api.blockcypher.com/v1/' + kette + '/main/addrs/' + a + '/balance').then(function (j) {
+        var m = (j.final_balance || 0) / 1e8;
+        return { posten: m > 0 ? [{ sym: sym, name: name, kette: name, menge: m, usd: 0 }] : [], fehler: [] };
+      });
+    };
+  }
+  var LADER = { evm: ladeEvm, btc: ladeBtc, sol: ladeSol, tron: ladeTron, doge: ladeBc('doge', 'DOGE', 'Dogecoin'), ltc: ladeBc('ltc', 'LTC', 'Litecoin') };
   function ladeBtc(a) {
     return hol('https://mempool.space/api/address/' + a).then(function (j) {
       var c = j.chain_stats || {}, p = j.mempool_stats || {};
@@ -5215,13 +5357,14 @@ const TREFFER = (function () {
   function aktualisiere(zwingend) {
     var faellig = daten.liste.filter(function (w) {
       var s = stand[w.adresse];
+      if (w.fremd || !LADER[w.netz]) return false;
       return zwingend || !s || !s.abruf || Date.now() - Date.parse(s.abruf) > ALT;
     });
     if (!faellig.length) return;
     laeuft += faellig.length;
     status('Bestände werden aus der Blockchain gelesen …');
     faellig.forEach(function (w) {
-      var f = w.netz === 'evm' ? ladeEvm : w.netz === 'btc' ? ladeBtc : ladeSol;
+      var f = LADER[w.netz] || function () { return Promise.reject(new Error('Netz')); };
       f(w.adresse).then(function (r) {
         stand[w.adresse] = { abruf: new Date().toISOString(), posten: r.posten, fehler: r.fehler };
       }).catch(function () {
@@ -5244,6 +5387,12 @@ const TREFFER = (function () {
       // Stablecoins (USD/EUR/DAI im Kürzel) brauchen das nicht.
       var stabil = /USD|EUR|DAI/i.test(p.sym);
       if (k && k.quelle !== 'Bitvavo' && !stabil && p.usd > 0 && !(p.vol >= 50000 && p.mk >= 1e6)) k = null;
+      // Blockscout-Tokens (haben vol): Fälschungen tragen oft das Kürzel eines echten Coins (WLFI, TRUMP, PEPE …).
+      // Den Bitvavo-Kurs daher nur, wenn der Token selbst gehandelt wird und sein Dollarkurs dazu passt.
+      if (k && k.quelle === 'Bitvavo' && p.vol !== undefined) {
+        var eigen = p.usd * kurse().__usd, q = eigen / k.eur;
+        if (!(p.usd > 0 && q > 0.5 && q < 2)) k = null;
+      }
       if (k && stabil && k.quelle !== 'Bitvavo' && !(p.usd > 0.8 && p.usd < 1.3) && !/EUR/i.test(p.sym)) k = null;
       if (!k || wert < 1) { versteckt++; return; }
       summe += wert;
@@ -5270,7 +5419,7 @@ const TREFFER = (function () {
         var r = document.createElement('tr'), n = td(''), fett = document.createElement('b');
         fett.textContent = w.name || NETZNAME[w.netz]; n.append(fett);
         var kl = document.createElement('small'); kl.style.display = 'block';
-        kl.textContent = w.adresse.slice(0, 6) + '…' + w.adresse.slice(-4) + ' · ' + NETZNAME[w.netz];
+        kl.textContent = w.adresse.slice(0, 6) + '…' + w.adresse.slice(-4) + ' · ' + (w.fremd ? (w.fremd === 'xpub' ? 'xpub' : w.fremd) + ', nicht unterstützt' : NETZNAME[w.netz]);
         n.append(kl);
         var bc = document.createElement('td'), k = document.createElement('button');
         k.type = 'button'; k.textContent = 'Bearbeiten'; k.addEventListener('click', function () { oeffne(i); });
@@ -5284,7 +5433,8 @@ const TREFFER = (function () {
             td((z.kurs.eur < 1 ? nfq.format(z.kurs.eur) + ' €' : eur(z.kurs.eur)) + (z.kurs.quelle === 'Bitvavo' ? '' : ' *')), td(eur(z.wert)), td(''));
           body.append(rz);
         });
-        if (!stand[w.adresse]) hinweise.push((w.name || w.adresse.slice(0, 8)) + ': noch nicht geladen.');
+        if (w.fremd) hinweise.push((w.name || w.adresse.slice(0, 8)) + ': ' + fremdText(w.fremd) + ' Über „Bearbeiten“ kannst du sie entfernen.');
+        else if (!stand[w.adresse]) hinweise.push((w.name || w.adresse.slice(0, 8)) + ': noch nicht geladen.');
         else {
           if (b.s.fehler && b.s.fehler.length) hinweise.push((w.name || w.adresse.slice(0, 8)) + ': nicht erreichbar: ' + b.s.fehler.join(', ') + '.');
           if (b.versteckt) hinweise.push((w.name || w.adresse.slice(0, 8)) + ': ' + b.versteckt + ' weitere Posten ohne Kurs oder unter 1 € nicht angezeigt.');
@@ -5295,7 +5445,7 @@ const TREFFER = (function () {
     gesamtWallets = summe;
     if (!laeuft) {
       if (!daten.liste.length) status('Noch keine Wallet eingetragen.');
-      else status(daten.liste.length + (daten.liste.length === 1 ? ' Wallet' : ' Wallets') + ', zusammen ' + eur(summe) + '. * Kurs von Blockscout (US-Dollar umgerechnet), sonst Bitvavo.' + (hinweise.length ? ' ' + hinweise.join(' ') : ''), hinweise.some(function (h) { return /nicht erreichbar/.test(h); }));
+      else status(daten.liste.length + (daten.liste.length === 1 ? ' Wallet' : ' Wallets') + ', zusammen ' + eur(summe) + '. * Kurs in US-Dollar umgerechnet, sonst Bitvavo.' + (hinweise.length ? ' ' + hinweise.join(' ') : ''), hinweise.some(function (h) { return /nicht erreichbar|nicht unterstützt|nicht kennt/.test(h); }));
     }
     $('wal-laden').hidden = !daten.liste.length;
     var ov = $('ov-wal');
@@ -5340,9 +5490,11 @@ const TREFFER = (function () {
   $('wal-abbrechen').addEventListener('click', schliesse);
   $('wal-laden').addEventListener('click', function () { aktualisiere(true); });
   $('wal-adresse').addEventListener('input', function () {
-    var n = netz(this.value);
-    $('wal-netz-info').textContent = n ? 'Erkannt: ' + NETZNAME[n] + (n === 'evm' ? ' (Ethereum, Arbitrum, Base, Optimism und Polygon werden zusammen abgefragt).' : n === 'sol' ? ' (nur SOL, keine Tokens).' : ' (nur diese eine Adresse).')
-      : 'Erkannt werden Ethereum und kompatible Netze, Bitcoin und Solana. Gib niemals deine Seed-Phrase oder einen privaten Schlüssel ein.';
+    var e = erkenne(this.value), n = e.netz;
+    $('wal-netz-info').textContent = n ? 'Erkannt: ' + NETZNAME[n] + (n === 'evm' ? ' (Ethereum, Arbitrum, Base, Optimism, Polygon und BNB Chain werden zusammen abgefragt).'
+        : n === 'ens' ? ' (wird beim Speichern in die 0x-Adresse übersetzt).' : n === 'sol' ? ' (nur SOL, keine Tokens).' : n === 'tron' ? ' (TRX, USDT und USDC).' : ' (nur diese eine Adresse).')
+      : e.fremd ? fremdText(e.fremd)
+      : 'Erkannt werden Ethereum und kompatible Netze (auch BNB Chain), Bitcoin, Solana, Tron, Dogecoin und Litecoin. Gib niemals deine Seed-Phrase oder einen privaten Schlüssel ein.';
   });
   $('wal-loeschen').addEventListener('click', function () {
     if (aktiv < 0 || !window.confirm('Wallet „' + (daten.liste[aktiv].name || daten.liste[aktiv].adresse) + '“ entfernen?')) return;
@@ -5351,21 +5503,42 @@ const TREFFER = (function () {
   });
   $('wal-form').addEventListener('submit', function (e) {
     e.preventDefault();
-    var a = $('wal-adresse').value.trim(), n = netz(a), einstand = zahl($('wal-einstand').value);
-    var woerter = a.split(/\s+/).length;
+    var roh = $('wal-adresse').value.trim(), einstand = zahl($('wal-einstand').value);
+    var woerter = roh.split(/\s+/).length;
+    var e = woerter >= 12 ? {} : erkenne(roh), a = e.adresse, n = e.netz;
+    function zeigeFehler(t) { $('wal-fehler').textContent = t; $('wal-fehler').hidden = false; }
     var fehler = woerter >= 12 ? 'Das sieht nach einer Seed-Phrase aus. Bitte NICHT eingeben und niemandem zeigen. Hier gehört nur die öffentliche Adresse hin.'
-      : !n ? 'Diese Adresse wurde nicht erkannt. Erwartet wird eine Ethereum- (0x…), Bitcoin- oder Solana-Adresse.'
-      : aktiv < 0 && daten.liste.some(function (w) { return w.adresse.toLowerCase() === a.toLowerCase(); }) ? 'Diese Wallet ist schon eingetragen.'
+      : /^[0-9a-fA-F]{64}$|^0x[0-9a-fA-F]{64}$/.test(roh) ? 'Das sieht nach einem privaten Schlüssel aus. Bitte NICHT eingeben und niemandem zeigen. Hier gehört nur die öffentliche Adresse hin.'
+      : e.fremd ? fremdText(e.fremd)
+      : !n ? 'Diese Adresse wurde nicht erkannt. Erwartet wird eine Adresse von Ethereum (0x…, auch BNB Chain), Bitcoin, Solana, Tron, Dogecoin oder Litecoin. Am besten in der Wallet-App über „Empfangen“ kopieren.'
       : $('wal-einstand').value.trim() && !(einstand >= 0) ? 'Den Einstand bitte als Zahl in Euro eintragen.' : '';
-    if (fehler) { $('wal-fehler').textContent = fehler; $('wal-fehler').hidden = false; if (woerter >= 12) $('wal-adresse').value = ''; return; }
-    var w = { adresse: a, netz: n, name: $('wal-name').value.trim().slice(0, 40), einstand: einstand > 0 ? einstand : 0 };
-    if (aktiv >= 0) daten.liste[aktiv] = w; else daten.liste.push(w);
-    schreib(KEY, daten); schliesse(); zeichne();
-    if (!stand[a]) aktualisiere(false);
+    if (fehler) { zeigeFehler(fehler); if (woerter >= 12 || /Schlüssel aus/.test(fehler)) $('wal-adresse').value = ''; return; }
+    var name = $('wal-name').value.trim().slice(0, 40), knopf = this.querySelector('[type=submit]');
+    // ENS-Namen (name.eth) über Blockscout in die Adresse übersetzen
+    var weg = n !== 'ens' ? Promise.resolve(e) : (knopf.disabled = true, $('wal-fehler').hidden = true,
+      hol('https://eth.blockscout.com/api/v2/search?q=' + encodeURIComponent(a)).then(function (j) {
+        var t = (j.items || []).filter(function (it) { return it.ens_info && String(it.ens_info.name).toLowerCase() === a && /^0x[0-9a-fA-F]{40}$/.test(it.address_hash || ''); })[0];
+        if (!t) throw new Error('ENS');
+        if (!name) name = a;
+        return { adresse: t.address_hash, netz: 'evm' };
+      }));
+    weg.then(function (r) {
+      knopf.disabled = false;
+      if (aktiv < 0 && daten.liste.some(function (w) { return w.adresse.toLowerCase() === r.adresse.toLowerCase(); })) { zeigeFehler('Diese Wallet ist schon eingetragen.'); return; }
+      var w = { adresse: r.adresse, netz: r.netz, name: name, einstand: einstand > 0 ? einstand : 0 };
+      if (aktiv >= 0) daten.liste[aktiv] = w; else daten.liste.push(w);
+      schreib(KEY, daten); schliesse(); zeichne();
+      if (!stand[w.adresse]) aktualisiere(false);
+    }, function () {
+      knopf.disabled = false;
+      zeigeFehler('Der Name „' + a + '“ wurde nicht gefunden. Trag bitte die 0x-Adresse direkt ein.');
+    });
   });
 
   // Erst zeichnen, wenn die Kurse feststehen; Bestände höchstens alle 6 Stunden neu lesen
   document.addEventListener('kurse-bereit', function () { kursCache = null; zeichne(); });
+  // Übersicht „Was funktioniert“: offen, solange noch keine Wallet eingetragen ist
+  if ($('wal-umfang')) $('wal-umfang').open = !daten.liste.length;
   zeichne();
   aktualisiere(false);
 })();
