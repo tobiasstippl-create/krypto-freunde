@@ -428,6 +428,22 @@ svg text.val{fill:var(--ink);font-weight:500}
 @media (min-width:621px){.nur-handy{display:none}}
 small.nur-handy{display:block;font-size:11.5px;opacity:.85}
 @media (min-width:621px){small.nur-handy{display:none}}
+/* Am Handy nur die wichtigsten Spalten; der Rest steht am Computer oder im Querformat */
+@media (max-width:620px){
+  #risiko-tabelle tr>:nth-child(2),#risiko-tabelle tr>:nth-child(4),#risiko-tabelle tr>:nth-child(5),#risiko-tabelle tr>:nth-child(6),
+  #sj-coins tr>:nth-child(2),#sj-coins tr>:nth-child(3),#sj-coins tr>:nth-child(5),#sj-coins tr>:nth-child(6),
+  #sj-verkaeufe tr>:nth-child(3),#sj-verkaeufe tr>:nth-child(4),#sj-verkaeufe tr>:nth-child(5),#sj-verkaeufe tr>:nth-child(6),
+  #fd-tabelle tr>:nth-child(n+3),
+  #kat-tabelle tr>:nth-child(1),#kat-tabelle tr>:nth-child(5),#kat-tabelle tr>:nth-child(6),#kat-tabelle tr>:nth-child(7),
+  #mk-termine tr>:nth-child(4),#mk-termine tr>:nth-child(5),#kat-tabelle tr>:nth-child(4){display:none}
+  .scroll th,#vergleich tr>:first-child,#stress-tabelle tr>:first-child{white-space:normal}
+  #vergleich td,#vergleich th,#tr-log td,#tr-log th,#stress-tabelle td,#stress-tabelle th{padding-left:5px;padding-right:5px;font-size:13px}
+  #tr-log td,#vergleich td:last-child{white-space:normal}
+  #stress-tabelle .barcell{grid-template-columns:minmax(30px,1fr) auto;gap:6px}
+  #stress-tabelle td.wide{width:auto}
+  .scroll thead th{hyphens:auto;-webkit-hyphens:auto}
+  #vergleich tr>:first-child{max-width:96px}
+}
 .facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 28px}
 .facts dt{font-size:13px;color:var(--ink-2)}
 .facts dd{margin:2px 0 0}
@@ -2577,7 +2593,7 @@ const TREFFER = (function () {
       tile('Mitte der Läufe', eur(q[2]), pctS(c.total > 0 ? q[2] / c.total - 1 : 0) + ' gegenüber heute'),
       tile('Schlechter Fall', eur(q[0]), 'Nur jeder 20. Lauf endet tiefer'),
       tile('Guter Fall', eur(q[4]), 'Nur jeder 20. Lauf endet höher'),
-      tile('Chance auf Plus', pct(c.now.pPlus), 'nach Verkaufsgebühr' + (c.tax ? ' und Steuer' : '') + ', gemessen an ' + eur(c.paidIn) + ' Einzahlung')
+      tile('Chance auf Plus', pct(c.now.pPlus), 'nach Verkaufsgebühr' + (c.tax ? ' und Steuer' : '') + ', gemessen am Einstand von ' + eur(c.paidIn) + (state.cash > 0 ? ' samt Cash' : ''))
     ]);
     let note = 'In 9 von 10 Läufen liegt dein Portfolio nach ' + monthsText(m) + ' zwischen ' + eur(q[0]) + ' und ' + eur(q[4]) + '. ';
     if (state.trend === 0) {
@@ -2778,7 +2794,7 @@ const TREFFER = (function () {
     });
     const cr = tr(['Cash', eur(state.cash), dual(cashW, 0), '0 %', '–', '–']);
     cr.children[2].className = 'wide';
-    body.append(cr);
+    if (state.cash > 0) body.append(cr);   // Cash-Zeile nur, wenn es Cash gibt
     t.append(body);
 
     const dd = c.dd;
@@ -2903,7 +2919,7 @@ const TREFFER = (function () {
     $('vergleich-titel').textContent = 'Bandbreite nach ' + monthsText(state.horizon) + ' im Vergleich, in Euro';
 
     const t = $('vergleich'); t.textContent = '';
-    t.append(h('thead', null, tr(['', 'Heute', 'Neu', 'Unterschied'], 'th')));
+    t.append(h('thead', null, tr(['', 'Heute', 'Neu', 'Änderung'], 'th')));
     const coins2 = sum(c.targets), total2 = coins2 + c.reb.cash;
     const row = function (name, a, b, f, fd) { return tr([name, f(a), f(b), Math.abs(b - a) < 1e-9 ? '–' : fd(b - a)]); };
     const pS = function (x) { return pctS(x).replace(' %', ' Pkt.'); };
