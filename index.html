@@ -738,7 +738,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
           <div class="stapel">
             <section class="sheet leer-karte" id="leer-hinweis" hidden>
               <h2>Noch kein Portfolio</h2>
-              <p>Lies deinen Transaktionsverlauf von Bitvavo oder Bitpanda ein. Daraus rechnet die App deine Stückzahlen und den Einstand und füllt Wertverlauf, Bandbreite, Risiko und Steuerübersicht.</p>
+              <p>Lies deinen Transaktionsverlauf von Bitvavo, Bitpanda oder Trade Republic ein. Aktien, ETFs und Wallets trägst du im Bereich Portfolio ein. Aus den Dateien rechnet die App deine Stückzahlen und den Einstand und füllt Wertverlauf, Bandbreite, Risiko und Steuerübersicht.</p>
               <div class="btns"><button type="button" class="primary" data-go="portfolio" data-ziel="import">Zum Import</button></div>
             </section>
             <section class="sheet hero" data-voll aria-labelledby="h-ov-wert">
@@ -1013,9 +1013,10 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
             <button type="button" id="wp-loeschen" hidden>Löschen</button>
           </div>
         </form>
-        <details class="tw">
-          <summary>Eigener Kursschlüssel (optional)</summary>
-          <p class="cap">Die Datei bringt einen Schlüssel für Alpha Vantage mit, den sich alle teilen (25 Abrufe am Tag). Reicht das nicht, holst du dir unter alphavantage.co einen eigenen kostenlosen Schlüssel und trägst ihn hier ein. Er bleibt auf diesem Gerät.</p>
+        <details class="tw" id="wp-eigen">
+          <summary>Eigener Kursschlüssel (kostenlos, empfohlen)</summary>
+          <p class="cap" id="wp-schluessel-info"></p>
+          <p class="cap">So geht’s, dauert eine Minute: <b>1.</b> <a href="https://www.alphavantage.co/support/#api-key" target="_blank" rel="noopener noreferrer">alphavantage.co/support/#api-key</a> öffnen. <b>2.</b> „Student“ oder „Investor“ wählen, Namen und E-Mail eintragen, „Get free API key“ tippen. <b>3.</b> Den angezeigten Schlüssel (Buchstaben und Ziffern) kopieren, unten einfügen und „Übernehmen“ tippen. Der Schlüssel bleibt auf deinem Gerät und wandert mit der Sicherung auf dein anderes Gerät.</p>
           <div class="field">
             <label for="wp-schluessel">Alpha-Vantage-Schlüssel</label>
             <input type="text" id="wp-schluessel" spellcheck="false" autocomplete="off">
@@ -4921,7 +4922,7 @@ const TREFFER = (function () {
 (function () {
   'use strict';
   // Kurse lassen sich neu holen; der eigene Kursschlüssel gehört nicht in eine Datei, die man herumschickt
-  var PRAEFIX = 'krypto-freunde-', OHNE = { 'krypto-freunde-kurse': 1, 'krypto-freunde-ohne-kurs': 1, 'krypto-freunde-wp-kurse': 1, 'krypto-freunde-wp-schluessel': 1, 'krypto-freunde-wal-stand': 1 };
+  var PRAEFIX = 'krypto-freunde-', OHNE = { 'krypto-freunde-kurse': 1, 'krypto-freunde-ohne-kurs': 1, 'krypto-freunde-wp-kurse': 1, 'krypto-freunde-wp-notzaehler': 1, 'krypto-freunde-wal-stand': 1 };
   var $ = function (id) { return document.getElementById(id); };
   var status = $('sich-status');
   if (!status) return;
@@ -5009,7 +5010,20 @@ const TREFFER = (function () {
   if (!daten || !Array.isArray(daten.liste)) daten = { v: 1, liste: [] };
   daten.liste = daten.liste.filter(function (p) { return p && typeof p.name === 'string' && isFinite(p.stueck) && isFinite(p.einstand); });
   var kurse = lies(KURSE, {}) || {};
-  var schluessel = function () { return lies(EIGEN, '') || STD; };
+  // Eigener Schlüssel des Freundes zuerst. Der mitgelieferte ist nur eine Notreserve, die sich alle teilen
+  // (25 Abrufe am Tag): pro Gerät höchstens NOT Abrufe am Tag, damit für die anderen etwas übrig bleibt.
+  var NOT = 5, NOTZ = 'krypto-freunde-wp-notzaehler';
+  var eigener = function () { return lies(EIGEN, '') || ''; };
+  var schluessel = function () { return eigener() || STD; };
+  function notreserveFrei() {
+    var z = lies(NOTZ, null);
+    return !z || z.tag !== heute() || z.n < NOT;
+  }
+  function notreserveZaehlen() {
+    var z = lies(NOTZ, null);
+    if (!z || z.tag !== heute()) z = { tag: heute(), n: 0 };
+    z.n++; schreib(NOTZ, z);
+  }
 
   // Währung aus dem Kürzel: Xetra und andere Euro-Börsen in Euro, ohne Endung US-Dollar
   function waehrung(sym) {
@@ -5033,7 +5047,11 @@ const TREFFER = (function () {
   function av(params, versuch) {
     var k = schluessel();
     if (!k) return Promise.reject(new Error('kein Schlüssel'));
-    var q = Object.keys(params).map(function (p) { return p + '=' + encodeURIComponent(params[p]); }).join('&');
+    if (!eigener()) {
+      if (!notreserveFrei()) { var e0 = new Error('limit'); e0.limit = true; e0.reserve = true; return Promise.reject(e0); }
+      if (!versuch) notreserveZaehlen();
+    }
+    var q =Object.keys(params).map(function (p) { return p + '=' + encodeURIComponent(params[p]); }).join('&');
     var pause = Math.max(0, letzterAbruf + 1300 - Date.now());
     letzterAbruf = Date.now() + pause;
     return warte(pause).then(function () {
@@ -5047,7 +5065,11 @@ const TREFFER = (function () {
         if (!/per day|daily|25 requests/i.test(info) && (versuch || 0) < 2) return warte(2500).then(function () { return av(params, (versuch || 0) + 1); });
         var e = new Error('limit'); e.limit = true; throw e;
       }
-      if (j && j['Error Message']) throw new Error('unbekannt');
+      if (j && j['Error Message']) {
+        var e2 = new Error(/apikey/i.test(j['Error Message']) ? 'schluessel' : 'unbekannt');
+        if (e2.message === 'schluessel') e2.limit = true;
+        throw e2;
+      }
       return j;
     });
   }
@@ -5072,19 +5094,32 @@ const TREFFER = (function () {
     if (!schluessel()) { status('Es ist kein Kursschlüssel eingetragen. Die App rechnet mit deinen Einstandskursen.', true); return; }
     laeuft = true;
     status('Kurse werden geholt …');
-    var fehler = [], limit = false;
+    var fehler = [], limit = null;
     // nacheinander, damit die 5 Abrufe pro Minute nicht überschritten werden
     syms.reduce(function (kette, sym) {
       return kette.then(function () {
         if (limit) return;
-        return holeKurs(sym).catch(function (e) { if (e && e.limit) limit = true; else fehler.push(sym); });
+        return holeKurs(sym).catch(function (e) { if (e && e.limit) limit = e; else fehler.push(sym); });
       });
     }, Promise.resolve()).then(function () {
       laeuft = false;
       zeichne();
-      if (limit) status('Das Tageslimit für Kursabrufe ist erreicht. Es gelten die zuletzt geholten Kurse; morgen geht es wieder. Mit einem eigenen Schlüssel (unten) bist du unabhängig.', true);
+      if (limit) { status(limitText(limit, 'Es gelten die zuletzt geholten Kurse.'), true); zeigeEigen(true); }
       else if (fehler.length) status('Für ' + fehler.join(', ') + ' gab es keinen Kurs. Prüfe das Kürzel (Xetra: Endung .DEX).', true);
     });
+  }
+
+  function limitText(e, rest) {
+    if (e.message === 'schluessel') return 'Alpha Vantage kennt deinen Schlüssel nicht. Prüf ihn unten unter „Eigener Kursschlüssel“. ' + rest;
+    if (eigener()) return 'Die 25 Abrufe deines Schlüssels für heute sind aufgebraucht. ' + rest + ' Morgen geht es wieder.';
+    return 'Die gemeinsame Notreserve für Kursabrufe ist für heute aufgebraucht. ' + rest + ' Mit einem eigenen kostenlosen Schlüssel (unten, eine Minute) bist du unabhängig.';
+  }
+  // Hinweis im Schlüssel-Bereich; ohne eigenen Schlüssel wird er bei Wertpapieren aufgeklappt
+  function zeigeEigen(aufklappen) {
+    $('wp-schluessel-info').textContent = eigener()
+      ? 'Du nutzt deinen eigenen Schlüssel (25 Abrufe am Tag nur für dich).'
+      : 'Du nutzt gerade die gemeinsame Notreserve, die sich alle Nutzer dieser App teilen (höchstens ' + NOT + ' Abrufe am Tag pro Gerät). Mit einem eigenen kostenlosen Schlüssel hast du 25 Abrufe am Tag für dich.';
+    if (aufklappen && !eigener()) $('wp-eigen').open = true;
   }
 
   function wertVon(p) {
@@ -5227,7 +5262,8 @@ const TREFFER = (function () {
         li.append(b); ul.append(li);
       });
     }).catch(function (e) {
-      $('wp-treffer-info').textContent = e && e.limit ? 'Das Tageslimit für Abrufe ist erreicht. Trag das Kürzel selbst ein (Xetra: z. B. SXR8.DEX).'
+      if (e && e.limit) zeigeEigen(true);
+      $('wp-treffer-info').textContent = e && e.limit ? limitText(e, 'Trag das Kürzel selbst ein (Xetra: z. B. SXR8.DEX).')
         : e && e.message === 'kein Schlüssel' ? 'Ohne Kursschlüssel gibt es keine Suche. Trag das Kürzel selbst ein.' : 'Die Suche hat nicht geklappt (kein Internet?).';
     });
   }
@@ -5238,8 +5274,9 @@ const TREFFER = (function () {
     var k = $('wp-schluessel').value.trim();
     if (k && !/^[A-Za-z0-9]{8,40}$/.test(k)) { status('Der Schlüssel sieht nicht richtig aus.', true); return; }
     if (k) schreib(EIGEN, k); else { try { localStorage.removeItem(EIGEN); } catch (e) { /* egal */ } }
-    status(k ? 'Eigener Schlüssel gespeichert.' : 'Eigener Schlüssel entfernt, es gilt wieder der mitgelieferte.');
-    holeAlle(true);
+    status(k ? 'Eigener Schlüssel gespeichert.' : 'Eigener Schlüssel entfernt, es gilt wieder die gemeinsame Notreserve.');
+    zeigeEigen(false);
+    if (daten.liste.length) holeAlle(true);
   });
 
   // ---------- Übernahme aus einem Datei-Import (z. B. Trade Republic) ----------
@@ -5302,18 +5339,19 @@ const TREFFER = (function () {
           var k = waehle(j.bestMatches || [], p.klasse);
           p.versucht = heute();
           if (k) { p.kuerzel = k; p.auto = true; }
-        }).catch(function (e) { if (e && e.limit) limit = true; else p.versucht = heute(); });
+        }).catch(function (e) { if (e && e.limit) limit = e; else p.versucht = heute(); });
       });
     }, Promise.resolve()).then(function () {
       ordnet = false;
       schreib(KEY, daten);
       zeichne();
-      if (limit) status('Das Tageslimit ist erreicht, ein Teil der Kürzel fehlt noch. Die App sucht morgen weiter; bis dahin zählt der Einstandswert.', true);
+      if (limit) { status(limitText(limit, 'Ein Teil der Börsenkürzel fehlt noch, die App sucht später weiter; bis dahin zählt der Einstandswert.'), true); zeigeEigen(true); }
       else holeAlle(false);
     });
   }
 
   zeichne();
+  zeigeEigen(daten.liste.length > 0);
   ordneZu();
 })();
 </script>
