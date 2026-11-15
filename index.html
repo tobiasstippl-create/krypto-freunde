@@ -264,6 +264,11 @@ main{min-width:0}
 .app-streifen-knoepfe button{padding:6px 12px;font-size:13.5px}
 .app-streifen-zu{border:0;background:transparent;color:var(--muted);padding:6px 8px!important;cursor:pointer}
 .app-teilen{display:inline-block;vertical-align:-3px}
+.app-anleitung{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,14,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.app-anleitung-box{max-width:440px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 20px 16px;box-shadow:0 20px 60px -20px rgba(0,0,0,.6)}
+.app-anleitung-box h3{margin:0 0 10px}
+.app-anleitung-box p{margin:0 0 10px;color:var(--ink-2)}
+.app-anleitung-box .app-anleitung-klein{font-size:13px;color:var(--muted)}
 
 /* Karten */
 .sheet{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:20px;min-width:0}
@@ -5589,8 +5594,41 @@ const TREFFER = (function () {
   var istVollbild = function () { return !!(document.fullscreenElement || document.webkitFullscreenElement); };
   var aufforderung = null;
 
+  // Chrome/Edge bieten den Installieren-Dialog (beforeinstallprompt) erst nach etwas Nutzung an,
+  // Firefox und Safari nie. Der Knopf steht daher immer da und erklärt sonst den Weg im jeweiligen Browser.
+  var android = /Android/.test(ua);
+  var browser = /Edg(A|iOS)?\//.test(ua) ? 'edge' : /SamsungBrowser/.test(ua) ? 'samsung' : /OPR\/|Opera/.test(ua) ? 'opera'
+    : /Firefox\//.test(ua) ? 'firefox' : /Chrome\//.test(ua) ? 'chrome' : /Safari\//.test(ua) ? 'safari' : 'anderer';
+  function anleitung() {
+    if (ios) return 'Unten (auf dem iPad oben) auf Teilen tippen, dann „Zum Home-Bildschirm“. Danach die App über das neue Symbol öffnen.';
+    if (android) {
+      if (browser === 'samsung') return 'Unten auf das Menü ≡ tippen, dann „Seite hinzufügen zu“ und „Startbildschirm“.';
+      if (browser === 'firefox') return 'Oben rechts auf ⋮ tippen, dann „Zum Startbildschirm hinzufügen“.';
+      return 'Oben rechts auf ⋮ tippen, dann „Zum Startbildschirm hinzufügen“ bzw. „App installieren“ und bestätigen.';
+    }
+    if (browser === 'edge') return 'In der Adressleiste rechts auf das Symbol „App verfügbar“ (Kästchen mit Pfeil) klicken. Oder: Menü ⋯ → „Apps“ → „Diese Website als App installieren“.';
+    if (browser === 'chrome') return 'In der Adressleiste rechts auf das Symbol „Installieren“ (Bildschirm mit Pfeil) klicken. Oder: Menü ⋮ → „Streamen, speichern und teilen“ → „Seite als App installieren …“.';
+    if (browser === 'safari') return 'Im Menü „Ablage“ auf „Zum Dock hinzufügen …“ klicken.';
+    if (browser === 'firefox') return 'Firefox kann Webseiten am PC nicht als App installieren. Das geht in Chrome oder Edge. Hier hilft sonst der Vollbild-Knopf oder die Taste F11.';
+    return 'Im Browsermenü nach „App installieren“ oder „Zum Startbildschirm hinzufügen“ suchen. Das geht sicher in Chrome und Edge.';
+  }
+  function zeigeAnleitung() {
+    var d = document.getElementById('app-anleitung');
+    if (!d) {
+      d = document.createElement('div');
+      d.id = 'app-anleitung'; d.className = 'app-anleitung'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
+      d.innerHTML = '<div class="app-anleitung-box"><h3>Als App installieren</h3><p></p><p class="app-anleitung-klein">Danach öffnet sich die App in einem eigenen Fenster ohne Adressleiste und Tabs, über ein Symbol auf dem Desktop bzw. Startbildschirm.</p><div class="btns"><button type="button" class="primary">Verstanden</button></div></div>';
+      d.addEventListener('click', function (e) { if (e.target === d || e.target.tagName === 'BUTTON') d.hidden = true; });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') d.hidden = true; });
+      document.body.appendChild(d);
+    }
+    d.querySelector('p').textContent = anleitung();
+    d.hidden = false;
+    d.querySelector('button').focus();
+  }
+
   function zeigeStreifen() {
-    var install = !!aufforderung;
+    var install = !installiert && online && !(ios && klein());
     alle('.app-installieren').forEach(function (b) { b.hidden = !install; });
     alle('.app-vollbild').forEach(function (b) { b.hidden = !kannVollbild; });
     var sagen = '';
@@ -5599,10 +5637,8 @@ const TREFFER = (function () {
         sagen = 'Ohne Safari-Leisten, wie eine App: unten auf Teilen tippen ' +
           '<svg class="app-teilen" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Teilen-Symbol"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/></svg>' +
           ', dann <b>„Zum Home-Bildschirm“</b>. Danach die App über das neue Symbol öffnen.';
-      } else if (klein() && install) {
+      } else if (klein()) {
         sagen = 'Als App installieren: öffnet sich dann ohne Browserleiste über ein eigenes Symbol.';
-      } else if (klein() && kannVollbild) {
-        sagen = 'Tipp: Im Browsermenü ⋮ „App installieren“ wählen, dann öffnet sich die App ohne Browserleiste. Oder kurz auf Vollbild schalten.';
       }
     }
     text.innerHTML = sagen;
@@ -5620,11 +5656,13 @@ const TREFFER = (function () {
   });
   alle('.app-installieren').forEach(function (b) {
     b.addEventListener('click', function () {
-      if (!aufforderung) return;
+      if (!aufforderung) { zeigeAnleitung(); return; }
       var a = aufforderung;
       a.prompt();
       (a.userChoice || Promise.resolve({})).then(function (w) {
-        if (w && w.outcome === 'accepted') { aufforderung = null; installiert = true; }
+        // Der Dialog lässt sich nur einmal öffnen; danach hilft die Anleitung
+        aufforderung = null;
+        if (w && w.outcome === 'accepted') installiert = true;
         zeigeStreifen();
       });
     });
