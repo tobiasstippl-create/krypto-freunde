@@ -468,28 +468,25 @@ svg text.val{fill:var(--ink);font-weight:500}
 #fd-tabelle td:nth-child(2){font-weight:600}
 @media (max-width:520px){.ampel li{grid-template-columns:minmax(0,1fr) auto}.ampel .stufe{grid-column:1 / -1}.ampel p{grid-column:1 / -1}}
 
-/* Verhalten und Trefferquote */
-.vh-zeit{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 32px}
-@media (max-width:760px){.vh-zeit{grid-template-columns:minmax(0,1fr)}}
-.vh-zeit td:first-child{width:40%}
-#vh-stimmung td:nth-child(n+2),#vh-stimmung th:nth-child(n+2){width:32%}
-@media (max-width:520px){
-  #vh-stimmung td:first-child{white-space:normal}
-  #vh-stimmung .barcell,.vh-zeit .barcell{grid-template-columns:minmax(24px,1fr) 38px;gap:6px}
-}
-.vh-kopf{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
-.vh-coin{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)}
-.vh-zeit>.fig{align-self:start}
-.ln.kurs{border-top:1.5px solid var(--ink-2)} .ln.avg{border-top:1.5px dashed var(--s1)}
-.mk{width:0;height:0;border:5px solid transparent;display:inline-block}
-.mk.auf{border-top:0;border-bottom:9px solid var(--s1)} .mk.ab{border-bottom:0;border-top:9px solid var(--s2)}
-.vh-kauf{fill:var(--s1);stroke:var(--surface);stroke-width:1.5} .vh-verk{fill:var(--s2);stroke:var(--surface);stroke-width:1.5}
-.vh-avg{stroke:var(--s1);stroke-width:1.5;stroke-dasharray:5 4}
-.vh-tag{stroke:var(--axis);stroke-width:1;stroke-dasharray:3 3}
-.kb{fill:var(--s1)} .kb.c{fill:var(--deemph)} .kb.v{fill:var(--s2)} .kb.aus{opacity:.35}
-#vh-raster{max-width:520px} #vh-raster th:first-child{width:96px}
-#vh-raster td.summe{color:var(--ink-2);background:transparent}
-#vh-fazit b{font-weight:600;color:var(--ink)}
+/* Anlegerprofil */
+.ap-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:1100px){.ap-grid{grid-template-columns:minmax(0,1fr)}}
+.ap{background:var(--sunken);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.ap-wort{font:600 21px/1.2 var(--font-display);letter-spacing:-.01em}
+.ap-wort.offen{color:var(--muted)}
+.ap-body{display:flex;align-items:center;gap:18px;margin:4px 0}
+.ap-kreis{flex:none}
+@media (max-width:520px){.ap-body{flex-direction:column;align-items:stretch;gap:12px}.ap-kreis{align-self:center}}
+.ap-a{fill:var(--s1)} .ap-b{fill:var(--deemph)} .ap-c{fill:var(--s2)}
+.ap-zahl{font:600 21px/1 var(--font-body);fill:var(--ink)}
+.ap-klein{font-size:11px;fill:var(--muted)}
+.ap-leg{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;min-width:0;flex:1;font-size:13px}
+.ap-leg li{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:8px;align-items:center;color:var(--ink-2)}
+.ap-leg b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.ap-sw{width:10px;height:10px;border-radius:3px;display:block}
+.ap-sw.ap-a{background:var(--s1)} .ap-sw.ap-b{background:var(--deemph)} .ap-sw.ap-c{background:var(--s2)}
+#ap-fazit b{font-weight:600;color:var(--ink)}
+/* Trefferquote */
 .pt.aus{border-color:var(--down);background:var(--down)}
 .tr-aus{fill:var(--down);stroke:var(--surface);stroke-width:1.5}
 .tr-mitte{stroke:var(--ink-2);stroke-width:1.5}
@@ -837,98 +834,14 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
       </section>
       <section class="sheet" id="verhalten" aria-labelledby="h-vh" hidden>
         <header>
-          <h2 id="h-vh">Dein Verhalten</h2>
-          <p>Was deine Käufe und Verkäufe über dein Timing verraten. Verglichen wird immer mit dem, was dieselben Coins seit deiner ersten Transaktion an einem beliebigen Tag gemacht haben. Ein Rückblick, keine Bewertung.</p>
+          <h2 id="h-vh">Dein Anlegerprofil</h2>
+          <p>Drei Blicke auf deine Käufe, Verkäufe und deinen Bestand. Ein Rückblick, keine Bewertung.</p>
         </header>
-        <p class="note callout" id="vh-leer" hidden></p>
-        <div class="fig" id="vh-inhalt">
-          <div class="tiles inset" id="vh-kpis"></div>
-          <p class="note callout" id="vh-fazit"></p>
-          <figure class="fig">
-            <figcaption>
-              <h3 id="vh-pfad-titel">Der Kurs rund um deine Käufe</h3>
-              <p class="cap" id="vh-pfad-cap"></p>
-              <div class="vh-kopf">
-                <div class="wahl" id="vh-pfad-wahl" role="group" aria-label="Art der Aufträge">
-                  <button type="button" data-typ="buy">Käufe</button>
-                  <button type="button" data-typ="sell">Verkäufe</button>
-                </div>
-                <div class="legend">
-                  <span><i class="ln"></i><span id="vh-pfad-leg">Deine Käufe</span></span>
-                  <span><i class="ln kurs"></i>Beliebiger Tag</span>
-                </div>
-              </div>
-            </figcaption>
-            <div class="chart" id="vh-pfad"></div>
-          </figure>
-          <figure class="fig">
-            <figcaption>
-              <h3>Deine Aufträge im Kursverlauf</h3>
-              <p class="cap" id="vh-kurs-cap"></p>
-              <div class="vh-kopf">
-                <label class="vh-coin">Coin <select id="vh-coin"></select></label>
-                <div class="legend">
-                  <span><i class="mk auf"></i>Kauf</span>
-                  <span><i class="mk ab"></i>Verkauf</span>
-                  <span><i class="ln kurs"></i>Schlusskurs</span>
-                  <span><i class="ln avg"></i>Ø Kaufpreis</span>
-                </div>
-              </div>
-            </figcaption>
-            <div class="chart" id="vh-kurs"></div>
-          </figure>
-          <div class="vh-zeit">
-            <figure class="fig">
-              <figcaption>
-                <h3>Wann du kaufst: Kursbewegung in den 7 Tagen davor</h3>
-                <p class="cap" id="vh-stimmung-cap"></p>
-                <div class="legend">
-                  <span><i class="sw s1"></i>Deine Käufe</span>
-                  <span><i class="sw old"></i>Alle Tage</span>
-                </div>
-              </figcaption>
-              <div class="chart" id="vh-korb"></div>
-              <details class="tw"><summary>Als Tabelle</summary><div class="scroll"><table id="vh-stimmung"></table></div></details>
-            </figure>
-            <figure class="fig" id="vh-halt-box">
-              <figcaption>
-                <h3>Wie lange du hältst</h3>
-                <p class="cap" id="vh-halt-cap"></p>
-              </figcaption>
-              <div class="scroll"><table id="vh-halt"></table></div>
-            </figure>
-          </div>
-          <figure class="fig">
-            <figcaption>
-              <h3>Käufe und Verkäufe je Monat</h3>
-              <p class="cap" id="vh-monat-cap"></p>
-              <div class="legend">
-                <span><i class="sw s1"></i>Käufe</span>
-                <span><i class="sw s2"></i>Verkäufe</span>
-              </div>
-            </figcaption>
-            <div class="chart" id="vh-monat"></div>
-          </figure>
-          <figure class="fig">
-            <figcaption>
-              <h3>Im Einzelnen</h3>
-            </figcaption>
-            <ul class="ampel" id="vh-liste"></ul>
-          </figure>
-          <figure class="fig">
-            <figcaption>
-              <h3>Je Coin</h3>
-              <p class="cap" id="vh-coins-cap"></p>
-            </figcaption>
-            <div class="scroll"><table id="vh-coins"></table></div>
-          </figure>
-          <figure class="fig">
-            <figcaption>
-              <h3>Wann du handelst</h3>
-              <p class="cap" id="vh-raster-cap"></p>
-            </figcaption>
-            <div class="scroll"><table class="heat" id="vh-raster"></table></div>
-          </figure>
+        <p class="note callout" id="ap-fazit"></p>
+        <div class="ap-grid">
+          <figure class="ap" id="ap-kauf"></figure>
+          <figure class="ap" id="ap-halt"></figure>
+          <figure class="ap" id="ap-mix"></figure>
         </div>
       </section>
       <section class="sheet" id="import" aria-labelledby="h-import">
@@ -1426,7 +1339,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
             <li><b>Import.</b> Die Seite liest den Transaktionsverlauf von Bitvavo, Bitpanda oder Trade Republic und führt je Coin Stückzahl und Einstand mit. Er kommt als CSV-Datei, die du bei deinem Anbieter exportierst. Käufe erhöhen den Einstand um Kaufpreis und Gebühr, Verkäufe und Auszahlungen nehmen ihn zum Durchschnittspreis anteilig heraus. Kommt ein ausgezahlter Coin später zurück, bringt er seinen Einstand wieder mit. Zugänge ohne Kauf zählen mit Einstand 0. Geliehene Coins (Margin) laufen getrennt vom eigenen Bestand: Ihr Verkauf und der Rückkauf werden bei der Rückgabe als ein Geschäft abgerechnet und verändern den Einstand deiner eigenen Coins nicht. Die Daten liegen nur im Speicher dieser App auf deinem Gerät.</li>
             <li><b>Wertverlauf.</b> Mit Import: Bestand am Ende jedes Tages mal Tagesschlusskurs, dazu dein Euro-Guthaben. Vor dem Beginn der Kursdaten gibt es keine Linie. Ohne Import merkt sich die Seite an jedem Tag, an dem du sie öffnest, den Portfoliowert.</li>
             <li><b>Steuerübersicht.</b> Gewinn je Verkauf ist Erlös minus Verkaufsgebühr minus Einstand zum gleitenden Durchschnittspreis. Dass Kaufgebühren den Einstand erhöhen, sagt das Finanzministerium ausdrücklich. Dass die Verkaufsgebühr den Erlös mindert, ist die übliche Rechnung der Steuerprogramme. Coins, die vor dem 1. März 2021 gekauft wurden, wären steuerfreier Altbestand; die Seite behandelt alle Coins als Neubestand und weist darauf hin, wenn so alte Käufe in der Datei stehen.</li>
-            <li><b>Dein Verhalten.</b> Ausgewertet werden die Käufe und Verkäufe aus dem Import; Teilausführungen desselben Coins binnen einer Minute zählen als ein Auftrag. „Davor“ ist der Weg vom Tagesschlusskurs sieben Tage vor dem Auftrag bis zu deinem Preis, „danach“ der Weg von deinem Preis bis zum Tagesschlusskurs 30 Tage später. Verglichen wird mit allen Tagen seit deiner ersten Transaktion, bei denselben Coins und mit denselben Gewichten wie deine Aufträge. Die Haltedauer rechnet so, dass beim Verkauf die ältesten Stück zuerst hinausgehen; das ist nur eine Zählweise, für die Steuer gilt der gleitende Durchschnittspreis. Schwellen für ok, auffällig, deutlich: bis 3 und bis 8 Prozentpunkte vom Vergleich vor dem Kauf oder Verkauf, bis 3 und bis 10 Prozentpunkte nach 30 Tagen, unter 25 % und unter 50 % kurz (unter 30 Tage) gehaltene Verkäufe, Gebühren bis 0,17 % und bis 0,27 % des Volumens. Wenige Aufträge ergeben zufällige Zahlen. Das Diagramm „Der Kurs rund um deine Käufe“ mittelt die Schlusskurse von 7 Tagen davor bis 30 Tage danach, jeweils gemessen an deinem Auftragspreis und gewichtet nach Betrag; es zählen nur Aufträge, für die der ganze Zeitraum vorliegt. Die Vergleichslinie ist derselbe Zeitraum rund um jeden Tag seit deiner ersten Transaktion. Der Euro-Betrag zum Kaufzeitpunkt ist der Unterschied nach 30 Tagen zu einem beliebigen Kauftag, mal Kaufbetrag. Der „Ø Kaufpreis“ im Kursverlauf ist der Schnitt aller Käufe dieses Coins, nicht dein Einstand nach Verkäufen.</li>
+            <li><b>Anlegerprofil.</b> „Wann du kaufst“: Anteil deines Kaufbetrags nach der Kursbewegung vom Tagesschlusskurs sieben Tage vor dem Kauf bis zu deinem Preis; Teilausführungen eines Coins binnen einer Minute zählen als ein Kauf. Trendfolger heißt: im Schnitt mehr als 3 Prozentpunkte über einem beliebigen Tag bei denselben Coins, Schnäppchenjäger mehr als 3 darunter. „Wie lange du hältst“: verkaufte Stück mit ihrer Haltedauer (älteste gehen zuerst hinaus; für die Steuer gilt der gleitende Durchschnittspreis), noch gehaltene mit ihrem bisherigen Alter, gewichtet nach Euro. Trader: mindestens 40 % kürzer als 30 Tage und es gab Verkäufe (ohne Verkäufe: frisch dabei). Langfrist-Halter: mindestens 40 % länger als ein Jahr. „Worauf du setzt“: heutiger Wert des Kryptobestands, Rang nach Marktkapitalisierung laut CoinGecko; ab 40 % in kleineren Coins risikofreudig, ab 50 % Bitcoin vorsichtig. Wenige Aufträge ergeben zufällige Zahlen.</li>
             <li><b>Trefferquote.</b> Stichtage im Abstand von einer Woche, das letzte endet am letzten Kurstag. An jedem rechnet das Modell mit 3.000 Läufen (bei 3 Monaten 2.000) und nur mit den Kursen bis zu diesem Tag, mindestens 182 Tage. Verglichen wird der Wert deiner heutigen Stückzahlen ohne Cash nach 4 Wochen oder 3 Monaten. Ein ehrliches Modell trifft das Band für 9 von 10 Läufen in rund 90 % der Fälle und das für die Hälfte in rund 50 %. Weil sich die Zeiträume überlappen und die Historie kurz ist, schwanken diese Quoten stark. Das Logbuch speichert dagegen echte Vorhersagen, einmal pro Woche mit dem damaligen Bestand, und prüft sie nach 4 Wochen. Es liegt nur im Speicher dieser App auf diesem Gerät; mit „Sicherung speichern“ nimmst du es auf ein anderes Gerät mit.</li>
             <li><b>Simulation.</b> Jeder der 5.000 Läufe setzt zufällig gezogene Vier-Wochen-Abschnitte aus der echten Kurshistorie aneinander, für alle Coins dieselben Tage. So bleiben Gleichlauf und Ausreißer erhalten.</li>
             <li><b>Ohne Trend.</b> Der Trend jedes Coins aus dem Datenzeitraum wird herausgerechnet, sodass der Wert im Durchschnitt aller Läufe gleich bleibt. Die Mitte der Läufe liegt trotzdem unter dem Startwert: Wer 50 % verliert, braucht danach 100 % Gewinn. Viele kleine Verluste und wenige große Gewinne gleichen sich nur im Durchschnitt aus.</li>
@@ -2212,9 +2125,10 @@ const SPIEGEL = (function () {
       }
     });
     let aW = 0, aD = 0;
+    const oB = [0, 0, 0]; // heutiger Wert noch gehaltener Stück: unter 30 Tage, bis 1 Jahr, länger
     for (const sym in lose) {
       const k = kurse[sym], p = k ? k[k.length - 1] : 0;
-      if (p > 0) lose[sym].forEach(function (l) { const w = l[1] * p; aW += w; aD += w * Math.max(0, endTag - l[0]); });
+      if (p > 0) lose[sym].forEach(function (l) { const w = l[1] * p, d = Math.max(0, endTag - l[0]); aW += w; aD += w * d; oB[d < KURZ ? 0 : d < 365 ? 1 : 2] += w; });
     }
 
     let fee = 0, vol = 0, nBuy = 0, nSell = 0, mitZeit = false;
@@ -2251,8 +2165,8 @@ const SPIEGEL = (function () {
       kauf: { vor: fertig(S.buy.vor), nach: fertig(S.buy.nach) },
       verkauf: { vor: fertig(S.sell.vor), nach: fertig(S.sell.nach) },
       coins: liste,
-      halten: { w: hW, tage: hW > 0 ? hD / hW : null, kurz: hW > 0 ? hK / hW : null, koerbe: hB.map(function (v) { return hW > 0 ? v / hW : 0; }) },
-      alter: aW > 0 ? aD / aW : null,
+      halten: { w: hW, tage: hW > 0 ? hD / hW : null, kurz: hW > 0 ? hK / hW : null, koerbe: hB.map(function (v) { return hW > 0 ? v / hW : 0; }), betrag: hB.slice() },
+      alter: aW > 0 ? aD / aW : null, offen: oB,
       wochentag: wt, tageszeit: mitZeit ? tz : null, raster: mitZeit ? raster : null,
       pfad: PF, monate: monate,
       VOR: VOR, NACH: NACH, KURZ: KURZ, GRENZEN: GRENZEN, HALT: HALT
@@ -3539,7 +3453,7 @@ const TREFFER = (function () {
   // Immer genau eine Ansicht ist sichtbar. Die Annahmen-Karte zieht in die Ansicht um, in der sie wirkt.
   const ANSICHTEN = { uebersicht: 'Übersicht', portfolio: 'Portfolio', risiko: 'Risiko', planung: 'Planung', markt: 'Markt', steuer: 'Steuer', methode: 'Methode und Grenzen' };
   const ABSCHNITTE = {
-    portfolio: [['wertverlauf', 'Wertverlauf'], ['ergebnis', 'Ergebnis je Coin'], ['verhalten', 'Dein Verhalten'], ['import', 'Import'], ['wertpapiere', 'Wertpapiere'], ['wallets', 'Wallets'], ['sicherung', 'Sicherung']],
+    portfolio: [['wertverlauf', 'Wertverlauf'], ['ergebnis', 'Ergebnis je Coin'], ['verhalten', 'Anlegerprofil'], ['import', 'Import'], ['wertpapiere', 'Wertpapiere'], ['wallets', 'Wallets'], ['sicherung', 'Sicherung']],
     risiko: [['check', 'Portfolio-Check'], ['bandbreite', 'Bandbreite'], ['risiko', 'Risiko'], ['stresstest', 'Stresstest'], ['treffer', 'Trefferquote']],
     planung: [['trendhilfe', 'Trend ableiten'], ['umschichten', 'Umschichten'], ['coins', 'Coins']]
   };
@@ -4008,13 +3922,46 @@ const TREFFER = (function () {
     });
   }
 
-  // ---------- Verhalten ----------
+  // ---------- Anlegerprofil: drei Kreisdiagramme ----------
   let VH = null, vhKey = '';
-  const pct2 = function (x) { return minus(nf2.format(x * 100)) + ' %'; };
-  const STUFEN_VH = ['ok', 'auffällig', 'deutlich'];
-  const KOERBE = ['stark gefallen, unter −15 %', 'gefallen, −15 bis −5 %', 'seitwärts, −5 bis +5 %', 'gestiegen, +5 bis +15 %', 'stark gestiegen, über +15 %'];
-  const lageText = function (x) { return Math.abs(x) < 0.0005 ? 'genau auf' : pct(Math.abs(x), 1) + (x > 0 ? ' über' : ' unter'); };
-  function barZelle(cls, share, text) { return h('div', { class: 'barcell' }, barEl(cls, share), h('span', { text: text })); }
+  // Ringstück von Winkel a0 bis a1 (Bogenmaß, 0 = oben, im Uhrzeigersinn)
+  function ringStueck(c, R, r, a0, a1) {
+    if (a1 - a0 >= 2 * Math.PI - 1e-6) return ringStueck(c, R, r, a0, a0 + Math.PI) + ringStueck(c, R, r, a0 + Math.PI, a1 - 1e-6);
+    const p = function (rad, a) { return (c + rad * Math.sin(a)).toFixed(2) + ' ' + (c - rad * Math.cos(a)).toFixed(2); };
+    const gross = a1 - a0 > Math.PI ? 1 : 0;
+    return 'M' + p(R, a0) + 'A' + R + ' ' + R + ' 0 ' + gross + ' 1 ' + p(R, a1) + 'L' + p(r, a1) + 'A' + r + ' ' + r + ' 0 ' + gross + ' 0 ' + p(r, a0) + 'Z';
+  }
+  // teile: [{ name, kurz, w, f }] mit f = Farbklasse a/b/c; in der Mitte steht das größte Stück
+  function kreis(teile, label) {
+    const W = 132, c = W / 2, R = 62, r = 43, summe = sum(teile.map(function (t) { return t.w; }));
+    const svg = s('svg', { width: W, height: W, viewBox: '0 0 ' + W + ' ' + W, role: 'img', 'aria-label': label, class: 'ap-kreis' });
+    const da = teile.filter(function (t) { return t.w > 0; }), luecke = da.length > 1 ? 0.04 : 0;
+    let a = 0;
+    teile.forEach(function (t) {
+      if (!(t.w > 0)) return;
+      const sp = t.w / summe * 2 * Math.PI, a0 = a + luecke / 2, a1 = a + sp - luecke / 2;
+      a += sp;
+      if (a1 <= a0) return;
+      const el = s('path', { class: 'ap-' + t.f, d: ringStueck(c, R, r, a0, a1) }, svg);
+      s('title', null, el, t.name + ': ' + pct(t.w / summe));
+    });
+    let top = teile[0];
+    teile.forEach(function (t) { if (t.w > top.w) top = t; });
+    s('text', { x: c, y: c + 3, 'text-anchor': 'middle', class: 'ap-zahl' }, svg, pct(top.w / summe));
+    s('text', { x: c, y: c + 20, 'text-anchor': 'middle', class: 'ap-klein' }, svg, top.kurz);
+    return svg;
+  }
+  function apKarte(id, frage, typ, teile, satz, label) {
+    const e = $(id); e.textContent = '';
+    e.append(h('div', { class: 'eyebrow', text: frage }), h('h3', { class: 'ap-wort' + (teile ? '' : ' offen'), text: typ }));
+    if (teile) {
+      const summe = sum(teile.map(function (t) { return t.w; }));
+      const leg = h('ul', { class: 'ap-leg' });
+      teile.forEach(function (t) { leg.append(h('li', null, h('i', { class: 'ap-sw ap-' + t.f }), h('span', { text: t.name }), h('b', { text: pct(t.w / summe) }))); });
+      e.append(h('div', { class: 'ap-body' }, kreis(teile, label), leg));
+    }
+    e.append(h('p', { class: 'cap', text: satz }));
+  }
   function renderVerhalten() {
     const sec = $('verhalten');
     sec.hidden = !state.tx.length;
@@ -4025,421 +3972,87 @@ const TREFFER = (function () {
       ORDER.forEach(function (sym) { K[sym] = COIN[sym].kurse; });
       VH = SPIEGEL.analyse(state.tx, K, ENDE); vhKey = key;
     }
-    const A = VH, kv = A.kauf.vor, kn = A.kauf.nach, sv = A.verkauf.vor, sn = A.verkauf.nach;
-    const genug = kv.n >= 3;
-    $('vh-leer').hidden = genug; $('vh-inhalt').hidden = !genug;
-    if (!genug) {
-      $('vh-leer').textContent = 'Für eine Auswertung braucht es mindestens drei Käufe von Coins, für die es Kurse gibt. Bisher ' + (kv.n === 1 ? 'ist es einer.' : 'sind es ' + kv.n + '.');
-      return;
-    }
-    const n = A.auftraege.length, monate = A.tage / 30.44;
-    fill('vh-kpis', [
-      tile('Aufträge', nf0.format(n), nf0.format(A.nBuy) + (A.nBuy === 1 ? ' Kauf, ' : ' Käufe, ') + nf0.format(A.nSell) + (A.nSell === 1 ? ' Verkauf' : ' Verkäufe')),
-      tile('Pro Monat', nfx.format(n / Math.max(1, monate)), 'seit deiner ersten Transaktion am ' + dfull.format(dayDate(A.erst))),
-      tile('Handelsvolumen', eur(A.vol), 'Käufe und Verkäufe zusammen'),
-      tile('Gebühren', eur2(A.fee), A.vol > 0 ? pct2(A.fee / A.vol) + ' des Volumens' : '')
-    ]);
+    const A = VH, kurz = [];
 
-    const out = [], add = function (titel, stufe, wert, text, wort) { out.push({ titel: titel, stufe: stufe, wert: wert, text: text, wort: wort || STUFEN_VH[stufe] }); };
-    const gew = ' Gewichtet nach Betrag.';
-    // Kurzfassung für das Fazit oben: was auffällt und was gut aussieht
-    const merk = function (auff, gut) { const o = out[out.length - 1]; o.auff = o.stufe > 0 ? auff : ''; o.gut = gut || ''; };
+    // 1. Wann du kaufst: Kursbewegung in der Woche vor dem Kauf, gewichtet nach Betrag
     {
-      const d = kv.x - kv.b;
-      add('Vor dem Kauf', d <= 0.03 ? 0 : d <= 0.08 ? 1 : 2, pctS(kv.x, 1),
-        'In den 7 Tagen vor deinen Käufen hat sich der Kurs im Schnitt um ' + pctS(kv.x, 1) + ' bewegt. An einem beliebigen Tag waren es bei denselben Coins ' + pctS(kv.b, 1) + '. '
-        + (d > 0.03 ? 'Du kaufst also eher, nachdem ein Coin schon gelaufen ist.' : d < -0.03 ? 'Du kaufst eher nach Rückgängen.' : 'Dein Kaufzeitpunkt hängt kaum an der Bewegung davor.')
-        + ' Gezählt: ' + nf0.format(kv.n) + ' Käufe.' + gew);
-      merk('du kaufst eher, nachdem ein Coin schon gestiegen ist (' + pctS(kv.x, 1) + ' in der Woche davor, üblich sind ' + pctS(kv.b, 1) + ')');
+      const kv = A.kauf.vor;
+      if (kv.n >= 3) {
+        const d = kv.x - kv.b;
+        const typ = d > 0.03 ? 'Trendfolger' : d < -0.03 ? 'Schnäppchenjäger' : 'Gelassen';
+        kurz.push(d > 0.03 ? 'kaufst eher, wenn ein Coin schon läuft' : d < -0.03 ? 'kaufst eher nach Rückgängen' : 'kaufst ziemlich unabhängig vom Kurs');
+        apKarte('ap-kauf', 'Wann du kaufst', typ, [
+          { name: 'Nach Rückgang (unter −5 %)', kurz: 'nach Rückgang', w: kv.korb[0] + kv.korb[1], f: 'a' },
+          { name: 'Seitwärts (±5 %)', kurz: 'seitwärts', w: kv.korb[2], f: 'b' },
+          { name: 'Nach Anstieg (über +5 %)', kurz: 'nach Anstieg', w: kv.korb[3] + kv.korb[4], f: 'c' }
+        ], 'Kursbewegung in der Woche vor deinen ' + nf0.format(kv.n) + ' Käufen, nach Betrag gewichtet: im Schnitt ' + pctS(kv.x, 1) + ', an einem beliebigen Tag wären es ' + pctS(kv.b, 1) + ' gewesen.',
+        'Anteil deines Kaufbetrags nach der Kursbewegung in der Woche vor dem Kauf');
+      } else {
+        apKarte('ap-kauf', 'Wann du kaufst', 'Noch offen', null, 'Dafür braucht es mindestens drei Käufe von Coins mit Kursen. Bisher ' + (kv.n === 1 ? 'ist es einer.' : 'sind es ' + kv.n + '.'), '');
+      }
     }
-    // Reihenfolge der Liste: vor und nach dem Kauf, vor und nach dem Verkauf
-    if (kn.n >= 3) {
-      const d = kn.x - kn.b;
-      add('30 Tage nach dem Kauf', d >= -0.03 ? 0 : d >= -0.1 ? 1 : 2, pctS(kn.x, 1),
-        '30 Tage nach deinen Käufen lag der Kurs im Schnitt ' + lageText(kn.x) + ' deinem Kaufpreis. Typisch für 30 Tage bei denselben Coins: ' + pctS(kn.b, 1) + '. '
-        + (d > 0.03 ? 'Dein Kaufzeitpunkt war bisher besser als ein beliebiger Tag.' : d < -0.03 ? 'Ein beliebiger Kauftag hätte im Schnitt besser abgeschnitten.' : 'Kaum ein Unterschied zu einem beliebigen Kauftag.')
-        + ' In Euro: Bei ' + eur(kn.w) + ' Kaufbetrag sind das nach 30 Tagen rund ' + eurS(kn.d) + ' gegenüber einem beliebigen Kauftag.'
-        + ' Gezählt: ' + nf0.format(kn.n) + ' Käufe, die mindestens 30 Tage zurückliegen.' + gew);
-      merk('30 Tage nach deinen Käufen stand der Kurs schlechter da als nach einem beliebigen Kauftag (rund ' + eurS(kn.d) + ')',
-        d > 0.03 ? 'dein Kaufzeitpunkt war bisher besser als ein beliebiger Tag (rund ' + eurS(kn.d) + ' nach 30 Tagen)' : '');
-    } else add('30 Tage nach dem Kauf', 0, '–', 'Dafür braucht es mindestens drei Käufe, die 30 Tage oder länger zurückliegen. Bisher ' + (kn.n === 1 ? 'ist es einer.' : 'sind es ' + kn.n + '.'), 'offen');
-    if (sv.n) {
-      const d = sv.x - sv.b;
-      add('Vor dem Verkauf', d >= -0.03 ? 0 : d >= -0.08 ? 1 : 2, pctS(sv.x, 1),
-        'In den 7 Tagen vor deinen Verkäufen hat sich der Kurs im Schnitt um ' + pctS(sv.x, 1) + ' bewegt. An einem beliebigen Tag waren es ' + pctS(sv.b, 1) + '. '
-        + (d < -0.03 ? 'Du verkaufst eher, nachdem ein Coin gefallen ist.' : d > 0.03 ? 'Du verkaufst eher nach Anstiegen.' : 'Dein Verkaufszeitpunkt hängt kaum an der Bewegung davor.')
-        + ' Gezählt: ' + nf0.format(sv.n) + (sv.n === 1 ? ' Verkauf.' : ' Verkäufe.') + gew);
-      merk('du verkaufst eher, nachdem ein Coin gefallen ist (' + pctS(sv.x, 1) + ' in der Woche davor)');
-    }
-    if (sn.n) {
-      const d = sn.x - sn.b;
-      add('30 Tage nach dem Verkauf', d <= 0.03 ? 0 : d <= 0.1 ? 1 : 2, pctS(sn.x, 1),
-        '30 Tage nach deinen Verkäufen stand der Kurs im Schnitt ' + lageText(sn.x) + ' deinem Verkaufspreis. Typisch für 30 Tage: ' + pctS(sn.b, 1) + '. '
-        + (d > 0.03 ? 'Die verkauften Coins sind danach also eher weiter gestiegen.' : d < -0.03 ? 'Die verkauften Coins sind danach eher gefallen.' : 'Kaum ein Unterschied zu einem beliebigen Tag.')
-        + ' Gezählt: ' + nf0.format(sn.n) + (sn.n === 1 ? ' Verkauf.' : ' Verkäufe.') + gew);
-      merk('verkaufte Coins sind in den 30 Tagen danach eher weiter gestiegen (' + pctS(sn.x, 1) + ')',
-        d < -0.03 ? 'verkaufte Coins sind danach eher gefallen (' + pctS(sn.x, 1) + ' in 30 Tagen)' : '');
-    }
-    const alt = A.alter !== null ? ' Deine heutigen Coins hältst du im Schnitt seit ' + nf0.format(Math.round(A.alter)) + ' Tagen.' : '';
-    if (A.halten.w > 0) {
-      const k = A.halten.kurz;
-      add('Haltedauer', k < 0.25 ? 0 : k < 0.5 ? 1 : 2, nf0.format(Math.round(A.halten.tage)) + ' Tage',
-        'Verkaufte Coins hast du im Schnitt ' + nf0.format(Math.round(A.halten.tage)) + ' Tage gehalten, ' + pct(k) + ' davon kürzer als 30 Tage.' + alt + ' Gerechnet wird so, dass beim Verkauf die ältesten Stück zuerst hinausgehen.' + gew);
-      merk(pct(k) + ' deiner Verkäufe kamen nach weniger als 30 Tagen');
-    } else add('Haltedauer', 0, A.alter !== null ? nf0.format(Math.round(A.alter)) + ' Tage' : '–', 'Du hast noch nichts verkauft.' + alt, 'offen');
-    if (A.vol > 0) {
-      const r = A.fee / A.vol, spar = A.fee - A.limitFee;
-      add('Gebühren', r <= 0.0017 ? 0 : r <= 0.0027 ? 1 : 2, pct2(r),
-        'Du hast ' + eur2(A.fee) + ' Handelsgebühren gezahlt, ' + pct2(r) + ' deines Handelsvolumens.'
-        + (spar > 0.5 ? ' Mit Limit-Orders zu 0,15 % wären es ' + eur2(A.limitFee) + ' gewesen, ' + eur2(spar) + ' weniger.' : ' Das entspricht schon etwa dem Satz für Limit-Orders.'),
-        r <= 0.0017 ? 'günstig' : r <= 0.0027 ? 'beachten' : 'teuer');
-      merk('deine Gebühren liegen mit ' + pct2(r) + ' über dem Satz für Limit-Orders' + (spar > 0.5 ? ' (' + eur2(spar) + ' mehr)' : ''), r <= 0.0017 ? 'deine Gebühren sind niedrig (' + pct2(r) + ')' : '');
-    }
-    fill('vh-liste', out.map(function (o) {
-      return h('li', null, h('span', { class: 'stufe s' + o.stufe, text: o.wort }), h('b', { text: o.titel }), h('span', { class: 'wert', text: o.wert }), h('p', { text: o.text }));
-    }));
+
+    // 2. Wie lange du hältst: verkaufte Stück mit ihrer Haltedauer, gehaltene mit ihrem bisherigen Alter
     {
-      // Fazit: das Deutlichste zuerst
-      const gross = function (t) { return t.charAt(0).toUpperCase() + t.slice(1); };
-      const auff = out.filter(function (o) { return o.auff; }).sort(function (a, b) { return b.stufe - a.stufe; }).map(function (o) { return o.auff; });
-      const gut = out.filter(function (o) { return o.gut; }).map(function (o) { return o.gut; });
-      const fz = $('vh-fazit'); fz.textContent = '';
-      fz.append(h('b', { text: auff.length ? 'Das fällt auf: ' : 'Nichts Auffälliges. ' }));
-      fz.append(auff.length ? gross(auff.join('; ')) + '.' : 'Dein Timing unterscheidet sich kaum von einem beliebigen Tag, Haltedauer und Gebühren sind unauffällig.');
-      if (gut.length) { fz.append(' ', h('b', { text: 'Gut sieht aus: ' }), gross(gut.join('; ')) + '.'); }
-      fz.append(' Bei ' + nf0.format(n) + ' Aufträgen ist das ein Hinweis, kein Beweis.');
+      const hb = A.halten.betrag, of = A.offen, verk = A.halten.w > 0;
+      const teile = [
+        { name: 'Unter 30 Tage', kurz: 'unter 30 Tage', w: hb[0] + hb[1] + hb[2] + of[0], f: 'c' },
+        { name: '1 bis 12 Monate', kurz: '1–12 Monate', w: hb[3] + hb[4] + of[1], f: 'b' },
+        { name: 'Über ein Jahr', kurz: 'über 1 Jahr', w: hb[5] + of[2], f: 'a' }
+      ];
+      const ges = teile[0].w + teile[1].w + teile[2].w;
+      if (ges > 0) {
+        // Der Typ folgt dem Diagramm: Anteil unter 30 Tagen bzw. über einem Jahr
+        const lang = teile[2].w / ges, kurzA = teile[0].w / ges;
+        let typ, satz;
+        if (kurzA >= 0.4 && verk) { typ = 'Trader'; kurz.push('verkaufst oft schnell wieder'); }
+        else if (kurzA >= 0.4) { typ = 'Frisch dabei'; kurz.push('bist erst seit Kurzem dabei'); }
+        else if (lang >= 0.4) { typ = 'Langfrist-Halter'; kurz.push('hältst lange'); }
+        else if (!verk) { typ = 'Halter'; kurz.push('hast bisher nichts verkauft'); }
+        else { typ = 'Mittelfristig'; kurz.push('hältst meist einige Monate'); }
+        satz = verk
+          ? 'Verkauftes lag im Schnitt ' + nf0.format(Math.round(A.halten.tage)) + ' Tage bei dir, ' + pct(A.halten.kurz) + ' davon kürzer als 30 Tage.'
+          : 'Du hast noch nichts verkauft.';
+        if (A.alter !== null) satz += ' Was du heute hast, liegt im Schnitt seit ' + nf0.format(Math.round(A.alter)) + ' Tagen bei dir.';
+        apKarte('ap-halt', 'Wie lange du hältst', typ, teile, satz + ' Gewichtet nach Euro.', 'Anteil nach Haltedauer');
+      } else {
+        apKarte('ap-halt', 'Wie lange du hältst', 'Noch offen', null, 'Für die Haltedauer fehlen Kurse zu deinen Coins.', '');
+      }
     }
 
-    // Kursbewegung vor den Käufen, in fünf Körben
-    const mx = Math.max.apply(null, kv.korb.concat(kv.bk).concat([0.01]));
-    const st = $('vh-stimmung'); st.textContent = '';
-    st.append(h('thead', null, tr(['Bewegung in den 7 Tagen davor', 'Deine Käufe', 'Alle Tage'], 'th')));
-    const sb = h('tbody');
-    KOERBE.forEach(function (name, j) { sb.append(tr([name, barZelle('', kv.korb[j] / mx, pct(kv.korb[j])), barZelle('c', kv.bk[j] / mx, pct(kv.bk[j]))])); });
-    st.append(sb);
-    $('vh-stimmung-cap').textContent = 'Anteil deines Kaufbetrags je nach Kursbewegung vor dem Kauf. „Alle Tage“ zeigt, wie oft es bei denselben Coins seit deiner ersten Transaktion so aussah, mit den gleichen Gewichten wie deine Käufe.';
-
-    // Je Coin
-    const ct = $('vh-coins'); ct.textContent = '';
-    const hd = tr(['Coin', 'Käufe', 'Gekauft für', '7 Tage davor', 'typisch', '30 Tage danach', 'typisch'], 'th');
-    hd.children[2].className = 'opt'; hd.children[4].className = 'opt'; hd.children[6].className = 'opt';
-    ct.append(h('thead', null, hd));
-    const cb = h('tbody');
-    A.coins.filter(function (c) { return c.buy > 0; }).forEach(function (c) {
-      const r = tr([COIN[c.sym] ? posLabel(c.sym) : c.sym, nf0.format(c.buy), eur(c.eurBuy),
-        c.vor.n ? pctS(c.vor.x, 1) : '–', c.vor.n ? pctS(c.vor.b, 1) : '–', c.nach.n ? pctS(c.nach.x, 1) : '–', c.nach.n ? pctS(c.nach.b, 1) : '–']);
-      r.children[2].className = 'opt'; r.children[4].className = 'opt'; r.children[6].className = 'opt';
-      if (c.nach.n) tone(r.children[5], c.nach.x - c.nach.b);
-      cb.append(r);
-    });
-    ct.append(cb);
-    $('vh-coins-cap').textContent = '„7 Tage davor“: Anstieg vom Schlusskurs eine Woche vorher bis zu deinem Kaufpreis. „30 Tage danach“: Schlusskurs 30 Tage später gegenüber deinem Kaufpreis, grün oder rot je nachdem, ob das besser oder schlechter war als typisch. Ein Strich heißt: zu jung oder ohne Kurse.';
-
-    // Haltedauer in sechs Körben
-    $('vh-halt-box').hidden = !(A.halten.w > 0);
-    if (A.halten.w > 0) {
-      const HN = ['am selben Tag', '1 bis 6 Tage', '7 bis 29 Tage', '30 bis 89 Tage', '90 bis 364 Tage', 'ein Jahr und länger'];
-      const hk = A.halten.koerbe, hmx = Math.max.apply(null, hk.concat([0.01]));
-      const ht = $('vh-halt'); ht.textContent = '';
-      ht.append(h('thead', null, tr(['Gehalten', 'Anteil am Verkaufswert'], 'th')));
-      const hb = h('tbody');
-      HN.forEach(function (name, j) { hb.append(tr([name, barZelle(j < 3 ? 'r' : '', hk[j] / hmx, pct(hk[j]))])); });
-      ht.append(hb);
-      $('vh-halt-cap').textContent = 'So lange lagen verkaufte Coins vorher bei dir, im Schnitt ' + nf0.format(Math.round(A.halten.tage)) + ' Tage. Orange: kürzer als 30 Tage, zusammen ' + pct(A.halten.kurz) + '.'
-        + (A.alter !== null ? ' Was du heute hältst, liegt im Schnitt seit ' + nf0.format(Math.round(A.alter)) + ' Tagen bei dir.' : '');
-    }
-
-    // Monate
+    // 3. Worauf du setzt: heutiger Kryptobestand nach Wert
     {
-      const M = A.monate, kauf = sum(M.map(function (x) { return x.buy; })), verk = sum(M.map(function (x) { return x.sell; }));
-      let top = null;
-      M.forEach(function (x) { if (!top || x.buy + x.sell > top.buy + top.sell) top = x; });
-      $('vh-monat-cap').textContent = 'Kaufbetrag nach oben, Verkaufserlös nach unten. Insgesamt ' + eur(kauf) + ' gekauft und ' + eur(verk) + ' verkauft'
-        + (top && top.n ? ', am meisten im ' + dlang.format(new Date(top.ym + '-01T00:00:00Z')) + ' (' + nf0.format(top.n) + (top.n === 1 ? ' Auftrag' : ' Aufträge') + ').' : '.');
-    }
-
-    // Wann du handelst: Wochentag mal Tageszeit
-    {
-      const TAGE = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
-      const ZEIT = ['0–6 Uhr', '6–12 Uhr', '12–18 Uhr', '18–24 Uhr'], ZLANG = ['nachts', 'vormittags', 'nachmittags', 'abends'];
-      const R = A.raster || A.wochentag.map(function (v) { return [v]; }), spalten = A.raster ? ZEIT : ['Aufträge'];
-      let rmx = 1;
-      R.forEach(function (z) { z.forEach(function (v) { rmx = Math.max(rmx, v); }); });
-      const rt = $('vh-raster'); rt.textContent = '';
-      const kopf = h('tr', null, h('th', { text: '' }));
-      spalten.forEach(function (name) { kopf.append(h('th', { scope: 'col', text: name })); });
-      if (A.raster) kopf.append(h('th', { scope: 'col', text: 'Summe' }));
-      rt.append(h('thead', null, kopf));
-      const rb = h('tbody');
-      TAGE.forEach(function (name, i) {
-        const row = h('tr', null, h('th', { scope: 'row', text: name }));
-        R[i].forEach(function (v, j) {
-          const sh = v / rmx, td = h('td', { class: sh >= 0.55 ? 'hi' : sh >= 0.45 ? 'm' : '', text: v ? nf0.format(v) : '' });
-          td.style.background = 'color-mix(in oklab, var(--heat-lo), var(--heat-hi) ' + (sh * 100).toFixed(0) + '%)';
-          td.addEventListener('pointermove', function (e) {
-            showTip(name + (A.raster ? ', ' + ZLANG[j] + ' (' + ZEIT[j] + ')' : ''), [['Aufträge', nf0.format(v)], ['Anteil', pct(v / Math.max(1, n))]], e.clientX, e.clientY);
-          });
-          td.addEventListener('pointerleave', hideTip);
-          row.append(td);
-        });
-        if (A.raster) row.append(h('td', { class: 'summe', text: nf0.format(A.wochentag[i]) }));
-        rb.append(row);
+      let btc = 0, gross = 0, klein = 0;
+      state.pos.forEach(function (p) {
+        const k = COIN[p.sym] && COIN[p.sym].kurse;
+        if (!(p.stueck > 0) || !k) return;
+        const v = p.stueck * k[k.length - 1];
+        if (!(v > 0)) return;
+        const rg = (FC[p.sym] || {}).r;
+        if (p.sym === 'BTC') btc += v; else if (typeof rg === 'number' && rg <= 10) gross += v; else klein += v;
       });
-      rt.append(rb);
-      let wi = 0, zi = 0;
-      A.wochentag.forEach(function (v, i) { if (v > A.wochentag[wi]) wi = i; });
-      if (A.tageszeit) A.tageszeit.forEach(function (v, i) { if (v > A.tageszeit[zi]) zi = i; });
-      const we = A.wochentag[5] + A.wochentag[6];
-      $('vh-raster-cap').textContent = 'Zahl der Aufträge, Käufe und Verkäufe zusammen; Teilausführungen eines Auftrags zählen einmal. Am häufigsten handelst du am ' + TAGE[wi] + ' (' + nf0.format(A.wochentag[wi]) + ')'
-        + (A.tageszeit ? ' und ' + ZLANG[zi] + ' (' + nf0.format(A.tageszeit[zi]) + ')' : '') + ', ' + pct(we / Math.max(1, n)) + ' der Aufträge fallen aufs Wochenende.'
-        + (A.raster ? ' Uhrzeiten wie in deiner Datei.' : '');
+      const ges = btc + gross + klein;
+      if (ges > 0) {
+        const b = btc / ges, k = klein / ges;
+        const typ = k >= 0.4 ? 'Risikofreudig' : b >= 0.5 ? 'Vorsichtig' : 'Ausgewogen';
+        kurz.push(k >= 0.4 ? 'setzt stark auf kleinere Coins' : b >= 0.5 ? 'setzt vor allem auf Bitcoin' : 'mischst Bitcoin, große und kleinere Coins');
+        apKarte('ap-mix', 'Worauf du setzt', typ, [
+          { name: 'Bitcoin', kurz: 'Bitcoin', w: btc, f: 'a' },
+          { name: 'Große Coins (Top 10)', kurz: 'Top 10', w: gross, f: 'b' },
+          { name: 'Kleinere Coins', kurz: 'kleinere Coins', w: klein, f: 'c' }
+        ], 'Dein Kryptobestand heute, ' + eur(ges) + '. Kleinere Coins außerhalb der Top 10 schwanken meist deutlich stärker als Bitcoin.',
+        'Aufteilung deines Kryptobestands nach Bitcoin, großen und kleineren Coins');
+      } else {
+        apKarte('ap-mix', 'Worauf du setzt', 'Noch offen', null, 'Im Moment hältst du keine Coins mit Kurs.', '');
+      }
     }
 
-    // Coin-Auswahl für den Kursverlauf: alle gehandelten Coins mit Kursen, größter Kaufbetrag zuerst
-    {
-      const wahl = A.coins.filter(function (c) { return COIN[c.sym]; });
-      const sel = $('vh-coin');
-      if (!wahl.some(function (c) { return c.sym === vhCoin; })) vhCoin = wahl.length ? wahl[0].sym : '';
-      sel.textContent = '';
-      wahl.forEach(function (c) { sel.append(h('option', { value: c.sym, text: c.sym + ' · ' + nf0.format(c.buy + c.sell) + (c.buy + c.sell === 1 ? ' Auftrag' : ' Aufträge') })); });
-      sel.value = vhCoin;
+    const fz = $('ap-fazit'); fz.textContent = '';
+    fz.hidden = !kurz.length;
+    if (kurz.length) {
+      const satz = kurz.length === 1 ? kurz[0] : kurz.slice(0, -1).join(', ') + ' und ' + kurz[kurz.length - 1];
+      fz.append(h('b', { text: 'Kurz gesagt: ' }), 'Du ' + satz + '.');
     }
-    if (!kn.n && vhTyp === 'buy' && A.pfad.sell.n > A.pfad.buy.n) vhTyp = 'sell';
-    drawVerhalten();
-  }
-
-  // ---------- Verhalten: Diagramme ----------
-  let vhTyp = 'buy', vhCoin = '';
-  const kursFmt = function (v) { return (v >= 1000 ? nf0.format(v) : nfk.format(v)) + ' €'; };
-  const dlang = new Intl.DateTimeFormat('de-DE', { month: 'long', year: 'numeric', timeZone: 'UTC' });
-  function roundBottom(x, y, w, hh) {
-    const r = Math.min(4, hh, w / 2);
-    return 'M' + x + ' ' + y + 'V' + (y + hh - r) + 'Q' + x + ' ' + (y + hh) + ' ' + (x + r) + ' ' + (y + hh) + 'H' + (x + w - r) + 'Q' + (x + w) + ' ' + (y + hh) + ' ' + (x + w) + ' ' + (y + hh - r) + 'V' + y + 'Z';
-  }
-  // Gezeichnet wird nur, was sichtbar ist (wie drawCharts)
-  function drawVerhalten() {
-    if (!VH || !state.tx.length || !($('vh-pfad').clientWidth > 0)) return;
-    drawPfad($('vh-pfad')); drawKurs($('vh-kurs')); drawKoerbe($('vh-korb')); drawMonate($('vh-monat'));
-  }
-
-  // Durchschnittlicher Kursweg rund um Käufe oder Verkäufe, der Auftragspreis ist 0 %
-  function drawPfad(host) {
-    const f = VH.pfad[vhTyp], kauf = vhTyp === 'buy', wort = kauf ? 'Käufe' : 'Verkäufe', einz = kauf ? 'Kauf' : 'Verkauf', VOR = VH.VOR, NACH = VH.NACH, N = VOR + NACH + 1;
-    document.querySelectorAll('#vh-pfad-wahl button').forEach(function (k) { k.setAttribute('aria-pressed', String(k.getAttribute('data-typ') === vhTyp)); });
-    $('vh-pfad-titel').textContent = 'Der Kurs rund um deine ' + wort;
-    $('vh-pfad-leg').textContent = 'Deine ' + wort;
-    host.textContent = '';
-    const cap = $('vh-pfad-cap');
-    if (f.n < 3) {
-      cap.textContent = 'Dafür braucht es mindestens drei ' + wort + ', die 30 Tage oder länger zurückliegen. Bisher ' + (f.n === 1 ? 'ist es einer.' : 'sind es ' + f.n + '.');
-      return;
-    }
-    const li = f.ich[0], re = f.ich[N - 1];
-    cap.textContent = 'Durchschnitt aus ' + nf0.format(f.n) + (kauf ? ' Käufen' : ' Verkäufen') + ', gewichtet nach Betrag. 0 % ist dein ' + (kauf ? 'Kaufpreis' : 'Verkaufspreis') + '. '
-      + 'Eine Woche davor stand der Kurs im Schnitt ' + lageText(li) + ' deinem Preis, 30 Tage danach ' + lageText(re) + ' diesem Preis. Die graue Linie zeigt dasselbe rund um einen beliebigen Tag bei denselben Coins.';
-    const w = Math.max(280, host.clientWidth), hgt = w < 520 ? 240 : 290, m = { t: 26, r: 58, b: 32, l: 50 };
-    let lo = 0, hi = 0;
-    for (let d = 0; d < N; d++) { lo = Math.min(lo, f.ich[d], f.typ[d]); hi = Math.max(hi, f.ich[d], f.typ[d]); }
-    const step = niceStep((hi - lo) * 1.1 || 0.1, 4), top = Math.ceil(hi / step - 1e-9) * step, bot = Math.floor(lo / step + 1e-9) * step;
-    const pw = w - m.l - m.r, ph = hgt - m.t - m.b;
-    const x = function (d) { return m.l + pw * d / (N - 1); };
-    const y = function (v) { return m.t + ph * (top - v) / ((top - bot) || 1); };
-    const svg = stage(host, w, hgt, 'Durchschnittlicher Kurs von 7 Tagen vor bis 30 Tage nach deinen ' + (kauf ? 'Käufen' : 'Verkäufen'));
-    const eine = step < 0.02;
-    for (let v = bot; v <= top + step / 2; v += step) {
-      const vv = Math.abs(v) < step / 1e6 ? 0 : v;
-      s('line', { class: vv === 0 ? 'axisl' : 'grid', x1: m.l, x2: w - m.r, y1: y(vv), y2: y(vv) }, svg);
-      s('text', { x: m.l - 8, y: y(vv) + 4, 'text-anchor': 'end' }, svg, pctS(vv, eine));
-    }
-    s('line', { class: 'vh-tag', x1: x(VOR), x2: x(VOR), y1: m.t - 6, y2: m.t + ph }, svg);
-    s('text', { class: 'lbl', x: x(VOR), y: m.t - 12, 'text-anchor': 'middle' }, svg, einz);
-    const ya = m.t + ph + 18;
-    s('text', { x: x(0), y: ya, 'text-anchor': 'start' }, svg, '7 Tage davor');
-    [10, 20].forEach(function (d) { s('text', { x: x(VOR + d), y: ya, 'text-anchor': 'middle' }, svg, '+' + d); });
-    s('text', { x: x(N - 1), y: ya, 'text-anchor': 'end' }, svg, '+30 Tage');
-    const linie = function (a) { let d = ''; for (let i = 0; i < N; i++) d += (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(a[i]).toFixed(1); return d; };
-    s('path', { class: 'l-ref', d: linie(f.typ) }, svg);
-    s('path', { class: 'l-med', d: linie(f.ich) }, svg);
-    s('circle', { class: 'dot', cx: x(N - 1), cy: y(re), r: 4 }, svg);
-    // Endwerte rechts beschriften, bei Nähe auseinanderschieben
-    let y1 = y(re) + 4, y2 = y(f.typ[N - 1]) + 4;
-    if (Math.abs(y1 - y2) < 13) { if (y1 <= y2) { y1 -= (13 - (y2 - y1)) / 2; y2 = y1 + 13; } else { y2 -= (13 - (y1 - y2)) / 2; y1 = y2 + 13; } }
-    s('text', { class: 'val', x: x(N - 1) + 9, y: y1 }, svg, pctS(re, 1));
-    s('text', { x: x(N - 1) + 9, y: y2 }, svg, pctS(f.typ[N - 1], 1));
-    const g = s('g', { visibility: 'hidden' }, svg);
-    const cl = s('line', { class: 'cross', y1: m.t, y2: m.t + ph }, g), dot = s('circle', { class: 'dot', r: 4 }, g);
-    bindScrub(svg, {
-      count: N,
-      idxAt: function (px) { return Math.round((px - m.l) / pw * (N - 1)); },
-      xAt: x,
-      show: function (i, cx, cy) {
-        const d = i - VOR;
-        g.setAttribute('visibility', 'visible');
-        cl.setAttribute('x1', x(i)); cl.setAttribute('x2', x(i));
-        dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(f.ich[i]));
-        showTip(d === 0 ? 'Tag des ' + einz + 's' : Math.abs(d) + (Math.abs(d) === 1 ? ' Tag ' : ' Tage ') + (d < 0 ? 'davor' : 'danach'),
-          [['Deine ' + wort, pctS(f.ich[i], 1)], ['Beliebiger Tag', pctS(f.typ[i], 1)], ['Unterschied', pctS(f.ich[i] - f.typ[i], 1)]], cx, cy);
-      },
-      hide: function () { g.setAttribute('visibility', 'hidden'); }
-    });
-  }
-
-  // Schlusskurs eines Coins mit den eigenen Käufen und Verkäufen als Marken
-  function drawKurs(host) {
-    host.textContent = '';
-    const sym = vhCoin, k = COIN[sym] && COIN[sym].kurse, cap = $('vh-kurs-cap');
-    cap.textContent = '';
-    if (!k) return;
-    const endTag = Math.round(ENDE / 864e5), L = k.length;
-    const ord = VH.auftraege.filter(function (o) { return o.sym === sym && o.qty > 0; }).map(function (o) { return { o: o, i: L - 1 - (endTag - o.tag), p: o.eur / o.qty }; })
-      .filter(function (q) { return q.i >= 0 && q.i < L && q.p > 0; });
-    if (!ord.length) { cap.textContent = 'Für diesen Coin gibt es keine Aufträge im Zeitraum der Kurse.'; return; }
-    const erstI = Math.min.apply(null, ord.map(function (q) { return q.i; }));
-    const a = Math.max(0, erstI - Math.max(14, Math.round((L - 1 - erstI) * 0.08))), n = L - a;
-    if (n < 2) return;
-    let kq = 0, ke = 0, nK = 0, nV = 0, ve = 0, mxE = 0;
-    ord.forEach(function (q) { if (q.o.typ === 'buy') { kq += q.o.qty; ke += q.o.eur; nK++; } else { nV++; ve += q.o.eur; } mxE = Math.max(mxE, q.o.eur); });
-    const avg = kq > 0 ? ke / kq : 0, heute = k[L - 1];
-    cap.textContent = (nK ? nf0.format(nK) + (nK === 1 ? ' Kauf' : ' Käufe') + ' für ' + eur(ke) + ', im Schnitt zu ' + kursFmt(avg) : 'Keine Käufe')
-      + (nV ? ', ' + nf0.format(nV) + (nV === 1 ? ' Verkauf' : ' Verkäufe') + ' für ' + eur(ve) : '') + '. Kurs heute: ' + kursFmt(heute)
-      + (avg > 0 ? ', ' + lageText(heute / avg - 1) + ' deinem durchschnittlichen Kaufpreis.' : '.') + ' Größere Marken stehen für größere Beträge.';
-    const w = Math.max(280, host.clientWidth), hgt = w < 520 ? 250 : 320, m = { t: 18, r: 16, b: 30, l: 68 };
-    let lo = Infinity, hi = 0;
-    for (let i = a; i < L; i++) { lo = Math.min(lo, k[i]); hi = Math.max(hi, k[i]); }
-    ord.forEach(function (q) { lo = Math.min(lo, q.p); hi = Math.max(hi, q.p); });
-    if (avg > 0) { lo = Math.min(lo, avg); hi = Math.max(hi, avg); }
-    const sp = (hi - lo) || hi || 1, step = niceStep(sp * 1.12, 4), bot = Math.max(0, Math.floor((lo - sp * 0.06) / step) * step), top = Math.ceil((hi + sp * 0.06) / step - 1e-9) * step;
-    const pw = w - m.l - m.r, ph = hgt - m.t - m.b;
-    const x = function (i) { return m.l + pw * (i - a) / (n - 1); };
-    const y = function (v) { return m.t + ph * (top - v) / (top - bot); };
-    const svg = stage(host, w, hgt, 'Schlusskurs von ' + sym + ' mit deinen Käufen und Verkäufen');
-    for (let v = bot; v <= top + step / 2; v += step) {
-      s('line', { class: v === bot ? 'axisl' : 'grid', x1: m.l, x2: w - m.r, y1: y(v), y2: y(v) }, svg);
-      s('text', { x: m.l - 8, y: y(v) + 4, 'text-anchor': 'end' }, svg, kursFmt(+v.toPrecision(10)));
-    }
-    if (bot > 0) s('text', { x: w - m.r, y: m.t - 6, 'text-anchor': 'end' }, svg, 'Achse beginnt bei ' + kursFmt(+bot.toPrecision(10)));
-    const tagVon = function (i) { return endTag - (L - 1 - i); };
-    const months = n / 30.44, maxL = w < 520 ? 4 : 8, every = [1, 2, 3, 6, 12].find(function (e) { return months / e <= maxL; }) || 12;
-    if (months < 2) {
-      s('text', { x: m.l, y: m.t + ph + 16, 'text-anchor': 'start' }, svg, dfull.format(dayDate(tagVon(a))));
-      s('text', { x: w - m.r, y: m.t + ph + 16, 'text-anchor': 'end' }, svg, dfull.format(dayDate(tagVon(L - 1))));
-    } else for (let i = a; i < L; i++) {
-      const dt = dayDate(tagVon(i));
-      if (dt.getUTCDate() === 1 && dt.getUTCMonth() % every === 0 && x(i) > m.l + 18 && x(i) < w - m.r - 18) s('text', { x: x(i), y: m.t + ph + 16, 'text-anchor': 'middle' }, svg, dmon.format(dt));
-    }
-    let d = '';
-    for (let i = a; i < L; i++) d += (i > a ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(k[i]).toFixed(1);
-    s('path', { class: 'l-ref', d: d }, svg);
-    if (avg > 0) s('line', { class: 'vh-avg', x1: m.l, x2: w - m.r, y1: y(avg), y2: y(avg) }, svg);
-    // Große Marken zuerst, damit kleine obenauf liegen
-    ord.slice().sort(function (p, q) { return q.o.eur - p.o.eur; }).forEach(function (q) {
-      const r = 4.5 + 4.5 * Math.sqrt(q.o.eur / (mxE || 1)), cx = x(q.i), cy = y(q.p), auf = q.o.typ === 'buy', v = auf ? 1 : -1;
-      s('path', { class: auf ? 'vh-kauf' : 'vh-verk', d: 'M' + cx.toFixed(1) + ' ' + (cy - v * r).toFixed(1) + 'L' + (cx + r * 0.95).toFixed(1) + ' ' + (cy + v * r * 0.75).toFixed(1) + 'L' + (cx - r * 0.95).toFixed(1) + ' ' + (cy + v * r * 0.75).toFixed(1) + 'Z' }, svg);
-    });
-    const g = s('g', { visibility: 'hidden' }, svg);
-    const cl = s('line', { class: 'cross', y1: m.t, y2: m.t + ph }, g), dot = s('circle', { class: 'med', r: 3.5 }, g);
-    bindScrub(svg, {
-      count: n,
-      // Nahe an einer Marke springt der Zeiger auf deren Tag
-      idxAt: function (px) {
-        let best = null, bd = 9;
-        ord.forEach(function (q) { const dd = Math.abs(x(q.i) - px); if (dd < bd) { bd = dd; best = q; } });
-        return best ? best.i - a : Math.round((px - m.l) / pw * (n - 1));
-      },
-      xAt: function (j) { return x(a + j); },
-      show: function (j, cx, cy) {
-        const i = a + j, rows = [['Schlusskurs', kursFmt(k[i])]];
-        const da = ord.filter(function (q) { return q.i === i; });
-        da.slice(0, 4).forEach(function (q) { rows.push([q.o.typ === 'buy' ? 'Kauf' : 'Verkauf', eur(q.o.eur) + ' zu ' + kursFmt(q.p)]); });
-        if (da.length > 4) rows.push(['weitere', nf0.format(da.length - 4)]);
-        if (da.length === 1 && da[0].o.nach !== null && da[0].o.nach !== undefined) rows.push(['30 Tage später', pctS(da[0].o.nach, 1)]);
-        g.setAttribute('visibility', 'visible');
-        cl.setAttribute('x1', x(i)); cl.setAttribute('x2', x(i));
-        dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(k[i]));
-        showTip(dfull.format(dayDate(tagVon(i))), rows, cx, cy);
-      },
-      hide: function () { g.setAttribute('visibility', 'hidden'); }
-    });
-  }
-
-  // Fünf Körbe: Anteil des Kaufbetrags gegen den Anteil aller Tage
-  function drawKoerbe(host) {
-    const kv = VH.kauf.vor;
-    host.textContent = '';
-    const w = Math.max(280, host.clientWidth), hgt = 230, m = { t: 20, r: 8, b: 44, l: 42 };
-    const pw = w - m.l - m.r, ph = hgt - m.t - m.b, slot = pw / 5;
-    const NAMEN = slot >= 84 ? [['stark', 'gefallen'], ['gefallen', ''], ['seitwärts', ''], ['gestiegen', ''], ['stark', 'gestiegen']] : [['stark', 'runter'], ['runter', ''], ['seitw.', ''], ['rauf', ''], ['stark', 'rauf']];
-    const SPANNE = ['unter −15 %', '−15 bis −5 %', '−5 bis +5 %', '+5 bis +15 %', 'über +15 %'];
-    const ax = axis(Math.max.apply(null, kv.korb.concat(kv.bk)) * 1.12, 4);
-    const y = function (v) { return m.t + ph * (1 - v / ax.top); };
-    const svg = stage(host, w, hgt, 'Anteil deines Kaufbetrags nach der Kursbewegung in den 7 Tagen vor dem Kauf, verglichen mit allen Tagen');
-    ax.ticks.forEach(function (t) {
-      s('line', { class: t === 0 ? 'axisl' : 'grid', x1: m.l, x2: w - m.r, y1: y(t), y2: y(t) }, svg);
-      s('text', { x: m.l - 8, y: y(t) + 4, 'text-anchor': 'end' }, svg, pct(t));
-    });
-    const bw = Math.max(6, Math.min(30, (slot - 14) / 2)), bars = [];
-    for (let j = 0; j < 5; j++) {
-      const cx = m.l + slot * (j + 0.5), paar = [];
-      [[kv.korb[j], 'kb', cx - bw - 1], [kv.bk[j], 'kb c', cx + 1]].forEach(function (b) {
-        const hh = Math.max(0, ph * b[0] / ax.top);
-        paar.push(hh > 0.5 ? s('path', { class: b[1], d: roundTop(+b[2].toFixed(1), +(m.t + ph - hh).toFixed(1), +bw.toFixed(1), +hh.toFixed(1)) }, svg) : null);
-      });
-      bars.push(paar);
-      s('text', { class: 'val', x: cx - bw / 2 - 1, y: y(kv.korb[j]) - 5, 'text-anchor': 'middle' }, svg, pct(kv.korb[j]));
-      s('text', { class: 'lbl', x: cx, y: m.t + ph + 16, 'text-anchor': 'middle' }, svg, NAMEN[j][0]);
-      if (NAMEN[j][1]) s('text', { class: 'lbl', x: cx, y: m.t + ph + 30, 'text-anchor': 'middle' }, svg, NAMEN[j][1]);
-    }
-    bindScrub(svg, {
-      count: 5,
-      idxAt: function (px) { return Math.floor((px - m.l) / slot); },
-      xAt: function (j) { return m.l + slot * (j + 0.5); },
-      show: function (j, cx, cy) {
-        bars.forEach(function (p, i) { p.forEach(function (b) { if (b) b.classList.toggle('aus', i !== j); }); });
-        showTip(KOERBE[j].split(',')[0] + ' (' + SPANNE[j] + ')', [['Deine Käufe', pct(kv.korb[j], 1)], ['Alle Tage', pct(kv.bk[j], 1)], ['Unterschied', pctS(kv.korb[j] - kv.bk[j], 1).replace(' %', ' Punkte')]], cx, cy);
-      },
-      hide: function () { bars.forEach(function (p) { p.forEach(function (b) { if (b) b.classList.remove('aus'); }); }); }
-    });
-  }
-
-  // Monate: Käufe nach oben, Verkäufe nach unten
-  function drawMonate(host) {
-    const M = VH.monate, n = M.length;
-    host.textContent = '';
-    if (!n) return;
-    const w = Math.max(280, host.clientWidth), hgt = w < 520 ? 230 : 260, m = { t: 14, r: 10, b: 30, l: 62 };
-    let hi = 0, lo = 0;
-    M.forEach(function (x) { hi = Math.max(hi, x.buy); lo = Math.max(lo, x.sell); });
-    const step = niceStep((hi + lo) || 1, 5), top = Math.max(step, Math.ceil(hi / step - 1e-9) * step), bot = Math.ceil(lo / step - 1e-9) * step;
-    const pw = w - m.l - m.r, ph = hgt - m.t - m.b, slot = pw / n, tf = tickFmt(Math.max(top, bot));
-    const x = function (i) { return m.l + slot * (i + 0.5); };
-    const y = function (v) { return m.t + ph * (top - v) / (top + bot); };
-    const svg = stage(host, w, hgt, 'Kaufbetrag und Verkaufserlös je Monat');
-    for (let v = -bot; v <= top + step / 2; v += step) {
-      const vv = Math.abs(v) < step / 1e6 ? 0 : v;
-      s('line', { class: vv === 0 ? 'axisl' : 'grid', x1: m.l, x2: w - m.r, y1: y(vv), y2: y(vv) }, svg);
-      s('text', { x: m.l - 8, y: y(vv) + 4, 'text-anchor': 'end' }, svg, tf(Math.abs(vv)) + ' €');
-    }
-    const bw = Math.max(3, Math.min(34, slot - 4)), bars = [];
-    M.forEach(function (mo, i) {
-      const xa = +(x(i) - bw / 2).toFixed(1), hk = ph * mo.buy / (top + bot), hv = ph * mo.sell / (top + bot), paar = [];
-      paar.push(hk > 0.5 ? s('path', { class: 'kb', d: roundTop(xa, +(y(0) - hk).toFixed(1), +bw.toFixed(1), +hk.toFixed(1)) }, svg) : null);
-      paar.push(hv > 0.5 ? s('path', { class: 'kb v', d: roundBottom(xa, +(y(0) + 1).toFixed(1), +bw.toFixed(1), +Math.max(1, hv - 1).toFixed(1)) }, svg) : null);
-      bars.push(paar);
-    });
-    s('line', { class: 'axisl', x1: m.l, x2: w - m.r, y1: y(0), y2: y(0) }, svg);
-    const mTag = function (i) { return new Date(M[i].ym + '-01T00:00:00Z'); };
-    let lastX = -Infinity;
-    M.forEach(function (mo, i) { if (x(i) - lastX >= (w < 520 ? 60 : 54)) { s('text', { x: x(i), y: m.t + ph + 18, 'text-anchor': 'middle' }, svg, dmon.format(mTag(i))); lastX = x(i); } });
-    bindScrub(svg, {
-      count: n,
-      idxAt: function (px) { return Math.floor((px - m.l) / slot); },
-      xAt: x,
-      show: function (i, cx, cy) {
-        bars.forEach(function (p, j) { p.forEach(function (b) { if (b) b.classList.toggle('aus', j !== i); }); });
-        showTip(dlang.format(mTag(i)), [['Käufe', eur(M[i].buy)], ['Verkäufe', eur(M[i].sell)], ['Aufträge', nf0.format(M[i].n)]], cx, cy);
-      },
-      hide: function () { bars.forEach(function (p) { p.forEach(function (b) { if (b) b.classList.remove('aus'); }); }); }
-    });
   }
 
   // ---------- Trefferquote ----------
@@ -4632,7 +4245,6 @@ const TREFFER = (function () {
     if (da('fan')) { drawFan($('fan'), c); drawHist($('hist'), c); }
     if (da('verlauf')) drawHistory($('verlauf'), c);
     if (da('vergleich-chart')) drawRange($('vergleich-chart'), c);
-    if (da('vh-pfad')) drawVerhalten();
     // Die Trefferquote rechnet erst, wenn ihr Reiter offen ist (rund 70 Rückblicke mit je 3.000 Läufen)
     if (da('treffer')) renderTreffer();
   }
@@ -4696,14 +4308,6 @@ const TREFFER = (function () {
     try { localStorage.setItem(SPANNE_KEY, wvSpanne); } catch (x) { /* egal */ }
     if (last && !istLeer) drawWert($('wv-chart'), last);
   });
-  $('vh-pfad-wahl').addEventListener('click', function (e) {
-    const k = e.target.closest('button[data-typ]');
-    if (!k) return;
-    vhTyp = k.getAttribute('data-typ') === 'sell' ? 'sell' : 'buy';
-    hideTip();
-    if (VH) drawPfad($('vh-pfad'));
-  });
-  $('vh-coin').addEventListener('change', function (e) { vhCoin = e.target.value; hideTip(); if (VH) drawKurs($('vh-kurs')); });
   $('tr-spanne').addEventListener('click', function (e) {
     const k = e.target.closest('button[data-wochen]');
     if (!k) return;
