@@ -252,6 +252,10 @@ main{min-width:0}
 .stapel{display:flex;flex-direction:column;gap:20px;min-width:0}
 .slot{min-width:0}
 #ansichten.hat-daten #import{order:1}
+#ansichten.hat-daten #sicherung{order:2}
+#umschichten{order:-1}
+.kopf .schmal{display:none}
+@media (max-width:620px){.kopf .breit{display:none}.kopf .schmal{display:inline}}
 
 /* Karten */
 .sheet{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:20px;min-width:0}
@@ -707,7 +711,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
   <nav class="side" aria-label="Ansichten">
     <div class="brand">
       <img src="data:image/webp;base64,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" width="38" height="38" alt="">
-      <span>Krypto-Portfolio<small>Bitvavo · Bitpanda</small></span>
+      <span>Krypto-Portfolio<small>Krypto · Aktien · Wallets</small></span>
     </div>
     <div class="nav" id="nav">
       <button type="button" data-go="uebersicht"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 11h7v9h-7zM4 14h7v6H4z"/></svg><span>Übersicht</span></button>
@@ -726,7 +730,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
   <div class="inhalt">
     <header class="kopf">
       <div>
-        <p class="eyebrow">Bitvavo-Kurse, Stand <span id="stand">–</span></p>
+        <p class="eyebrow"><span class="breit">Bitvavo-Kurse, Stand <span id="stand">–</span></span><span class="schmal" id="stand-kurz"></span></p>
         <h1 id="ansicht-titel">Übersicht</h1>
       </div>
       <button type="button" class="thema"><svg class="sonne" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.600 5.600l1.400 1.400M17 17l1.400 1.400M5.600 18.400L7 17M17 7l1.400-1.400"/></svg><svg class="mond" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.500A8 8 0 0 1 9.500 4 8 8 0 1 0 20 14.500z"/></svg><span>Hell</span></button>
@@ -790,11 +794,11 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
               <header class="reihe"><h2 id="h-ov-news">Aufmacher</h2><button type="button" data-go="markt">Zur Marktzeitung</button></header>
               <div id="ov-news"></div>
             </section>
-            <section class="sheet" aria-labelledby="h-ov-zins">
+            <section class="sheet" data-leer aria-labelledby="h-ov-zins">
               <header><h2 id="h-ov-zins">Nächste Zinsentscheide</h2></header>
               <div class="zinsen" id="ov-zins"></div>
             </section>
-            <section class="sheet" aria-labelledby="h-ov-import">
+            <section class="sheet" hidden aria-labelledby="h-ov-import">
               <header class="reihe"><h2 id="h-ov-import">Import</h2><button type="button" data-go="portfolio" data-ziel="import">Zum Import</button></header>
               <p class="cap" id="ov-import"></p>
             </section>
@@ -3324,7 +3328,9 @@ const TREFFER = (function () {
     $('sj-leer').hidden = !!LED; $('sj-inhalt').hidden = !LED;
     if (!LED) return;
     const now = +TODAY.slice(0, 4), y0 = +state.tx[0][0].slice(0, 4), y1 = Math.max(now, +state.tx[state.tx.length - 1][0].slice(0, 4));
-    if (taxYear === null || taxYear < y0 || taxYear > y1) taxYear = Math.min(y1, Math.max(y0, now));
+    // Jahre mit Verkäufen; vorgewählt ist das letzte davon (meist das Jahr für die Steuererklärung)
+    const mitVerkauf = LED.sales.map(function (s) { return +String(s.d).slice(0, 4); }).filter(function (y) { return y >= y0 && y <= y1; });
+    if (taxYear === null || taxYear < y0 || taxYear > y1) taxYear = mitVerkauf.length ? Math.max.apply(null, mitVerkauf) : Math.min(y1, Math.max(y0, now));
     const sel = $('sj-jahr');
     if (sel.options.length !== y1 - y0 + 1 || +sel.options[0].value !== y1) {
       sel.textContent = '';
@@ -3341,6 +3347,7 @@ const TREFFER = (function () {
     ]);
     $('sj-satz').textContent = !T.sales.length
       ? 'Im Jahr ' + T.y + ' hast du laut Import nichts gegen Euro verkauft. Aus Verkäufen ist nichts zu versteuern. Kursgewinne, die nur auf dem Papier stehen, zählen nicht.'
+        + (mitVerkauf.length ? ' Verkäufe gibt es in ' + mitVerkauf.filter(function (y, i, a) { return a.indexOf(y) === i; }).sort().join(', ') + '.' : '')
       : 'Im Jahr ' + T.y + ' hast du Coins für ' + eur2(T.erloes) + ' verkauft und dafür ' + eur2(T.fee) + ' Verkaufsgebühr gezahlt. ' +
         (T.saldo > 0.004 ? 'Unter dem Strich bleiben ' + eur2(T.saldo) + ' Gewinn, darauf fallen ' + eur2(T.tax) + ' Steuer an.' : T.saldo < -0.004 ? 'Unter dem Strich bleibt ein Verlust von ' + eur2(-T.saldo) + ', Steuer fällt keine an.' : 'Unter dem Strich bleibt weder Gewinn noch Verlust.');
 
@@ -3466,15 +3473,15 @@ const TREFFER = (function () {
   // Immer genau eine Ansicht ist sichtbar. Die Annahmen-Karte zieht in die Ansicht um, in der sie wirkt.
   const ANSICHTEN = { uebersicht: 'Übersicht', portfolio: 'Portfolio', risiko: 'Risiko', planung: 'Planung', markt: 'Markt', steuer: 'Steuer', methode: 'Methode und Grenzen' };
   const ABSCHNITTE = {
-    portfolio: [['wertverlauf', 'Wertverlauf'], ['ergebnis', 'Ergebnis je Coin'], ['verhalten', 'Anlegerprofil'], ['import', 'Import'], ['wertpapiere', 'Wertpapiere'], ['wallets', 'Wallets'], ['sicherung', 'Sicherung']],
+    portfolio: [['wertverlauf', 'Wertverlauf'], ['ergebnis', 'Ergebnis je Coin'], ['verhalten', 'Anlegerprofil'], ['wertpapiere', 'Wertpapiere'], ['wallets', 'Wallets'], ['import', 'Import'], ['sicherung', 'Sicherung']],
     risiko: [['check', 'Portfolio-Check'], ['bandbreite', 'Bandbreite'], ['risiko', 'Risiko'], ['stresstest', 'Stresstest'], ['treffer', 'Trefferquote']],
-    planung: [['trendhilfe', 'Trend ableiten'], ['umschichten', 'Umschichten'], ['coins', 'Coins']]
+    planung: [['umschichten', 'Umschichten'], ['trendhilfe', 'Trend ableiten'], ['coins', 'Coins']]
   };
   const ANSICHT_KEY = 'krypto-freunde-ansicht', THEMA_KEY = 'krypto-freunde-thema';
   const ruhig = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   let ansicht = 'uebersicht';
   // In Risiko und Planung ist immer nur ein Abschnitt offen (Reiter). In Portfolio springen die Knöpfe nur zum Abschnitt.
-  const REITER_KEY = 'krypto-freunde-reiter', REITER = { risiko: 'check', planung: 'trendhilfe' };
+  const REITER_KEY = 'krypto-freunde-reiter', REITER = { risiko: 'check', planung: 'umschichten' };
   try {
     const g = JSON.parse(localStorage.getItem(REITER_KEY) || 'null');
     if (g && typeof g === 'object') Object.keys(REITER).forEach(function (v) {
@@ -3882,22 +3889,24 @@ const TREFFER = (function () {
     const H = state.horizon, T = trendStats(H);
     const monat = function (i) { return MON[i % 12] + ' ' + (2012 + Math.floor(i / 12)); };
     const spanne = H >= 12 ? 'alle zwölf Monate' : (H === 1 ? MON[T.kommend[0]] : MON[T.kommend[0]] + ' bis ' + MON[T.kommend[H - 1]]);
-    const karte = function (titel, wert, text) {
+    // art: 'empf' = Grundeinstellung, 'spek' = dünne Datenlage, nur zum Ausprobieren
+    const karte = function (titel, wert, text, art) {
       const ok = isFinite(wert), ziel = ok ? regler(wert) : 0, on = ok && state.trend === ziel;
-      const b = h('button', { type: 'button', text: on ? 'Eingestellt' : 'Übernehmen (' + (ziel === 0 ? 'ohne Trend' : pctS(ziel / 100)) + ')' });
+      const b = h('button', { type: 'button', text: on ? 'Eingestellt' : (art === 'spek' ? 'Ausprobieren (' : 'Übernehmen (') + (ziel === 0 ? 'ohne Trend' : pctS(ziel / 100)) + ')' });
       b.disabled = !ok || on;
       b.addEventListener('click', function () { state.trend = ziel; syncControls(); renderOutputs(); schedule(); });
-      return h('div', { class: 'th-karte' + (on ? ' on' : '') }, h('div', { class: 'k', text: titel }),
+      const marke = art === 'empf' ? h('span', { class: 'stufe s0', text: 'empfohlen' }) : art === 'spek' ? h('span', { class: 'stufe s1', text: 'spekulativ' }) : null;
+      return h('div', { class: 'th-karte' + (on ? ' on' : '') + (art ? ' ' + art : '') }, h('div', { class: 'k' }, titel, marke ? ' ' : null, marke),
         h('div', { class: 'v', text: ok ? pctS(wert) + ' pro Jahr' : '–' }), h('div', { class: 's', text: text }), b);
     };
     const lang = T.geo(LANG_AB);
     fill('th-karten', [
-      karte('Ohne Trend', 0, 'Neutral. Die Simulation zeigt nur die Schwankung, keine Richtung.'),
+      karte('Ohne Trend', 0, 'Neutral. Die Simulation zeigt nur die Schwankung, keine Richtung. Die ehrlichste Grundeinstellung.', 'empf'),
       karte('Langfristig, vorsichtig', lang, 'Durchschnitt pro Jahr seit Anfang ' + LANG_AB + ', also über zwei volle Zyklen samt ihren Abstürzen.'),
-      karte('Saisonal für ' + monthsText(H).replace('Monaten', 'Monate'), T.saisonJahr, 'Mittlere Monate ' + spanne + ' seit ' + SAISON_AB + ' aneinandergereiht, aufs Jahr gerechnet.'),
+      karte('Saisonal für ' + monthsText(H).replace('Monaten', 'Monate'), T.saisonJahr, 'Mittlere Monate ' + spanne + ' seit ' + SAISON_AB + ' aneinandergereiht, aufs Jahr gerechnet.', 'spek'),
       karte('Zyklus-Muster', T.zyklusJahr, T.zyklus.length
         ? 'Gleiche Phase nach den Halvings ' + T.zyklus.map(function (z) { return z.jahr + ': ' + pctS(z.r); }).join(', ') + ' in ' + monthsText(H) + '. Nur ' + T.zyklus.length + ' Fälle.'
-        : 'Für diesen Zeitraum gibt es keinen abgeschlossenen Vergleich aus früheren Zyklen.')
+        : 'Für diesen Zeitraum gibt es keinen abgeschlossenen Vergleich aus früheren Zyklen.', 'spek')
     ]);
     const klar = T.saison.filter(function (x) { const a = Math.max(x.pos, x.n - x.pos) / x.n; return a >= 0.7; }).length;
     const r21 = T.roll(2021);
@@ -4281,6 +4290,7 @@ const TREFFER = (function () {
     istLeer = leer;
     $('leer-hinweis').hidden = !leer; $('kacheln').hidden = leer;
     document.querySelectorAll('[data-voll]').forEach(function (e) { e.hidden = leer; });
+    // Zinstermine stehen auf der Übersicht nur, solange noch nichts eingelesen ist (es gibt sie auch im Markt)
     document.querySelectorAll('[data-leer]').forEach(function (e) { e.hidden = !leer; });
     $('ansichten').classList.toggle('hat-daten', !leer);
     ['check', 'wertverlauf', 'bandbreite', 'risiko', 'stresstest', 'umschichten', 'treffer'].forEach(function (id) { $(id).hidden = leer; });
@@ -4300,6 +4310,11 @@ const TREFFER = (function () {
   $('stand').textContent = abruf && !isNaN(abruf)
     ? new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(abruf) + ' Uhr'
     : dfull.format(dateAt(P.D - 1));
+  // Am Handy kurz: „Kurse heute, 18:14“ bzw. „Kurse 14.11., 18:14“
+  $('stand-kurz').textContent = abruf && !isNaN(abruf)
+    ? 'Kurse ' + (abruf.toDateString() === new Date().toDateString() ? 'heute' : new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit' }).format(abruf) + '.')
+      + ', ' + new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' }).format(abruf)
+    : 'Kurse ' + $('stand').textContent;
   autoImport();
   zeitraumText();
   rebuildLedger();
