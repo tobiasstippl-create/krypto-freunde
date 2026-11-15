@@ -264,6 +264,19 @@ main{min-width:0}
 .app-streifen-knoepfe button{padding:6px 12px;font-size:13.5px}
 .app-streifen-zu{border:0;background:transparent;color:var(--muted);padding:6px 8px!important;cursor:pointer}
 .app-teilen{display:inline-block;vertical-align:-3px}
+/* Gesamtvermögen: Krypto, Cash, Wertpapiere, Wallets zusammen */
+.gv{display:flex;flex-direction:column;gap:12px}
+.gv .k{margin:0;font:600 12px/1.2 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.gv .hero-v{margin:0;font-size:clamp(32px,5.5vw,46px)}
+.gv-balken{display:flex;height:12px;border-radius:999px;overflow:hidden;gap:3px}
+.gv-balken i{display:block;height:100%;min-width:4px}
+.gv-liste{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px 18px}
+.gv-liste li{display:grid;grid-template-columns:10px minmax(0,1fr);column-gap:8px;align-items:baseline}
+.gv-liste .sw{width:10px;height:10px;border-radius:3px;align-self:center}
+.gv-liste span{color:var(--ink-2);font-size:13.5px}
+.gv-liste b{grid-column:2;font:600 17px/1.3 var(--font-body);font-variant-numeric:tabular-nums;color:var(--ink)}
+.gv-liste small{grid-column:2;color:var(--muted);font-size:12px}
+.gv-k{background:var(--s1)} .gv-c{background:var(--deemph)} .gv-w{background:var(--s2)} .gv-l{background:var(--accent-2)}
 .sich-streifen{border-color:color-mix(in srgb,#f0b429 55%,var(--line));background:color-mix(in srgb,#f0b429 9%,var(--surface))}
 .app-anleitung{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,14,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .app-anleitung-box{max-width:440px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 20px 16px;box-shadow:0 20px 60px -20px rgba(0,0,0,.6)}
@@ -600,7 +613,8 @@ body::after{content:"";position:fixed;inset:-20vmax;z-index:-1;pointer-events:no
 .brand{gap:11px;font-size:14.5px;white-space:nowrap}
 .brand img{width:38px;height:38px;flex:none;border-radius:11px;box-shadow:0 8px 22px -8px rgba(40,120,255,.75)}
 .brand span{display:flex;flex-direction:column;line-height:1.15}
-.brand small{font:500 10.5px/1.3 var(--font-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.brand small{font:500 9.5px/1.3 var(--font-mono);letter-spacing:.03em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.brand span{min-width:0}
 .nav{gap:4px}
 .nav button,.side-foot button{border-radius:12px;transition:background .18s ease,color .18s ease,transform .18s ease}
 .nav button:hover{transform:translateX(2px)}
@@ -612,7 +626,8 @@ body::after{content:"";position:fixed;inset:-20vmax;z-index:-1;pointer-events:no
 }
 
 /* Kopf */
-.kopf h1{font-size:clamp(26px,3.6vw,36px);background:linear-gradient(92deg,var(--ink) 30%,var(--accent-strong));-webkit-background-clip:text;background-clip:text;color:transparent}
+/* Mit background-clip:text wird alles außerhalb der Box abgeschnitten: Platz für Ü-Punkte und Unterlängen */
+.kopf h1{font-size:clamp(26px,3.6vw,36px);line-height:1.2;padding-block:.08em .04em;background:linear-gradient(92deg,var(--ink) 30%,var(--accent-strong));-webkit-background-clip:text;background-clip:text;color:transparent}
 .kopf .eyebrow{display:inline-flex;align-items:center;gap:8px}
 .kopf .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent-2) 22%,transparent);animation:puls 2.6s ease-in-out infinite}
 @keyframes puls{50%{box-shadow:0 0 0 7px transparent}}
@@ -796,6 +811,12 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
               <p>Lies deinen Transaktionsverlauf von Bitvavo, Bitpanda oder Trade Republic ein. Aktien, ETFs und Wallets trägst du im Bereich Portfolio ein. Aus den Dateien rechnet die App deine Stückzahlen und den Einstand und füllt Wertverlauf, Bandbreite, Risiko und Steuerübersicht.</p>
               <div class="btns"><button type="button" class="primary" data-go="portfolio" data-ziel="import">Zum Import</button></div>
             </section>
+            <section class="sheet gv" id="ov-gesamt" aria-labelledby="h-ov-gesamt" hidden>
+              <p class="k" id="h-ov-gesamt">Gesamtvermögen</p>
+              <p class="hero-v" id="ov-gesamt-wert">–</p>
+              <div class="gv-balken" id="ov-gesamt-balken" aria-hidden="true"></div>
+              <ul class="gv-liste" id="ov-gesamt-liste"></ul>
+            </section>
             <section class="sheet hero" data-voll aria-labelledby="h-ov-wert">
               <div class="hero-kopf">
                 <div class="hero-text">
@@ -911,7 +932,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
         <p class="note callout" id="imp-status"></p>
         <div class="btns">
           <button type="button" class="primary" id="imp-wahl">CSV-Datei wählen</button>
-          <button type="button" id="imp-weg" hidden>Import entfernen</button>
+          <button type="button" id="imp-weg" hidden>Alle Importe entfernen</button>
           <input type="file" id="imp-datei" accept=".csv,text/csv,text/plain" multiple hidden>
         </div>
         <div class="fig" id="imp-vorschau" hidden>
@@ -2379,7 +2400,8 @@ const TREFFER = (function () {
           return Array.isArray(x) && x.length >= 6 && typeof x[0] === 'string' && typeof x[1] === 'string' && typeof x[2] === 'string' && isNum(x[3]) && isNum(x[4]) && isNum(x[5]);
         }).slice(0, 60000);
         st.imp = raw.imp === true;
-        if (raw.info && typeof raw.info === 'object') st.info = { at: typeof raw.info.at === 'string' ? raw.info.at.slice(0, 10) : '', fremd: isNum(raw.info.fremd) ? raw.info.fremd : 0 };
+        if (raw.info && typeof raw.info === 'object') st.info = { at: typeof raw.info.at === 'string' ? raw.info.at.slice(0, 10) : '', fremd: isNum(raw.info.fremd) ? raw.info.fremd : 0,
+          boersen: Array.isArray(raw.info.boersen) ? raw.info.boersen.filter(function (b) { return typeof b === 'string'; }).map(function (b) { return b.slice(0, 30); }).slice(0, 10) : [] };
         if (Array.isArray(raw.snaps)) st.snaps = raw.snaps.filter(function (x) {
           return Array.isArray(x) && /^\d{4}-\d{2}-\d{2}$/.test(x[0]) && isNum(x[1]) && isNum(x[2]);
         }).slice(-2000);
@@ -2598,6 +2620,9 @@ const TREFFER = (function () {
     de.className = 'delta' + (d > 0.5 ? ' up' : d < -0.5 ? ' down' : '');
     de.textContent = (d > 0.5 ? '▲ ' : d < -0.5 ? '▼ ' : '') + eurS(d) + ' (' + pctS(vor > 0 ? d / vor : 0, 1) + ') seit gestern';
     $('ov-teile').textContent = eur(c.coins) + ' in Coins und ' + eur(state.cash) + ' Cash';
+    // Für die Karte „Gesamtvermögen“ (wallets.js): Krypto-Teil ohne Umweg über den angezeigten Text
+    window.KRYPTO_STAND = { coins: c.coins, cash: state.cash, total: c.total, daten: state.tx.length > 0 || state.pos.some(function (p) { return p.stueck > 0; }) };
+    document.dispatchEvent(new Event('vermoegen'));
     const teile = SYMS.map(function (sym, i) { return { sym: sym, v: c.values[i] }; }).filter(function (x) { return x.v > 0; }).sort(function (a, b) { return b.v - a.v; });
     if (state.cash > 0) teile.push({ sym: null, v: state.cash });
     const gr = Math.max.apply(null, teile.map(function (x) { return x.v; }).concat([1]));
@@ -3100,8 +3125,11 @@ const TREFFER = (function () {
       const parts = texts.map(function (t) { return LEDGER.parse(t); });
       const bad = parts.findIndex(function (p) { return p.error; });
       if (bad >= 0) { impError = list[bad].name + ': ' + parts[bad].error; renderImport(); return; }
-      const tx = LEDGER.merge(parts.map(function (p) { return p.tx; }));
-      if (!tx.length) { impError = 'In der Datei stehen keine abgeschlossenen Transaktionen.'; renderImport(); return; }
+      const neuTx = LEDGER.merge(parts.map(function (p) { return p.tx; }));
+      if (!neuTx.length) { impError = 'In der Datei stehen keine abgeschlossenen Transaktionen.'; renderImport(); return; }
+      // Neue Dateien kommen zu den bisherigen Buchungen dazu (z. B. Bitvavo + Trade Republic).
+      // Zeilen, die schon da sind (dieselbe Datei später noch einmal), zählen nur einmal.
+      const tx = state.tx.length ? LEDGER.merge([state.tx, neuTx]) : neuTx;
       const boersen = [], umbenannt = [], wp = [], ohneKrypto = [];
       parts.forEach(function (p) {
         if (p.boerse && boersen.indexOf(p.boerse) < 0) boersen.push(p.boerse);
@@ -3110,7 +3138,7 @@ const TREFFER = (function () {
         if (p.wp && p.wp.liste.length) wp.push(p.wp);
       });
       pending = {
-        tx: tx, book: LEDGER.run(tx), boersen: boersen, umbenannt: umbenannt, wp: wp, ohneKrypto: ohneKrypto,
+        tx: tx, neu: tx.length - state.tx.length, inDatei: neuTx.length, book: LEDGER.run(tx), boersen: boersen, umbenannt: umbenannt, wp: wp, ohneKrypto: ohneKrypto,
         steuer: sum(parts.map(function (p) { return p.steuer || 0; })),
         fremd: sum(parts.map(function (p) { return p.fremd; })), schlecht: sum(parts.map(function (p) { return p.schlecht; }))
       };
@@ -3123,8 +3151,10 @@ const TREFFER = (function () {
     st.className = 'note callout' + (impError ? ' warn' : '');
     if (impError) st.textContent = impError;
     else if (state.tx.length) {
+      const qn = (state.info && state.info.boersen) || [];
       st.textContent = nf0.format(state.tx.length) + ' Transaktionen vom ' + dIso(state.tx[0][0]) + ' bis ' + dIso(state.tx[state.tx.length - 1][0]) + ' eingelesen' +
-        (state.info && state.info.at ? ', zuletzt am ' + dIso(state.info.at) : '') + '. Nach neuen Käufen oder Verkäufen liest du einfach die aktuelle Datei noch einmal ein.';
+        (qn.length ? ' (' + qn.join(' + ') + ')' : '') + (state.info && state.info.at ? ', zuletzt am ' + dIso(state.info.at) : '') +
+        '. Weitere Anbieter liest du einfach dazu, sie kommen zu den bisherigen. Nach neuen Käufen oder Verkäufen liest du die aktuelle Datei noch einmal ein; was schon da ist, zählt nur einmal.';
     } else st.textContent = 'Noch nichts eingelesen. Wähle deine Datei von Bitvavo, Bitpanda oder Trade Republic, die Seite rechnet nur mit dem, was darin steht.';
     if (AUTO && !impError && state.tx.length) {
       const ka = KONTO.abruf ? new Date(KONTO.abruf) : null;
@@ -3140,9 +3170,13 @@ const TREFFER = (function () {
     if (!pending) return;
 
     const B = pending.book, tx = pending.tx, ok = LEDGER.eurOk(B);
-    $('imp-kopf').textContent = nf0.format(tx.length) + ' Transaktionen vom ' + dIso(tx[0][0]) + ' bis ' + dIso(tx[tx.length - 1][0]) + ' gefunden' +
-      (pending.schlecht ? ', ' + nf0.format(pending.schlecht) + ' unlesbare Zeilen übersprungen' : '') + (pending.boersen.length ? ' (' + pending.boersen.join(' + ') + ')' : '') + '. Vergleiche die neuen Stückzahlen mit deinem Bestand beim Anbieter.' +
-      (state.tx.length ? ' Der neue Import ersetzt den bisherigen.' : '');
+    const bisher = (state.info && state.info.boersen) || [];
+    $('imp-kopf').textContent = (state.tx.length
+      ? nf0.format(pending.inDatei) + ' Transaktionen in der Datei' + (pending.boersen.length ? ' (' + pending.boersen.join(' + ') + ')' : '') + ', davon ' + nf0.format(pending.neu) + ' neu. Sie kommen zu den '
+        + nf0.format(state.tx.length) + ' bisherigen' + (bisher.length ? ' (' + bisher.join(' + ') + ')' : '') + ' dazu; was schon eingelesen war, zählt nur einmal. Zusammen: '
+        + nf0.format(tx.length) + ' Transaktionen vom ' + dIso(tx[0][0]) + ' bis ' + dIso(tx[tx.length - 1][0]) + '.'
+      : nf0.format(tx.length) + ' Transaktionen vom ' + dIso(tx[0][0]) + ' bis ' + dIso(tx[tx.length - 1][0]) + ' gefunden' + (pending.boersen.length ? ' (' + pending.boersen.join(' + ') + ')' : '') + '.') +
+      (pending.schlecht ? ' ' + nf0.format(pending.schlecht) + ' unlesbare Zeilen übersprungen.' : '') + ' Vergleiche die neuen Stückzahlen mit deinem Bestand beim Anbieter.';
     const t = $('imp-tabelle'); t.textContent = '';
     t.append(h('thead', null, tr(['Position', 'Stück bisher', 'Stück neu', 'Einstand bisher', 'Einstand neu'], 'th')));
     const body = h('tbody');
@@ -3173,7 +3207,9 @@ const TREFFER = (function () {
 
   function applyImport() {
     if (!pending) return;
-    state.tx = pending.tx; state.imp = true; state.info = { at: TODAY, fremd: pending.fremd };
+    const boersen = ((state.tx.length && state.info && state.info.boersen) || []).slice();
+    pending.boersen.forEach(function (b) { if (boersen.indexOf(b) < 0) boersen.push(b); });
+    state.tx = pending.tx; state.imp = true; state.info = { at: TODAY, fremd: pending.fremd, boersen: boersen };
     const neu = pending.book.pos;
     state.pos = [];
     setActive(Object.keys(neu).filter(function (s) { return COIN[s] && neu[s].qty > 1e-9; }).concat(state.extra));
@@ -4035,7 +4071,8 @@ const TREFFER = (function () {
   }
   // teile: [{ name, kurz, w, f }] mit f = Farbklasse a/b/c; in der Mitte steht das größte Stück
   function kreis(teile, label) {
-    const W = 132, c = W / 2, R = 62, r = 43, summe = sum(teile.map(function (t) { return t.w; }));
+    // Dünner Ring mit großem Innenraum, damit „nach Rückgang“ oder „kleinere Coins“ nicht in den Ring ragen
+    const W = 140, c = W / 2, R = 68, r = 52, summe = sum(teile.map(function (t) { return t.w; }));
     const svg = s('svg', { width: W, height: W, viewBox: '0 0 ' + W + ' ' + W, role: 'img', 'aria-label': label, class: 'ap-kreis' });
     const da = teile.filter(function (t) { return t.w > 0; }), luecke = da.length > 1 ? 0.04 : 0;
     let a = 0;
@@ -4049,8 +4086,11 @@ const TREFFER = (function () {
     });
     let top = teile[0];
     teile.forEach(function (t) { if (t.w > top.w) top = t; });
-    s('text', { x: c, y: c + 3, 'text-anchor': 'middle', class: 'ap-zahl' }, svg, pct(top.w / summe));
-    s('text', { x: c, y: c + 20, 'text-anchor': 'middle', class: 'ap-klein' }, svg, top.kurz);
+    s('text', { x: c, y: c + 2, 'text-anchor': 'middle', class: 'ap-zahl' }, svg, pct(top.w / summe));
+    // Notbremse für lange Wörter: höchstens 84 px breit (Innenraum an dieser Höhe ≈ 100 px)
+    const klein = { x: c, y: c + 18, 'text-anchor': 'middle', class: 'ap-klein' };
+    if (String(top.kurz).length * 6.2 > 84) { klein.textLength = 84; klein.lengthAdjust = 'spacingAndGlyphs'; }
+    s('text', klein, svg, top.kurz);
     return svg;
   }
   function apKarte(id, frage, typ, teile, satz, label) {
@@ -4408,7 +4448,11 @@ const TREFFER = (function () {
     if (vorher.some(function (s) { return !versucht[s]; })) setTimeout(function () { location.reload(); }, 300);
   });
   $('imp-nein').addEventListener('click', function () { pending = null; renderImport(); });
-  $('imp-weg').addEventListener('click', removeImport);
+  // Seit Importe sich addieren, entfernt der Knopf alle Krypto-Buchungen auf einmal: vorher nachfragen
+  $('imp-weg').addEventListener('click', function () {
+    const q = (state.info && state.info.boersen) || [];
+    if (window.confirm('Alle eingelesenen Transaktionen' + (q.length ? ' (' + q.join(' + ') + ')' : '') + ' entfernen? Wertpapiere und Wallets bleiben. Danach liest du die Dateien neu ein.')) removeImport();
+  });
   $('wv-spanne').addEventListener('click', function (e) {
     const k = e.target.closest('button[data-spanne]');
     if (!k) return;
@@ -5031,6 +5075,8 @@ const TREFFER = (function () {
       d.className = 'delta ' + ton(summe - einst);
       gesamt(summe);
     }
+    // Karte „Gesamtvermögen“ (wallets.js) neu zeichnen; die Zuhörer hier lösen selbst kein Ereignis aus
+    document.dispatchEvent(new Event('vermoegen'));
   }
   function importText() {
     var im = daten.importe || {};
@@ -5044,7 +5090,9 @@ const TREFFER = (function () {
   function gesamt(summe) {
     if (summe != null) letzteSumme = summe;
     // deutsches Format der Übersicht: Punkt trennt Tausender, Komma die Dezimalstellen
-    var k = Number(($('ov-wert').textContent || '').replace(/[^\d,−-]/g, '').replace('−', '-').replace(',', '.'));
+    // Exakter Krypto-Wert aus der App (der angezeigte Text ist gerundet und zählt beim Start hoch)
+    var ks = window.KRYPTO_STAND;
+    var k = ks ? (ks.daten ? ks.total : 0) : Number(($('ov-wert').textContent || '').replace(/[^\d,−-]/g, '').replace('−', '-').replace(',', '.'));
     var wal = window.WALLET ? window.WALLET.summe() : 0, teile = [];
     if (isFinite(k) && k > 0) teile.push('Krypto'); else k = 0;
     if (wal > 0) teile.push('Wallets');
@@ -5552,14 +5600,44 @@ const TREFFER = (function () {
 
   // Gesamtvermögen: Krypto (Übersicht) + Wertpapiere + Wallets
   function gesamtText() {
-    var k = Number(($('ov-wert').textContent || '').replace(/[^\d,−-]/g, '').replace('−', '-').replace(',', '.'));
+    var ks = window.KRYPTO_STAND;
+    var k = ks ? (ks.daten ? ks.total : 0) : Number(($('ov-wert').textContent || '').replace(/[^\d,−-]/g, '').replace('−', '-').replace(',', '.'));
     var wp = window.WP && window.WP.summe ? window.WP.summe() : 0;
     var teile = [];
     if (isFinite(k) && k > 0) teile.push('Krypto');
     if (wp > 0) teile.push('Wertpapieren');
     return teile.length ? 'Zusammen mit ' + teile.join(' und ') + ': ' + eur((isFinite(k) && k > 0 ? k : 0) + wp + gesamtWallets) : '';
   }
-  document.addEventListener('vermoegen', function () { if (daten.liste.length) $('ov-wal-gesamt').textContent = gesamtText(); });
+  document.addEventListener('vermoegen', function () { if (daten.liste.length) $('ov-wal-gesamt').textContent = gesamtText(); zeichneGesamt(); });
+
+  // Karte „Gesamtvermögen“ oben in der Übersicht: erscheint, sobald neben Krypto auch Wertpapiere oder Wallets da sind
+  function zeichneGesamt() {
+    var karte = $('ov-gesamt');
+    if (!karte) return;
+    var ks = window.KRYPTO_STAND || { coins: 0, cash: 0, daten: false };
+    var wp = window.WP && window.WP.summe ? window.WP.summe() : 0;
+    var teile = [
+      { k: 'gv-k', name: 'Krypto', v: ks.daten ? ks.coins : 0 },
+      { k: 'gv-c', name: 'Cash (Börsen-Guthaben)', v: ks.daten ? ks.cash : 0 },
+      { k: 'gv-w', name: 'Aktien & ETFs', v: wp },
+      { k: 'gv-l', name: 'Wallets', v: gesamtWallets }
+    ].filter(function (t) { return t.v > 0.5; });
+    var summe = teile.reduce(function (s, t) { return s + t.v; }, 0);
+    karte.hidden = !(wp > 0.5 || gesamtWallets > 0.5) || teile.length < 2;
+    // Mit Gesamtvermögen darüber zeigt die große Karte nur noch den Krypto-Teil: so heißt sie dann auch
+    if ($('h-ov-wert')) $('h-ov-wert').textContent = karte.hidden ? 'Portfoliowert' : 'Krypto & Cash';
+    if (karte.hidden) return;
+    $('ov-gesamt-wert').textContent = eur(summe);
+    var balken = $('ov-gesamt-balken'), liste = $('ov-gesamt-liste');
+    balken.textContent = ''; liste.textContent = '';
+    teile.forEach(function (t) {
+      var i = document.createElement('i'); i.className = t.k; i.style.flex = String(t.v / summe); i.title = t.name;
+      balken.append(i);
+      var li = document.createElement('li'), sw = document.createElement('i'), n = document.createElement('span'), b = document.createElement('b'), s = document.createElement('small');
+      sw.className = 'sw ' + t.k; n.textContent = t.name; b.textContent = eur(t.v); s.textContent = nfp.format(t.v / summe * 100) + ' %';
+      li.append(sw, n, b, s); liste.append(li);
+    });
+  }
   if (window.MutationObserver) new MutationObserver(function () { document.dispatchEvent(new Event('vermoegen')); }).observe($('ov-wert'), { childList: true, characterData: true, subtree: true });
   window.WALLET = { summe: function () { return gesamtWallets; } };
 
