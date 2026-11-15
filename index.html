@@ -1423,7 +1423,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
             <li><b>Fundamentalwert.</b> Der Mittelwert der vorhandenen Bausteine Größe, Liquidität, Umlauf, Reife und Kursruhe; die Nutzung kommt nur dazu, wenn sie diesen Mittelwert hebt. Marktdaten von CoinGecko, Gebühren von DefiLlama, zugeordnet über den Namen; das kann danebenliegen oder fehlen. Für Kryptowährungen gibt es keine anerkannten Fundamentaldaten wie bei Aktien. Die Wertung ist eine Rechenregel dieser Seite und kein Urteil über die Zukunft eines Coins.</li>
             <li><b>Portfolio-Check.</b> Schwellen für gut, beachten, kritisch: größte Position bis 30 % und bis 50 % des Portfolios; die zwei größten Risikoträger bis 55 % und bis 75 % der Schwankung; Gleichlauf bis 0,5 und bis 0,7; Verlust bei 50 % Bitcoin-Absturz bis 35 % und bis 50 %; Schwankung pro Jahr bis 50 % und bis 80 %; Cash ab 5 %; Fundamentalwert ab 65 und ab 45 Punkten. Das sind Faustregeln.</li>
             <li><b>Positionen.</b> Der Wert jeder Position ist Stückzahl mal letzter Kurs, die Rendite ergibt sich aus deinem Einstand. Beim Öffnen holt die App die fehlenden Tage direkt bei Bitvavo nach (öffentliche Kursdaten, ohne Konto) und merkt sie sich auf diesem Gerät. Ohne Internet rechnet sie mit dem zuletzt geladenen Stand.</li>
-            <li><b>Import.</b> Die Seite liest den Transaktionsverlauf von Bitvavo oder Bitpanda und führt je Coin Stückzahl und Einstand mit. Er kommt als CSV-Datei, die du bei deinem Anbieter exportierst. Käufe erhöhen den Einstand um Kaufpreis und Gebühr, Verkäufe und Auszahlungen nehmen ihn zum Durchschnittspreis anteilig heraus. Kommt ein ausgezahlter Coin später zurück, bringt er seinen Einstand wieder mit. Zugänge ohne Kauf zählen mit Einstand 0. Geliehene Coins (Margin) laufen getrennt vom eigenen Bestand: Ihr Verkauf und der Rückkauf werden bei der Rückgabe als ein Geschäft abgerechnet und verändern den Einstand deiner eigenen Coins nicht. Die Daten liegen nur im Speicher dieser App auf deinem Gerät.</li>
+            <li><b>Import.</b> Die Seite liest den Transaktionsverlauf von Bitvavo, Bitpanda oder Trade Republic und führt je Coin Stückzahl und Einstand mit. Er kommt als CSV-Datei, die du bei deinem Anbieter exportierst. Käufe erhöhen den Einstand um Kaufpreis und Gebühr, Verkäufe und Auszahlungen nehmen ihn zum Durchschnittspreis anteilig heraus. Kommt ein ausgezahlter Coin später zurück, bringt er seinen Einstand wieder mit. Zugänge ohne Kauf zählen mit Einstand 0. Geliehene Coins (Margin) laufen getrennt vom eigenen Bestand: Ihr Verkauf und der Rückkauf werden bei der Rückgabe als ein Geschäft abgerechnet und verändern den Einstand deiner eigenen Coins nicht. Die Daten liegen nur im Speicher dieser App auf deinem Gerät.</li>
             <li><b>Wertverlauf.</b> Mit Import: Bestand am Ende jedes Tages mal Tagesschlusskurs, dazu dein Euro-Guthaben. Vor dem Beginn der Kursdaten gibt es keine Linie. Ohne Import merkt sich die Seite an jedem Tag, an dem du sie öffnest, den Portfoliowert.</li>
             <li><b>Steuerübersicht.</b> Gewinn je Verkauf ist Erlös minus Verkaufsgebühr minus Einstand zum gleitenden Durchschnittspreis. Dass Kaufgebühren den Einstand erhöhen, sagt das Finanzministerium ausdrücklich. Dass die Verkaufsgebühr den Erlös mindert, ist die übliche Rechnung der Steuerprogramme. Coins, die vor dem 1. März 2021 gekauft wurden, wären steuerfreier Altbestand; die Seite behandelt alle Coins als Neubestand und weist darauf hin, wenn so alte Käufe in der Datei stehen.</li>
             <li><b>Dein Verhalten.</b> Ausgewertet werden die Käufe und Verkäufe aus dem Import; Teilausführungen desselben Coins binnen einer Minute zählen als ein Auftrag. „Davor“ ist der Weg vom Tagesschlusskurs sieben Tage vor dem Auftrag bis zu deinem Preis, „danach“ der Weg von deinem Preis bis zum Tagesschlusskurs 30 Tage später. Verglichen wird mit allen Tagen seit deiner ersten Transaktion, bei denselben Coins und mit denselben Gewichten wie deine Aufträge. Die Haltedauer rechnet so, dass beim Verkauf die ältesten Stück zuerst hinausgehen; das ist nur eine Zählweise, für die Steuer gilt der gleitende Durchschnittspreis. Schwellen für ok, auffällig, deutlich: bis 3 und bis 8 Prozentpunkte vom Vergleich vor dem Kauf oder Verkauf, bis 3 und bis 10 Prozentpunkte nach 30 Tagen, unter 25 % und unter 50 % kurz (unter 30 Tage) gehaltene Verkäufe, Gebühren bis 0,17 % und bis 0,27 % des Volumens. Wenige Aufträge ergeben zufällige Zahlen. Das Diagramm „Der Kurs rund um deine Käufe“ mittelt die Schlusskurse von 7 Tagen davor bis 30 Tage danach, jeweils gemessen an deinem Auftragspreis und gewichtet nach Betrag; es zählen nur Aufträge, für die der ganze Zeitraum vorliegt. Die Vergleichslinie ist derselbe Zeitraum rund um jeden Tag seit deiner ersten Transaktion. Der Euro-Betrag zum Kaufzeitpunkt ist der Unterschied nach 30 Tagen zu einem beliebigen Kauftag, mal Kaufbetrag. Der „Ø Kaufpreis“ im Kursverlauf ist der Schnitt aller Käufe dieses Coins, nicht dein Einstand nach Verkäufen.</li>
@@ -1918,7 +1918,7 @@ const LEDGER = (function () {
       if (hd.indexOf('type') >= 0 && hd.indexOf('currency') >= 0 && hd.indexOf('amount') >= 0) { hi = i; H = hd; break; }
     }
     const fail = function (msg) { return { error: msg, tx: [], fremd: 0, schlecht: 0 }; };
-    if (!H) return fail('Das Format wurde nicht erkannt. Erwartet wird der Transaktionsverlauf von Bitvavo oder Bitpanda als CSV.');
+    if (!H) return fail('Das Format wurde nicht erkannt. Erwartet wird der Transaktionsverlauf von Bitvavo, Bitpanda oder Trade Republic als CSV.');
     const col = function (names) { for (let k = 0; k < names.length; k++) { const j = H.indexOf(names[k]); if (j >= 0) return j; } return -1; };
     let cDate = col(['date', 'timestamp', 'datetime']), cTime = col(['time']);
     if (cDate < 0) { cDate = cTime; cTime = -1; }
@@ -3090,7 +3090,7 @@ const TREFFER = (function () {
     if (B.old) out.push('In der Datei stehen Käufe vor dem 1. März 2021. Solche Coins wären steuerfreier Altbestand, die Seite behandelt sie trotzdem wie alle anderen.');
     if (fremd > 0) out.push(nf0.format(fremd) + (fremd === 1 ? ' Zeile' : ' Zeilen') + ' mit einem anderen Handelspaar als Euro oder mit Aktien, ETFs oder Metallen ' + (fremd === 1 ? 'wurde' : 'wurden') + ' übersprungen. Aktien und ETFs kommen in einer späteren Fassung dazu.');
     const extra = extraCoins(B);
-    if (extra.length) out.push('Noch ohne Kurse: ' + extra.join(', ') + '. Nach dem Übernehmen versucht die App, ihre Kurse bei Bitvavo zu holen. Was Bitvavo nicht führt, zählt nicht zum Portfoliowert; in der Steuerübersicht sind die Verkäufe trotzdem enthalten.');
+    if (extra.length) out.push('Noch ohne Kurse: ' + extra.join(', ') + '. Nach dem Übernehmen holt die App ihre Kurse bei Bitvavo, und was Bitvavo nicht führt, bei CoinGecko (dort höchstens ein Jahr zurück). Was keine der beiden Quellen kennt, zählt nicht zum Portfoliowert; in der Steuerübersicht sind die Verkäufe trotzdem enthalten.');
     if (!LEDGER.eurOk(B)) out.push('Dein Euro-Guthaben lässt sich aus der Datei nicht sicher ableiten, weil Einzahlungen fehlen oder der Stand zwischendurch negativ wird. Dein Cash bleibt, wie du es eingetragen hast, und der Wertverlauf zeigt nur die Coins.');
     return out;
   }
@@ -3128,7 +3128,7 @@ const TREFFER = (function () {
     else if (state.tx.length) {
       st.textContent = nf0.format(state.tx.length) + ' Transaktionen vom ' + dIso(state.tx[0][0]) + ' bis ' + dIso(state.tx[state.tx.length - 1][0]) + ' eingelesen' +
         (state.info && state.info.at ? ', zuletzt am ' + dIso(state.info.at) : '') + '. Nach neuen Käufen oder Verkäufen liest du einfach die aktuelle Datei noch einmal ein.';
-    } else st.textContent = 'Noch nichts eingelesen. Wähle deine Datei von Bitvavo oder Bitpanda, die Seite rechnet nur mit dem, was darin steht.';
+    } else st.textContent = 'Noch nichts eingelesen. Wähle deine Datei von Bitvavo, Bitpanda oder Trade Republic, die Seite rechnet nur mit dem, was darin steht.';
     if (AUTO && !impError && state.tx.length) {
       const ka = KONTO.abruf ? new Date(KONTO.abruf) : null;
       st.textContent = 'Automatisch von Bitvavo geholt' + (ka && !isNaN(ka) ? ' am ' + dzeit.format(ka) + ' Uhr' : '') + ': ' + nf0.format(state.tx.length)
@@ -4836,6 +4836,51 @@ const TREFFER = (function () {
     });
   }
 
+  // ---------- Zweite Quelle: CoinGecko für Coins, die Bitvavo nicht führt ----------
+  // Öffentliche Schnittstelle ohne Schlüssel: Tageskurse in Euro, höchstens 365 Tage zurück, wenige Abrufe
+  // pro Minute. Deshalb nacheinander und nur für die Coins, bei denen Bitvavo nichts liefert.
+  var CG = 'https://api.coingecko.com/api/v3/', CG_IDS = 'krypto-freunde-cg-ids', CG_MAX = 10;
+  function cgJson(pfad) {
+    var ctl = window.AbortController ? new AbortController() : null;
+    var t = setTimeout(function () { if (ctl) ctl.abort(); }, ZEIT);
+    return fetch(CG + pfad, ctl ? { signal: ctl.signal } : {})
+      .then(function (r) { clearTimeout(t); if (!r.ok) { var e = new Error(r.status); e.status = r.status; throw e; } return r.json(); });
+  }
+  function cgIds() { try { return JSON.parse(localStorage.getItem(CG_IDS) || '{}') || {}; } catch (e) { return {}; } }
+  // Kürzel → CoinGecko-Kennung: exakt gleiches Kürzel, davon der Coin mit dem besten Marktkapitalisierungs-Rang.
+  // Coins ohne Rang (Nachahmer-Token mit gleichem Kürzel) werden nicht genommen.
+  function cgSuche(sym) {
+    var ids = cgIds();
+    if (Object.prototype.hasOwnProperty.call(ids, sym)) return Promise.resolve(ids[sym] || null);
+    return cgJson('search?query=' + encodeURIComponent(sym)).then(function (j) {
+      var best = null;
+      (j && j.coins || []).forEach(function (c) {
+        if (c && String(c.symbol).toUpperCase() === sym && c.market_cap_rank > 0 && (!best || c.market_cap_rank < best.market_cap_rank)) best = c;
+      });
+      ids = cgIds(); ids[sym] = best ? best.id + '|' + String(best.name || sym).slice(0, 40) : '';
+      try { localStorage.setItem(CG_IDS, JSON.stringify(ids)); } catch (e) { /* egal */ }
+      return ids[sym] || null;
+    }).catch(function () { return null; });   // Netz/Limit: nichts merken, nächstes Mal neu versuchen
+  }
+  function cgKurse(id, tage) {
+    return cgJson('coins/' + encodeURIComponent(id) + '/market_chart?vs_currency=eur&interval=daily&days=' + Math.min(365, Math.max(3, tage)))
+      .then(function (j) {
+        var m = {};
+        (j && Array.isArray(j.prices) ? j.prices : []).forEach(function (z) {
+          var c = +z[1];
+          if (isFinite(c) && c > 0) m[Math.floor(+z[0] / TAG)] = +c.toPrecision(6);   // letzter Wert = Kurs von jetzt
+        });
+        return Object.keys(m).length ? m : null;
+      }).catch(function () { return null; });
+  }
+  // nacheinander: liste = [[schluessel, Promise-Fabrik], …]
+  function nacheinander(liste) {
+    var erg = {};
+    return liste.reduce(function (kette, x) {
+      return kette.then(function () { return x[1]().then(function (v) { erg[x[0]] = v; }); });
+    }, Promise.resolve()).then(function () { return erg; });
+  }
+
   // Neue Tage anhängen; der letzte bekannte Tag wird ersetzt, weil seine Kerze beim Erstellen noch lief.
   // Tage ohne Kurs schreiben den letzten Kurs fort (wie das Python-Skript der privaten App).
   function verbinde(alt, neu) {
@@ -4849,7 +4894,9 @@ const TREFFER = (function () {
         if (x === undefined) x = d === altEnde ? c.kurse[c.kurse.length - 1] : letzter;
         k.push(x); letzter = x;
       }
-      return { sym: c.sym, name: c.name, start: c.start, kurse: k, zusatz: c.zusatz };
+      var neuC = { sym: c.sym, name: c.name, start: c.start, kurse: k, zusatz: c.zusatz };
+      if (c.cg) neuC.cg = c.cg;
+      return neuC;
     });
     return { quelle: alt.quelle, katalog: alt.katalog || alt.abruf, stand: iso(ende), abruf: new Date().toISOString().slice(0, 16) + 'Z', coins: coins };
   }
@@ -4880,11 +4927,16 @@ const TREFFER = (function () {
     for (var d = start; d <= ende; d++) { var x = m[d] !== undefined ? m[d] : letzter; k.push(x); letzter = x; }
     return { sym: sym, name: sym, start: iso(start), kurse: k, zusatz: true };
   }
-  function ergaenze(d, zusatz, neu) {
+  // neu: Bitvavo-Reihen; cg: {sym: {id, name, m}} von CoinGecko für die, die Bitvavo nicht hat
+  function ergaenze(d, zusatz, neu, cg) {
     var ende = tagNr(d.stand), ohne = {}, heuteIso = iso(Math.floor(Date.now() / TAG));
     try { ohne = JSON.parse(localStorage.getItem(VERSUCHT) || '{}') || {}; } catch (e) { ohne = {}; }
     zusatz.forEach(function (s) {
       var r = neu[s] ? reihe(s, neu[s], ende) : null;
+      if (!r && cg[s] && cg[s].m) {
+        r = reihe(s, cg[s].m, ende);
+        if (r) { r.cg = cg[s].id; r.name = cg[s].name || s; }
+      }
       if (r) { d.coins.push(r); delete ohne[s]; } else ohne[s] = heuteIso;
     });
     try { localStorage.setItem(VERSUCHT, JSON.stringify(ohne)); } catch (e) { /* egal */ }
@@ -4898,15 +4950,45 @@ const TREFFER = (function () {
 
   var limit = Math.min(1440, Math.max(3, heute - tagNr(daten.stand) + 3));
   zeige(zusatz.length && frisch ? 'Kurse für ' + zusatz.slice(0, 4).join(', ') + (zusatz.length > 4 ? ' …' : '') + ' werden geladen …' : 'Kurse werden aktualisiert …');
-  var notbremse = setTimeout(function () { zeige('Bitvavo antwortet nicht. Die App rechnet mit dem Stand vom ' + daten.stand.split('-').reverse().join('.') + '.'); starte(); weg(5000); }, GESAMT);
+  var notbremse = null;
+  function bremse() {
+    clearTimeout(notbremse);
+    notbremse = setTimeout(function () { zeige('Die Kursquellen antworten nicht. Die App rechnet mit dem Stand vom ' + daten.stand.split('-').reverse().join('.') + '.'); starte(); weg(5000); }, GESAMT);
+  }
+  bremse();
+  // Coins, die schon über CoinGecko laufen, werden auch dort fortgeschrieben
+  var ueberCg = daten.coins.filter(function (c) { return c.cg; });
   Promise.all([
-    frisch ? Promise.resolve(null) : holeAlle(daten.coins.map(function (c) { return c.sym; }), limit),
+    frisch ? Promise.resolve(null) : holeAlle(daten.coins.filter(function (c) { return !c.cg; }).map(function (c) { return c.sym; }), limit),
     holeAlle(zusatz, 1440)
   ]).then(function (beide) {
-    clearTimeout(notbremse);
     if (gestartet) return;
-    var neu = beide[0], erg = frisch ? JSON.parse(JSON.stringify(daten)) : verbinde(daten, neu);
-    if (erg) erg = ergaenze(erg, zusatz, beide[1]);
+    // Zweite Runde: CoinGecko für bekannte CoinGecko-Coins und für neue, die Bitvavo nicht kennt
+    var ohneBv = zusatz.filter(function (s) { var m = beide[1][s]; return !m || !Object.keys(m).length; }).slice(0, CG_MAX);
+    var auftraege = [];
+    if (!frisch) ueberCg.forEach(function (c) { auftraege.push([c.sym, function () { return cgKurse(c.cg, limit); }]); });
+    ohneBv.forEach(function (s) {
+      auftraege.push(['+' + s, function () {
+        return cgSuche(s).then(function (x) {
+          if (!x) return null;
+          var teil = x.split('|');
+          return cgKurse(teil[0], 365).then(function (m) { return m ? { id: teil[0], name: teil[1] || s, m: m } : null; });
+        });
+      }]);
+    });
+    if (!auftraege.length) return [beide, {}];
+    bremse();
+    return nacheinander(auftraege).then(function (cg) { return [beide, cg]; });
+  }).then(function (x) {
+    clearTimeout(notbremse);
+    if (gestartet || !x) return;
+    var beide = x[0], cg = x[1], neu = beide[0], neuCg = {};
+    if (neu) ueberCg.forEach(function (c) { if (cg[c.sym]) neu[c.sym] = cg[c.sym]; });
+    Object.keys(cg).forEach(function (k) { if (k.charAt(0) === '+') neuCg[k.slice(1)] = cg[k]; });
+    var erg = frisch ? JSON.parse(JSON.stringify(daten)) : verbinde(daten, neu);
+    // Kennung des Katalogs mitspeichern, sonst verwirft der nächste Start den gemerkten Stand
+    if (erg && !erg.katalog) erg.katalog = daten.katalog || daten.abruf;
+    if (erg) erg = ergaenze(erg, zusatz, beide[1], neuCg);
     if (erg) {
       el.textContent = JSON.stringify(erg);
       try { localStorage.setItem(CACHE, el.textContent); } catch (e) { /* Speicher voll: dann nur für diesen Besuch */ }
@@ -4921,8 +5003,8 @@ const TREFFER = (function () {
 /* Sicherung: alle Daten dieser App als Datei speichern und auf einem anderen Gerät wieder laden. */
 (function () {
   'use strict';
-  // Kurse lassen sich neu holen; der eigene Kursschlüssel gehört nicht in eine Datei, die man herumschickt
-  var PRAEFIX = 'krypto-freunde-', OHNE = { 'krypto-freunde-kurse': 1, 'krypto-freunde-ohne-kurs': 1, 'krypto-freunde-wp-kurse': 1, 'krypto-freunde-wp-notzaehler': 1, 'krypto-freunde-wal-stand': 1 };
+  // Kurse lassen sich neu holen; der eigene Kursschlüssel wandert mit, damit man ihn nur einmal einträgt
+  var PRAEFIX = 'krypto-freunde-', OHNE = { 'krypto-freunde-kurse': 1, 'krypto-freunde-ohne-kurs': 1, 'krypto-freunde-cg-ids': 1, 'krypto-freunde-wp-kurse': 1, 'krypto-freunde-wp-notzaehler': 1, 'krypto-freunde-wal-stand': 1 };
   var $ = function (id) { return document.getElementById(id); };
   var status = $('sich-status');
   if (!status) return;
