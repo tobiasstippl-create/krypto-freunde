@@ -277,6 +277,30 @@ main{min-width:0}
 .gv-liste b{grid-column:2;font:600 17px/1.3 var(--font-body);font-variant-numeric:tabular-nums;color:var(--ink)}
 .gv-liste small{grid-column:2;color:var(--muted);font-size:12px}
 .gv-k{background:var(--s1)} .gv-c{background:var(--deemph)} .gv-w{background:var(--s2)} .gv-l{background:var(--accent-2)}
+/* Aufteilung: Umschalter Nach Art / Nach Position; Wallet-Balken in der Wallet-Farbe */
+.umschalter{display:inline-flex;padding:3px;border-radius:999px;background:var(--sunken);border:1px solid var(--line);gap:2px}
+.umschalter button,.sheet>header.reihe .umschalter button{border:0;background:transparent;color:var(--muted);font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.sheet>header.reihe .umschalter button::after{content:none}
+.sheet>header.reihe .umschalter button:hover{background:var(--hover);color:var(--ink)}
+.umschalter button[aria-pressed="true"],.sheet>header.reihe .umschalter button[aria-pressed="true"]{background:var(--btn);color:var(--on-accent);box-shadow:0 1px 4px -1px rgba(0,0,0,.35)}
+.bar.l i{background:var(--accent-2);box-shadow:0 0 12px -2px var(--accent-2)}
+.vm-pkt{display:inline-block;width:12px;height:12px;border-radius:4px;flex:none}
+.coin.vm-w{background:color-mix(in srgb,var(--s2) 30%,var(--sunken));color:var(--s2);font-size:12px}
+.coin.vm-l{background:color-mix(in srgb,var(--accent-2) 26%,var(--sunken));color:var(--accent-2);font-size:13px}
+.coin.vm-c{background:var(--sunken);color:var(--ink-2);font-size:11px}
+.alloc .pos b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.alloc .pos{display:flex;align-items:center;gap:8px;min-width:0}
+/* Kachel-Grafik: Fläche = Wert, Farbe = Art, Helligkeit folgt der Bewegung seit gestern */
+.vk{position:relative;width:100%;min-height:200px;border-radius:12px;overflow:hidden}
+.vk-t{--vk-hell:0;--vk-f:var(--s1);position:absolute;box-sizing:border-box;border-radius:9px;padding:8px 9px;overflow:hidden;display:flex;flex-direction:column;gap:2px;cursor:default;
+  background:color-mix(in srgb,var(--vk-f) calc(34% + var(--vk-hell) * 14%),var(--sunken));border:1px solid color-mix(in srgb,var(--vk-f) 50%,transparent);transition:filter .15s ease}
+.vk-t:hover{filter:brightness(1.15)}
+.vk-t b{font:600 14px/1.2 var(--font-body);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vk-t .vk-v{font-size:12.5px;line-height:1.3;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.vk-t .vk-v i{font-style:normal;white-space:nowrap}
+.vk-t .vk-x{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--muted)}
+.vk-t .vk-x.up{color:var(--up)} .vk-t .vk-x.down{color:var(--down)}
+.vk-k{--vk-f:var(--s1)} .vk-c{--vk-f:var(--deemph)} .vk-w{--vk-f:var(--s2)} .vk-l{--vk-f:var(--accent-2)}
 .sich-streifen{border-color:color-mix(in srgb,#f0b429 55%,var(--line));background:color-mix(in srgb,#f0b429 9%,var(--surface))}
 .app-anleitung{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,14,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .app-anleitung-box{max-width:440px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 20px 16px;box-shadow:0 20px 60px -20px rgba(0,0,0,.6)}
@@ -839,10 +863,10 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
               <p class="note" id="ov-check-satz"></p>
               <ul class="kurz" id="ov-check"></ul>
             </section>
-            <section class="sheet" data-voll aria-labelledby="h-ov-tag">
-              <header><h2 id="h-ov-tag">Deine Coins heute</h2></header>
-              <div class="scroll"><table id="ov-tag"></table></div>
-              <p class="cap" id="ov-tag-cap"></p>
+            <section class="sheet" data-voll aria-labelledby="h-ov-karte">
+              <header class="reihe"><h2 id="h-ov-karte">Dein Vermögen auf einen Blick</h2></header>
+              <div class="vk" id="ov-karte" role="img" aria-label="Vermögen als Kacheln, Fläche nach Wert"></div>
+              <p class="cap" id="ov-karte-cap"></p>
             </section>
           </div>
           <div class="stapel">
@@ -859,7 +883,11 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
               <p class="s" id="ov-wal-gesamt"></p>
             </section>
             <section class="sheet" data-voll aria-labelledby="h-ov-alloc">
-              <header class="reihe"><h2 id="h-ov-alloc">Aufteilung</h2><button type="button" data-go="portfolio" data-ziel="ergebnis">Ergebnis je Coin</button></header>
+              <header class="reihe"><h2 id="h-ov-alloc">Aufteilung</h2>
+                <div class="umschalter" role="group" aria-label="Aufteilung zeigen">
+                  <button type="button" data-auft="art" aria-pressed="false">Nach Art</button><button type="button" data-auft="pos" aria-pressed="true">Nach Position</button>
+                </div>
+              </header>
               <ul class="alloc" id="ov-alloc"></ul>
             </section>
             <section class="sheet" aria-labelledby="h-ov-news">
@@ -2620,33 +2648,14 @@ const TREFFER = (function () {
     de.className = 'delta' + (d > 0.5 ? ' up' : d < -0.5 ? ' down' : '');
     de.textContent = (d > 0.5 ? '▲ ' : d < -0.5 ? '▼ ' : '') + eurS(d) + ' (' + pctS(vor > 0 ? d / vor : 0, 1) + ') seit gestern';
     $('ov-teile').textContent = eur(c.coins) + ' in Coins und ' + eur(state.cash) + ' Cash';
-    // Für die Karte „Gesamtvermögen“ (wallets.js): Krypto-Teil ohne Umweg über den angezeigten Text
-    window.KRYPTO_STAND = { coins: c.coins, cash: state.cash, total: c.total, daten: state.tx.length > 0 || state.pos.some(function (p) { return p.stueck > 0; }) };
+    // Krypto-Teil für Gesamtvermögen, Aufteilung und Kachel-Grafik (vermoegen.js), ohne Umweg über den angezeigten Text.
+    // Die alte Coin-Aufteilung und „Deine Coins heute“ zeichnet jetzt vermoegen.js über alle Vermögensarten.
+    window.KRYPTO_STAND = {
+      coins: c.coins, cash: state.cash, total: c.total, daten: state.tx.length > 0 || state.pos.some(function (p) { return p.stueck > 0; }),
+      positionen: SYMS.map(function (sym, i) { return { sym: sym, name: NAME[sym] || sym, v: c.values[i], x: seit(sym, 1) }; }).filter(function (x) { return x.v > 0; }),
+      label: function (sym) { return posLabel(sym); }
+    };
     document.dispatchEvent(new Event('vermoegen'));
-    const teile = SYMS.map(function (sym, i) { return { sym: sym, v: c.values[i] }; }).filter(function (x) { return x.v > 0; }).sort(function (a, b) { return b.v - a.v; });
-    if (state.cash > 0) teile.push({ sym: null, v: state.cash });
-    const gr = Math.max.apply(null, teile.map(function (x) { return x.v; }).concat([1]));
-    fill('ov-alloc', teile.map(function (x) {
-      const lab = x.sym ? posLabel(x.sym) : h('span', { class: 'pos' }, h('i', { class: 'coin cash', 'aria-hidden': 'true', text: '€' }), h('b', { text: 'Cash' }));
-      return h('li', null, lab, barEl(x.sym ? '' : 'c', x.v / gr), h('span', { class: 'ant', text: pct(c.total > 0 ? x.v / c.total : 0, 1) }), h('span', { class: 'btr', text: eur(x.v) }));
-    }));
-    // Deine Coins heute: stärkste Bewegung zuerst, dazu was sie bei deinem Bestand in Euro ausmacht
-    const tag = SYMS.map(function (sym, i) { return { sym: sym, v: c.values[i], x: seit(sym, 1), w: seit(sym, 7), m: seit(sym, 30) }; })
-      .filter(function (z) { return z.v > 0 && z.x !== null; }).sort(function (a, b) { return b.x - a.x; });
-    const tt = $('ov-tag'), tb = h('tbody'), opt = function (r) { r.children[1].classList.add('opt'); r.children[4].classList.add('opt'); return r; };
-    tt.textContent = '';
-    tag.forEach(function (z) {
-      const k = COIN[z.sym].kurse, eff = z.v - z.v / (1 + z.x);
-      const r = tr([posLabel(z.sym), nfk.format(k[k.length - 1]) + ' €', pctS(z.x, 1), z.w === null ? '–' : pctS(z.w, 1), z.m === null ? '–' : pctS(z.m), eurS(eff)]);
-      tone(r.children[2], z.x); tone(r.children[5], eff);
-      if (z.w !== null) tone(r.children[3], z.w);
-      if (z.m !== null) tone(r.children[4], z.m);
-      tb.append(opt(r));
-    });
-    const fr = tr(['Portfolio', '', pctS(vor > 0 ? d / vor : 0, 1), '', '', eurS(d)]);
-    tone(fr.children[2], d); tone(fr.children[5], d);
-    tt.append(h('thead', null, opt(tr(['Coin', 'Kurs', 'Seit gestern', '7 Tage', '30 Tage', 'Wirkung heute'], 'th'))), tb, h('tfoot', null, opt(fr)));
-    $('ov-tag-cap').textContent = 'Verglichen mit dem Tagesschluss davor. „Wirkung heute“ ist, was die Bewegung bei deinem Bestand in Euro ausmacht; Cash zählt beim Portfolio mit.';
     fill('kacheln', [
       tile('Einstand', eur(c.paidIn), 'Was dein heutiger Bestand samt Kaufgebühr gekostet hat' + (state.cash > 0 ? ', plus Cash' : '')),
       tile('Buchergebnis', eurS(book), (book < 0 ? '▼ ' : book > 0 ? '▲ ' : '') + pctS(c.costSum > 0 ? book / c.costSum : 0, 1) + ' auf die Coins, die du heute hast'
@@ -5203,7 +5212,17 @@ const TREFFER = (function () {
     zeichne();
     ordneZu();
   }
-  window.WP = { uebernehmen: uebernehmen, summe: function () { return daten.liste.length ? letzteSumme : 0; } };
+  window.WP = {
+    uebernehmen: uebernehmen,
+    summe: function () { return daten.liste.length ? letzteSumme : 0; },
+    // Für Aufteilung und Kachel-Grafik der Übersicht: Wert und Veränderung seit dem Vortag je Wertpapier
+    positionen: function () {
+      return daten.liste.filter(function (p) { return p.stueck > 0; }).map(function (p) {
+        var w = wertVon(p), vor = w.wert - w.heute;
+        return { name: p.name, kurz: p.kuerzel ? p.kuerzel.replace(/\.DEX$/, '') : (p.isin || ''), v: w.wert, x: w.ok && w.heute && vor > 0 ? w.heute / vor : null, ohneKurs: !w.ok };
+      }).filter(function (p) { return p.v > 0; });
+    }
+  };
 
   // Börsenkürzel für importierte Positionen suchen: Xetra in Euro bevorzugt, sonst die US-Börse.
   // Jede Suche kostet einen der 25 Tagesabrufe, deshalb höchstens 6 pro Start und je Wertpapier einmal am Tag.
@@ -5608,38 +5627,19 @@ const TREFFER = (function () {
     if (wp > 0) teile.push('Wertpapieren');
     return teile.length ? 'Zusammen mit ' + teile.join(' und ') + ': ' + eur((isFinite(k) && k > 0 ? k : 0) + wp + gesamtWallets) : '';
   }
-  document.addEventListener('vermoegen', function () { if (daten.liste.length) $('ov-wal-gesamt').textContent = gesamtText(); zeichneGesamt(); });
-
-  // Karte „Gesamtvermögen“ oben in der Übersicht: erscheint, sobald neben Krypto auch Wertpapiere oder Wallets da sind
-  function zeichneGesamt() {
-    var karte = $('ov-gesamt');
-    if (!karte) return;
-    var ks = window.KRYPTO_STAND || { coins: 0, cash: 0, daten: false };
-    var wp = window.WP && window.WP.summe ? window.WP.summe() : 0;
-    var teile = [
-      { k: 'gv-k', name: 'Krypto', v: ks.daten ? ks.coins : 0 },
-      { k: 'gv-c', name: 'Cash (Börsen-Guthaben)', v: ks.daten ? ks.cash : 0 },
-      { k: 'gv-w', name: 'Aktien & ETFs', v: wp },
-      { k: 'gv-l', name: 'Wallets', v: gesamtWallets }
-    ].filter(function (t) { return t.v > 0.5; });
-    var summe = teile.reduce(function (s, t) { return s + t.v; }, 0);
-    karte.hidden = !(wp > 0.5 || gesamtWallets > 0.5) || teile.length < 2;
-    // Mit Gesamtvermögen darüber zeigt die große Karte nur noch den Krypto-Teil: so heißt sie dann auch
-    if ($('h-ov-wert')) $('h-ov-wert').textContent = karte.hidden ? 'Portfoliowert' : 'Krypto & Cash';
-    if (karte.hidden) return;
-    $('ov-gesamt-wert').textContent = eur(summe);
-    var balken = $('ov-gesamt-balken'), liste = $('ov-gesamt-liste');
-    balken.textContent = ''; liste.textContent = '';
-    teile.forEach(function (t) {
-      var i = document.createElement('i'); i.className = t.k; i.style.flex = String(t.v / summe); i.title = t.name;
-      balken.append(i);
-      var li = document.createElement('li'), sw = document.createElement('i'), n = document.createElement('span'), b = document.createElement('b'), s = document.createElement('small');
-      sw.className = 'sw ' + t.k; n.textContent = t.name; b.textContent = eur(t.v); s.textContent = nfp.format(t.v / summe * 100) + ' %';
-      li.append(sw, n, b, s); liste.append(li);
-    });
-  }
+  document.addEventListener('vermoegen', function () { if (daten.liste.length) $('ov-wal-gesamt').textContent = gesamtText(); });
+  // Gesamtvermögen, Aufteilung und Kachel-Grafik der Übersicht zeichnet vermoegen.js
   if (window.MutationObserver) new MutationObserver(function () { document.dispatchEvent(new Event('vermoegen')); }).observe($('ov-wert'), { childList: true, characterData: true, subtree: true });
-  window.WALLET = { summe: function () { return gesamtWallets; } };
+  window.WALLET = {
+    summe: function () { return gesamtWallets; },
+    // Für Aufteilung und Kachel-Grafik der Übersicht: je Wallet ihr Wert (die Blockchain kennt keinen Vortag)
+    positionen: function () {
+      return daten.liste.filter(function (w) { return !w.fremd; }).map(function (w) {
+        var b = bewerte(w);
+        return { name: w.name || NETZNAME[w.netz], kurz: NETZNAME[w.netz], v: b.summe, x: null, coins: b.zeilen.slice(0, 4).map(function (z) { return z.p.sym; }) };
+      }).filter(function (p) { return p.v > 0; });
+    }
+  };
 
   // ---------- Formular ----------
   var aktiv = -1;
@@ -5855,6 +5855,198 @@ const TREFFER = (function () {
   }
   window.APPMODUS = { ios: ios, installiert: installiert, kannVollbild: kannVollbild };
   zeigeStreifen();
+})();
+</script>
+<script>
+/* Vermögen zusammen (Freundes-Fassung): Krypto, Cash, Aktien & ETFs und Wallets in der Übersicht.
+   - Karte „Gesamtvermögen“ (Summe, Balken, Anteile je Art)
+   - „Aufteilung“ mit Umschalter Nach Art / Nach Position (Balken, Farbe = Art)
+   - „Dein Vermögen auf einen Blick“: Kacheln, Fläche = Wert, nach Art gruppiert, darunter die Bewegung seit gestern
+   Datenquellen: window.KRYPTO_STAND (Hauptskript), window.WP.positionen(), window.WALLET.positionen().
+   Gezeichnet wird bei jedem Ereignis „vermoegen“, gebündelt, weil der Portfoliowert beim Start hochzählt. */
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  if (!$('ov-alloc')) return;
+  var nf2 = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var nf0 = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 });
+  var nfp = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  var eur = function (x) { return nf2.format(x) + ' €'; };
+  var eurK = function (x) { return (x >= 10000 ? nf0.format(x) : nf2.format(x)) + ' €'; };
+  var pct = function (x) { return nfp.format(x * 100) + ' %'; };
+  var pctS = function (x) { return (x > 0.0005 ? '+' : x < -0.0005 ? '−' : '±') + nfp.format(Math.abs(x) * 100) + ' %'; };
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  // Arten in fester Reihenfolge und Farbe (gleiche Farben in allen drei Darstellungen)
+  var ARTEN = [
+    { id: 'k', name: 'Krypto', bar: '', gv: 'gv-k' },
+    { id: 'c', name: 'Cash (Börsen-Guthaben)', kurz: 'Cash', bar: 'c', gv: 'gv-c' },
+    { id: 'w', name: 'Aktien & ETFs', bar: 'r', gv: 'gv-w' },
+    { id: 'l', name: 'Wallets', bar: 'l', gv: 'gv-l' }
+  ];
+
+  function sammle() {
+    var ks = window.KRYPTO_STAND || { daten: false, positionen: [] }, pos = [];
+    if (ks.daten) {
+      (ks.positionen || []).forEach(function (p) { pos.push({ art: 'k', name: p.sym, lang: p.name, sym: p.sym, v: p.v, x: p.x }); });
+      if (ks.cash > 0.5) pos.push({ art: 'c', name: 'Cash', lang: 'Guthaben bei den Börsen', v: ks.cash, x: null });
+    }
+    var wp = window.WP && window.WP.positionen ? window.WP.positionen() : [];
+    wp.forEach(function (p) { pos.push({ art: 'w', name: p.kurz || p.name, lang: p.name, v: p.v, x: p.x }); });
+    var wal = window.WALLET && window.WALLET.positionen ? window.WALLET.positionen() : [];
+    wal.forEach(function (p) { pos.push({ art: 'l', name: p.name, lang: p.kurz + (p.coins && p.coins.length ? ': ' + p.coins.join(', ') : ''), v: p.v, x: null }); });
+    pos = pos.filter(function (p) { return p.v > 0.5; });
+    var summe = pos.reduce(function (s, p) { return s + p.v; }, 0);
+    var arten = ARTEN.map(function (a) {
+      var t = pos.filter(function (p) { return p.art === a.id; });
+      return { a: a, pos: t, v: t.reduce(function (s, p) { return s + p.v; }, 0) };
+    }).filter(function (g) { return g.v > 0.5; });
+    return { pos: pos, summe: summe, arten: arten, gemischt: arten.some(function (g) { return g.a.id === 'w' || g.a.id === 'l'; }), ks: ks };
+  }
+
+  // ---------- Gesamtvermögen ----------
+  function gesamt(d) {
+    var karte = $('ov-gesamt');
+    if (!karte) return;
+    karte.hidden = !d.gemischt || d.arten.length < 2;
+    // Mit Gesamtvermögen darüber zeigt die große Karte nur noch den Krypto-Teil: so heißt sie dann auch
+    if ($('h-ov-wert')) $('h-ov-wert').textContent = karte.hidden ? 'Portfoliowert' : 'Krypto & Cash';
+    if (karte.hidden) return;
+    $('ov-gesamt-wert').textContent = eur(d.summe);
+    var balken = $('ov-gesamt-balken'), liste = $('ov-gesamt-liste');
+    balken.textContent = ''; liste.textContent = '';
+    d.arten.forEach(function (g) {
+      var i = el('i', g.a.gv); i.style.flex = String(g.v / d.summe); i.title = g.a.name; balken.append(i);
+      var li = el('li');
+      li.append(el('i', 'sw ' + g.a.gv), el('span', null, g.a.name), el('b', null, eur(g.v)), el('small', null, pct(g.v / d.summe)));
+      liste.append(li);
+    });
+  }
+
+  // ---------- A: Aufteilung ----------
+  var KEY = 'krypto-freunde-aufteilung';
+  var modus = 'pos';
+  try { modus = localStorage.getItem(KEY) === 'art' ? 'art' : 'pos'; } catch (e) { /* egal */ }
+  function marke(p) {
+    // Coins mit ihrem Symbol aus der App, sonst ein Farbpunkt der Art mit Kürzel
+    if (p.art === 'k' && window.KRYPTO_STAND && window.KRYPTO_STAND.label) { try { return window.KRYPTO_STAND.label(p.sym); } catch (e) { /* weiter */ } }
+    var s = el('span', 'pos'), i = el('i', 'coin vm-' + p.art, p.art === 'c' ? '€' : p.art === 'w' ? '◆' : '◎');
+    i.setAttribute('aria-hidden', 'true');
+    s.append(i, el('b', null, p.name));
+    s.title = p.lang || p.name;
+    return s;
+  }
+  function aufteilung(d) {
+    var ul = $('ov-alloc'); ul.textContent = '';
+    var umsch = document.querySelector('.umschalter');
+    if (umsch) umsch.hidden = !d.gemischt;   // nur Krypto: „Nach Art“ wäre nur Krypto + Cash, also wie bisher nach Position
+    var art = d.gemischt && modus === 'art';
+    document.querySelectorAll('[data-auft]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-auft') === (art ? 'art' : 'pos'))); });
+    var zeilen = art
+      ? d.arten.map(function (g) { return { label: (function () { var s = el('span', 'pos'), i = el('i', 'vm-pkt ' + g.a.gv); s.append(i, el('b', null, g.a.kurz || g.a.name)); s.title = g.a.name; return s; })(), bar: g.a.bar, v: g.v, art: g.a.id }; })
+      : d.pos.slice().sort(function (a, b) { return b.v - a.v; }).map(function (p) { return { label: marke(p), bar: ARTEN.filter(function (a) { return a.id === p.art; })[0].bar, v: p.v, art: p.art }; });
+    var gr = Math.max.apply(null, zeilen.map(function (z) { return z.v; }).concat([1]));
+    zeilen.forEach(function (z) {
+      var bar = el('div', 'bar' + (z.bar ? ' ' + z.bar : '')), i = el('i');
+      i.style.width = Math.max(0, Math.min(100, z.v / gr * 100)).toFixed(1) + '%';
+      bar.append(i);
+      var li = el('li');
+      li.append(z.label, bar, el('span', 'ant', pct(d.summe > 0 ? z.v / d.summe : 0)), el('span', 'btr', eurK(z.v)));
+      ul.append(li);
+    });
+  }
+  document.querySelectorAll('[data-auft]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      modus = b.getAttribute('data-auft');
+      try { localStorage.setItem(KEY, modus); } catch (e) { /* egal */ }
+      aufteilung(sammle());
+    });
+  });
+
+  // ---------- B: Kachel-Grafik (Treemap) ----------
+  // Squarified-Treemap: legt Rechtecke so, dass sie möglichst quadratisch bleiben
+  function squarify(items, x, y, w, h) {
+    var out = [], rest = items.slice(), total = rest.reduce(function (s, i) { return s + i.v; }, 0);
+    if (!(total > 0) || w <= 0 || h <= 0) return out;
+    var flaeche = w * h;
+    rest = rest.map(function (i) { return { i: i, a: i.v / total * flaeche }; });
+    function worst(row, seite) {
+      var s = row.reduce(function (t, r) { return t + r.a; }, 0), mx = 0, mn = Infinity;
+      row.forEach(function (r) { mx = Math.max(mx, r.a); mn = Math.min(mn, r.a); });
+      return Math.max(seite * seite * mx / (s * s), (s * s) / (seite * seite * mn));
+    }
+    while (rest.length) {
+      var seite = Math.min(w, h), row = [rest[0]], k = 1;
+      while (k < rest.length && worst(row.concat([rest[k]]), seite) <= worst(row, seite)) { row.push(rest[k]); k++; }
+      var s = row.reduce(function (t, r) { return t + r.a; }, 0);
+      if (w >= h) {   // Spalte links
+        var bw = s / h, yy = y;
+        row.forEach(function (r) { var bh = r.a / bw; out.push({ i: r.i, x: x, y: yy, w: bw, h: bh }); yy += bh; });
+        x += bw; w -= bw;
+      } else {        // Zeile oben
+        var bh2 = s / w, xx = x;
+        row.forEach(function (r) { var bw2 = r.a / bh2; out.push({ i: r.i, x: xx, y: y, w: bw2, h: bh2 }); xx += bw2; });
+        y += bh2; h -= bh2;
+      }
+      rest = rest.slice(k);
+    }
+    return out;
+  }
+  function karte(d) {
+    var box = $('ov-karte'); if (!box) return;
+    box.textContent = '';
+    var cap = $('ov-karte-cap');
+    if (!d.pos.length) { box.hidden = true; if (cap) cap.textContent = 'Sobald du Krypto, Wertpapiere oder Wallets eingetragen hast, erscheinen sie hier als Kacheln.'; return; }
+    box.hidden = false;
+    var W = box.clientWidth || 600, H = W < 520 ? Math.round(W * 0.95) : Math.max(260, Math.min(380, Math.round(W * 0.48)));
+    box.style.height = H + 'px';
+    // Erst die Arten als Blöcke, darin die Positionen
+    var gruppen = d.arten.map(function (g) { return { v: g.v, g: g }; }).sort(function (a, b) { return b.v - a.v; });
+    var LUECKE = 3;
+    squarify(gruppen, 0, 0, W, H).forEach(function (blk) {
+      var g = blk.i.g, posen = g.pos.slice().sort(function (a, b) { return b.v - a.v; });
+      squarify(posen, blk.x, blk.y, blk.w, blk.h).forEach(function (r) {
+        var p = r.i, t = el('div', 'vk-t ' + 'vk-' + p.art);
+        var bw = Math.max(0, r.w - LUECKE), bh = Math.max(0, r.h - LUECKE);
+        t.style.left = r.x + 'px'; t.style.top = r.y + 'px'; t.style.width = bw + 'px'; t.style.height = bh + 'px';
+        // Helligkeit nach Bewegung seit gestern: kräftiger bei Plus, gedämpfter bei Minus (Farbe bleibt die der Art)
+        if (p.x != null && isFinite(p.x)) t.style.setProperty('--vk-hell', String(Math.max(-1, Math.min(1, p.x / 0.06))));
+        t.title = (p.lang && p.lang !== p.name ? p.name + ' (' + p.lang + ')' : p.name) + ': ' + eur(p.v) + ' · ' + pct(p.v / d.summe) + (p.x != null && isFinite(p.x) ? ' · seit gestern ' + pctS(p.x) : '');
+        var gross = bw > 74 && bh > 52, mittel = bw > 44 && bh > 26;
+        if (mittel) {
+          t.append(el('b', null, p.name));
+          if (gross) {
+            // Betrag und Anteil als eigene Stücke: in schmalen Kacheln bricht der Anteil in die nächste Zeile
+            var vv = el('span', 'vk-v');
+            vv.append(el('i', null, eurK(p.v)), document.createTextNode(' · '), el('i', null, nf0.format(Math.round(p.v / d.summe * 100)) + ' %'));
+            t.append(vv);
+            if (p.x != null && isFinite(p.x) && p.art !== 'c') t.append(el('span', 'vk-x ' + (p.x > 0.0005 ? 'up' : p.x < -0.0005 ? 'down' : ''), pctS(p.x) + ' heute'));
+          }
+        }
+        // Antippen am Handy: Details als Hinweiszeile unter der Grafik
+        t.addEventListener('click', function () { if (cap) cap.textContent = t.title; });
+        box.append(t);
+      });
+    });
+    if (cap) cap.textContent = 'Fläche = Wert. Farbe = Art' + (d.arten.length > 1 ? ' (' + d.arten.map(function (g) { return g.a.kurz || g.a.name; }).join(', ') + ')' : '')
+      + '. Darunter die Bewegung seit gestern; Wallets und Cash haben keinen Tageswert. Kleine Kacheln antippen für Details.';
+  }
+
+  // ---------- Zeichnen, gebündelt ----------
+  var geplant = 0;
+  function alles() {
+    geplant = 0;
+    var d = sammle();
+    gesamt(d); aufteilung(d); karte(d);
+  }
+  function bald() { if (!geplant) geplant = setTimeout(alles, 120); }
+  document.addEventListener('vermoegen', bald);
+  document.addEventListener('kurse-bereit', bald);
+  var breite = 0;
+  window.addEventListener('resize', function () { var b = ($('ov-karte') || {}).clientWidth || 0; if (b && Math.abs(b - breite) > 8) { breite = b; bald(); } });
+  // Die Übersicht kann beim Start verborgen sein (andere Ansicht offen): beim Sichtbarwerden neu messen
+  if (window.ResizeObserver && $('ov-karte')) new ResizeObserver(function () { var b = $('ov-karte').clientWidth; if (b && Math.abs(b - breite) > 8) { breite = b; bald(); } }).observe($('ov-karte'));
+  bald();
 })();
 </script>
 
