@@ -2,15 +2,16 @@
    App-Seite: erst Netz (damit Updates sofort ankommen), ohne Netz die gemerkte Fassung.
    Bilder, Video, Schriften, Symbole: einmal laden, danach vom Gerät.
    Abrufe zu anderen Seiten (Kurse, Wallets, Meldungen) laufen unverändert durch. */
-var VERSION = '31fc31b40362';
+var VERSION = '5946c6fde073';
 var CACHE = 'wealthlens-' + VERSION;
 var DATEIEN = ["./", "medien/band.mp4", "medien/band.webp", "medien/hintergrund-dunkel.webp", "medien/hintergrund-hell.webp", "medien/leer.webp", "medien/logo.webp", "schriften/Inter-latin-2.woff2", "schriften/Inter-latin-ext-1.woff2", "schriften/JetBrainsMono-latin-2.woff2", "schriften/JetBrainsMono-latin-ext-1.woff2", "schriften/Sora-latin-2.woff2", "schriften/Sora-latin-ext-1.woff2", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
 var SEITE = new URL('./', self.registration.scope).href;
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) {
-    // einzeln, damit ein Aussetzer nicht alles verwirft
-    return Promise.all(DATEIEN.map(function (d) { return c.add(d).catch(function () {}); }));
+    // einzeln, damit ein Aussetzer nicht alles verwirft; „reload“ am Browser-Zwischenspeicher vorbei,
+    // sonst landet nach einem Update eine alte Fassung (etwa das Manifest) im neuen Speicher
+    return Promise.all(DATEIEN.map(function (d) { return c.add(new Request(d, { cache: 'reload' })).catch(function () {}); }));
   }).then(function () { return self.skipWaiting(); }));
 });
 
@@ -23,6 +24,16 @@ self.addEventListener('activate', function (e) {
 
 function istSeite(req, url) {
   return req.mode === 'navigate' || url.href.split('?')[0] === SEITE || /\/index\.html$/.test(url.pathname);
+}
+
+// Manifest: erst Netz (Teilen-Ziel, Symbole ändern sich damit sofort), ohne Netz die gemerkte Fassung
+function manifestHolen(req) {
+  return caches.open(CACHE).then(function (c) {
+    return fetch(req.url, { cache: 'no-cache' }).then(function (r) {
+      if (r && r.ok) c.put(req.url.split('?')[0], r.clone());
+      return r;
+    }).catch(function () { return c.match(req.url, { ignoreSearch: true }); });
+  });
 }
 
 function seiteHolen(req) {
@@ -98,5 +109,6 @@ self.addEventListener('fetch', function (e) {
   var url = new URL(req.url);
   if (url.origin !== self.location.origin || url.href.indexOf(self.registration.scope) !== 0) return;
   if (/\/sw\.js$/.test(url.pathname)) return;
+  if (/\/manifest\.webmanifest$/.test(url.pathname)) { e.respondWith(manifestHolen(req)); return; }
   e.respondWith(istSeite(req, url) ? seiteHolen(req) : dateiHolen(req));
 });
