@@ -489,7 +489,12 @@ small.nur-handy{display:block;font-size:11.5px;opacity:.85}
   #swp-banken tr>:nth-child(2),#swp-banken tr>:nth-child(3),#swp-banken tr>:nth-child(6),
   #swp-liste tr>:nth-child(3),#swp-liste tr>:nth-child(4),#swp-liste tr>:nth-child(5),#swp-liste tr>:nth-child(8),
   #swp-hand-tabelle tr>:nth-child(3),#swp-hand-tabelle tr>:nth-child(4),
-  #div-tabelle tr>:nth-child(2),#div-tabelle tr>:nth-child(5),#div-tabelle tr>:nth-child(6){display:none}
+  #div-tabelle tr>:nth-child(2),#div-tabelle tr>:nth-child(5),#div-tabelle tr>:nth-child(6),
+  #nk-plaene tr>:nth-child(3),#nk-plaene tr>:nth-child(4),#nk-plaene tr>:nth-child(5),#nk-liste tr>:nth-child(3),#nk-liste tr>:nth-child(5){display:none}
+  #nk-plaene td,#nk-liste td{white-space:normal}
+  #nk-plaene td:nth-child(2){white-space:nowrap}
+  #nk-plaene td:last-child span{display:flex!important;flex-direction:column;gap:6px;white-space:nowrap}
+  #nk-plaene td:last-child button{margin-left:0!important}
   .scroll th,#vergleich tr>:first-child,#stress-tabelle tr>:first-child{white-space:normal}
   #vergleich td,#vergleich th,#tr-log td,#tr-log th,#stress-tabelle td,#stress-tabelle th{padding-left:5px;padding-right:5px;font-size:13px}
   #tr-log td,#vergleich td:last-child{white-space:normal}
@@ -1011,6 +1016,83 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
           <p class="cap"><b>Trade Republic:</b> In der App unter Profil → Kontoauszüge → „Transaktionsexport“ als CSV (nicht der PDF-Kontoauszug). Krypto landet im Portfolio, Aktien und ETFs im Reiter Wertpapiere.</p>
           <p class="cap"><b>Bitpanda:</b> Exportiere im Web-Konto deinen Transaktionsverlauf als CSV über den gesamten Zeitraum (Datei „bitpanda-trades-….csv“). Kryptowerte landen im Portfolio, Aktien und ETFs im Reiter Wertpapiere; Metalle werden übersprungen.</p>
           <p class="cap"> Hast du mehrere Dateien, etwa eine pro Jahr, kannst du sie gemeinsam auswählen. Die Datei bleibt auf deinem Gerät, die Seite schickt nichts davon ins Internet.</p>
+        </details>
+      </section>
+      <section class="sheet" id="nachkauf" aria-labelledby="h-nachkauf">
+        <header>
+          <h2 id="h-nachkauf">Nachkauf &amp; Sparpläne</h2>
+          <p>Käufe zwischendurch ohne Datei eintragen, und Sparpläne, die jeden Termin selbst als Kauf buchen (zum Schlusskurs des Tages). Liest du später die Datei derselben Börse oder Bank ein, ersetzt sie diese Käufe bis zu ihrem letzten Tag; die Sparpläne laufen danach einfach weiter.</p>
+        </header>
+        <p class="note callout" id="nk-status"></p>
+        <div class="fig" id="nk-vorschlaege" hidden>
+          <h3>In deinen Dateien erkannt</h3>
+          <ul class="kurz nk-vorschlag" id="nk-vorschlag-liste"></ul>
+        </div>
+        <figure class="fig">
+          <figcaption><h3>Sparpläne</h3></figcaption>
+          <div class="scroll"><table id="nk-plaene"></table></div>
+          <div class="btns">
+            <button type="button" class="primary" id="nk-kauf-neu">Kauf eintragen</button>
+            <button type="button" id="nk-plan-neu">Sparplan anlegen</button>
+          </div>
+        </figure>
+        <form class="fig" id="nk-form" hidden autocomplete="off">
+          <h3 id="nk-form-titel">Kauf eintragen</h3>
+          <div class="field">
+            <label for="nk-art">Was</label>
+            <select id="nk-art"><option value="krypto">Krypto</option><option value="wp">Aktie oder ETF</option></select>
+          </div>
+          <div class="field">
+            <label for="nk-ziel" id="nk-ziel-label">Coin</label>
+            <select id="nk-ziel"></select>
+            <small id="nk-ziel-info"></small>
+          </div>
+          <div class="field" id="nk-boerse-feld">
+            <label for="nk-boerse">Börse</label>
+            <select id="nk-boerse"><option>Bitvavo</option><option>Bitpanda</option><option>Trade Republic</option><option>Andere</option></select>
+            <small>Damit die Datei dieser Börse den Kauf später ersetzen kann.</small>
+          </div>
+          <div class="field">
+            <label for="nk-betrag">Betrag in Euro (bezahlt, mit Gebühr)</label>
+            <input type="text" id="nk-betrag" inputmode="decimal" placeholder="z. B. 100" required>
+          </div>
+          <div class="field nk-nur-kauf">
+            <label for="nk-datum">Datum</label>
+            <input type="date" id="nk-datum" required>
+          </div>
+          <div class="field nk-nur-kauf">
+            <label for="nk-gebuehr">Gebühr in Euro (optional)</label>
+            <input type="text" id="nk-gebuehr" inputmode="decimal" placeholder="0">
+          </div>
+          <div class="field nk-nur-kauf">
+            <label for="nk-stueck">Stück (optional)</label>
+            <input type="text" id="nk-stueck" inputmode="decimal" placeholder="leer = aus dem Kurs am Tag">
+            <small id="nk-kurs-info"></small>
+          </div>
+          <div class="field nk-nur-plan">
+            <label for="nk-rhythmus">Rhythmus</label>
+            <select id="nk-rhythmus"><option value="monat">monatlich</option><option value="2wochen">alle 2 Wochen</option><option value="woche">wöchentlich</option><option value="quartal">vierteljährlich</option></select>
+          </div>
+          <div class="field nk-nur-plan">
+            <label for="nk-ab">Nächste Ausführung</label>
+            <input type="date" id="nk-ab">
+            <small>Monatlich und vierteljährlich gilt dieser Tag im Monat (höchstens der 28.). Liegt das Datum in der Vergangenheit, werden die Termine seitdem nachgetragen.</small>
+          </div>
+          <div class="field nk-nur-plan">
+            <label for="nk-prozent">Gebühr in Prozent</label>
+            <input type="text" id="nk-prozent" inputmode="decimal" placeholder="0">
+            <small>Wird vom Betrag abgezogen. Trade-Republic-Sparpläne sind gratis, bei Bitpanda und Bitvavo steht die Gebühr in deinen Abrechnungen.</small>
+          </div>
+          <p class="note callout warn" id="nk-fehler" hidden></p>
+          <div class="btns">
+            <button type="submit" class="primary" id="nk-speichern">Speichern</button>
+            <button type="button" id="nk-abbrechen">Abbrechen</button>
+            <button type="button" id="nk-plan-loeschen" hidden>Sparplan löschen</button>
+          </div>
+        </form>
+        <details class="tw" id="nk-liste-box">
+          <summary id="nk-liste-titel">Eingetragene Käufe</summary>
+          <div class="scroll"><table id="nk-liste"></table></div>
         </details>
       </section>
       <section class="sheet" id="wertpapiere" aria-labelledby="h-wertpapiere">
@@ -1553,6 +1635,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
             <li><b>Wertverlauf.</b> Mit Import: Bestand am Ende jedes Tages mal Tagesschlusskurs, dazu dein Euro-Guthaben. Vor dem Beginn der Kursdaten gibt es keine Linie. Ohne Import merkt sich die Seite an jedem Tag, an dem du sie öffnest, den Portfoliowert.</li>
             <li><b>Steuerübersicht.</b> Gewinn je Verkauf ist Erlös minus Verkaufsgebühr minus Einstand zum gleitenden Durchschnittspreis. Dass Kaufgebühren den Einstand erhöhen, sagt das Finanzministerium ausdrücklich. Dass die Verkaufsgebühr den Erlös mindert, ist die übliche Rechnung der Steuerprogramme. Coins, die vor dem 1. März 2021 gekauft wurden, wären steuerfreier Altbestand; die Seite behandelt alle Coins als Neubestand und weist darauf hin, wenn so alte Käufe in der Datei stehen.</li>
             <li><b>Steuer für Aktien und ETFs.</b> Aus den Einzelbuchungen der Importe von Trade Republic und Bitpanda, je Bank und Wertpapier mit dem gleitenden Durchschnittspreis. Steuerlich zählt der Verkaufserlös minus Einstand ohne Gebühren, denn Nebenkosten sind bei 27,5 % nicht absetzbar. Dividenden zählen brutto. Kursverluste gleichen im selben Jahr Gewinne, Dividenden und Krypto-Gewinne aus. Die abgezogene KESt kommt aus der Datei. Ausländische Quellensteuer und ausschüttungsgleiche Erträge thesaurierender ETFs rechnet die Seite nicht nach. Für Banken ohne Datei trägst du die Jahreswerte von Hand ein.</li>
+            <li><b>Nachkauf und Sparpläne.</b> Käufe ohne Datei rechnen mit dem Tagesschlusskurs (Krypto von Bitvavo, Aktien und ETFs von onvista, meist Xetra) oder mit der Stückzahl, die du einträgst. Sparpläne buchen jeden fälligen Termin beim Öffnen der App, verpasste Termine mit dem Schlusskurs des jeweiligen Tages; der Betrag gilt samt Gebühr. Der echte Ausführungskurs weicht davon etwas ab. Liest du eine Datei ein, ersetzt sie alle solchen Käufe derselben Börse oder Bank bis zu ihrem letzten Tag. Erkannte Sparpläne: mindestens drei Käufe in 120 Tagen mit ähnlichem Betrag (±15 %) im Abstand von etwa einer Woche, zwei Wochen oder einem Monat.</li>
             <li><b>Dividenden.</b> Zahlungen laut Import, brutto vor KESt, je Monat und je Wertpapier. Die Rendite teilt die Dividenden der letzten 12 Monate durch deinen heutigen Einstand aller Wertpapiere.</li>
             <li><b>Anlegerprofil.</b> „Wann du kaufst“: Anteil deines Kaufbetrags nach der Kursbewegung vom Tagesschlusskurs sieben Tage vor dem Kauf bis zu deinem Preis; Teilausführungen eines Coins binnen einer Minute zählen als ein Kauf. Trendfolger heißt: im Schnitt mehr als 3 Prozentpunkte über einem beliebigen Tag bei denselben Coins, Schnäppchenjäger mehr als 3 darunter. „Wie lange du hältst“: verkaufte Stück mit ihrer Haltedauer (älteste gehen zuerst hinaus; für die Steuer gilt der gleitende Durchschnittspreis), noch gehaltene mit ihrem bisherigen Alter, gewichtet nach Euro. Trader: mindestens 40 % kürzer als 30 Tage und es gab Verkäufe (ohne Verkäufe: frisch dabei). Langfrist-Halter: mindestens 40 % länger als ein Jahr. „Worauf du setzt“: heutiger Wert des Kryptobestands, Rang nach Marktkapitalisierung laut CoinGecko; ab 40 % in kleineren Coins risikofreudig, ab 50 % Bitcoin vorsichtig. Wenige Aufträge ergeben zufällige Zahlen.</li>
             <li><b>Trefferquote.</b> Stichtage im Abstand von einer Woche, das letzte endet am letzten Kurstag. An jedem rechnet das Modell mit 3.000 Läufen (bei 3 Monaten 2.000) und nur mit den Kursen bis zu diesem Tag, mindestens 182 Tage. Verglichen wird der Wert deiner heutigen Stückzahlen ohne Cash nach 4 Wochen oder 3 Monaten. Ein ehrliches Modell trifft das Band für 9 von 10 Läufen in rund 90 % der Fälle und das für die Hälfte in rund 50 %. Weil sich die Zeiträume überlappen und die Historie kurz ist, schwanken diese Quoten stark. Das Logbuch speichert dagegen echte Vorhersagen, einmal pro Woche mit dem damaligen Bestand, und prüft sie nach 4 Wochen. Es liegt nur im Speicher dieser App auf diesem Gerät; mit „Sicherung speichern“ nimmst du es auf ein anderes Gerät mit.</li>
@@ -1981,7 +2064,13 @@ const LEDGER = (function () {
     tx.sort(function (a, b) { return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0; });
     const wpListe = window.WP && ev.length ? window.WP.positionenAus(ev) : [];
     return { tx: tx, fremd: fremd, schlecht: schlecht, error: null, boerse: 'Bitpanda', umbenannt: umbenannt, steuer: steuer,
-      wp: ev.length ? { bank: 'Bitpanda', liste: wpListe, ereignisse: ev } : null };
+      wp: ev.length ? { bank: 'Bitpanda', liste: wpListe, ereignisse: ev, bis: letzterTag(R, hi, cTs) } : null };
+  }
+  // Letzter Tag, den eine Datei abdeckt (größtes Datum in der Zeitspalte); bis dahin ersetzt sie Käufe von Hand
+  function letzterTag(R, hi, c) {
+    let m = '';
+    for (let i = hi + 1; i < R.length; i++) { const d = String(R[i][c] || '').trim().slice(0, 10); if (/^\d{4}-\d{2}-\d{2}$/.test(d) && d > m) m = d; }
+    return m;
   }
   // Bitpanda „Asset class“ für Aktien und ETFs, z. B. „Stock (derivative)“, „ETF (derivative)“, „Stock“, „ETF“.
   // Noch nicht an einer echten Datei mit Aktien geprüft (die Datei vom 15.11.2026 enthielt nur Krypto).
@@ -2054,7 +2143,7 @@ const LEDGER = (function () {
     }
     tx.sort(function (a, b) { return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0; });
     const liste = Object.keys(wp).map(function (k) { const p = wp[k]; p.einstand = Math.round(p.einstand * 100) / 100; return p; });
-    return { tx: tx, fremd: fremd, schlecht: schlecht, error: null, boerse: 'Trade Republic', steuer: steuer, wp: { bank: 'Trade Republic', liste: liste, ereignisse: ev }, ohneKrypto: ohneKrypto };
+    return { tx: tx, fremd: fremd, schlecht: schlecht, error: null, boerse: 'Trade Republic', steuer: steuer, wp: { bank: 'Trade Republic', liste: liste, ereignisse: ev, bis: letzterTag(R, hi, cDt) }, ohneKrypto: ohneKrypto };
   }
 
   function parse(text) {
@@ -2504,6 +2593,9 @@ const TREFFER = (function () {
       targets: {},
       // tx: eingelesene Transaktionen, imp: Einstand enthält die Kaufgebühren schon, snaps: [Tag, Wert, eingezahlt]
       tx: [], imp: false, info: null, snaps: [],
+      // hand: Käufe von Hand oder aus einem Sparplan, bis eine Datei sie ersetzt
+      // {id, d, sym, qty, eur, fee, boerse, plan, direkt}; direkt = ohne Import gleich in den Bestand gebucht
+      hand: [],
       // prog: Logbuch der Vorhersagen [Kursstand, Wochen, [5 Quantile als Veränderung], {Kürzel: Stück}, Trend in %]
       prog: []
     };
@@ -2537,6 +2629,12 @@ const TREFFER = (function () {
           return Array.isArray(x) && x.length >= 6 && typeof x[0] === 'string' && typeof x[1] === 'string' && typeof x[2] === 'string' && isNum(x[3]) && isNum(x[4]) && isNum(x[5]);
         }).slice(0, 60000);
         st.imp = raw.imp === true;
+        if (Array.isArray(raw.hand)) st.hand = raw.hand.filter(function (x) {
+          return x && typeof x.id === 'string' && /^\d{4}-\d{2}-\d{2}/.test(x.d) && typeof x.sym === 'string' && COIN[x.sym] && isNum(x.qty) && x.qty > 0 && isNum(x.eur) && isNum(x.fee);
+        }).map(function (x) {
+          return { id: x.id.slice(0, 60), d: x.d.slice(0, 19), sym: x.sym, qty: x.qty, eur: x.eur, fee: x.fee, boerse: typeof x.boerse === 'string' ? x.boerse.slice(0, 30) : '',
+            plan: typeof x.plan === 'string' ? x.plan.slice(0, 60) : '', direkt: x.direkt === true };
+        }).slice(0, 5000);
         if (raw.info && typeof raw.info === 'object') st.info = { at: typeof raw.info.at === 'string' ? raw.info.at.slice(0, 10) : '', fremd: isNum(raw.info.fremd) ? raw.info.fremd : 0,
           boersen: Array.isArray(raw.info.boersen) ? raw.info.boersen.filter(function (b) { return typeof b === 'string'; }).map(function (b) { return b.slice(0, 30); }).slice(0, 10) : [] };
         if (Array.isArray(raw.snaps)) st.snaps = raw.snaps.filter(function (x) {
@@ -2560,9 +2658,15 @@ const TREFFER = (function () {
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* egal */ } }
   let state = load();
+  // Eingelesene Buchungen plus Käufe von Hand und aus Sparplänen (die „direkt“ gebuchten stecken schon im Bestand)
+  function allTx(base, hand) {
+    base = base || state.tx; hand = (hand || state.hand).filter(function (x) { return !x.direkt; });
+    if (!hand.length) return base;
+    return LEDGER.merge([base, hand.map(function (x) { return [x.d, 'buy', x.sym, x.qty, x.eur, x.fee]; })]);
+  }
   // Freundes-Fassung: Coins, deren Kurse erst nach dem Import nachgeladen wurden, in den Bestand übernehmen
   if (state.imp && state.tx.length) {
-    const nb = LEDGER.run(state.tx).pos;
+    const nb = LEDGER.run(allTx()).pos;
     Object.keys(nb).forEach(function (s) {
       if (COIN[s] && nb[s].qty > 1e-9 && !state.pos.some(function (p) { return p.sym === s && p.stueck > 0; })) {
         state.pos = state.pos.filter(function (p) { return p.sym !== s; });
@@ -3182,13 +3286,14 @@ const TREFFER = (function () {
   let WV = null;
   function rebuildLedger() {
     if (!state.tx.length) { SER = null; LED = null; WV = null; return; }
-    let syms = Object.keys(LEDGER.run(state.tx).pos).filter(function (s) { return COIN[s]; });
+    const alle = allTx();
+    let syms = Object.keys(LEDGER.run(alle).pos).filter(function (s) { return COIN[s]; });
     if (!syms.length) syms = SYMS.slice();
     const L = Math.max.apply(null, syms.map(function (s) { return COIN[s].kurse.length; }));
     const d0 = ENDE - (L - 1) * 864e5, start = new Date(d0).toISOString().slice(0, 10);
     const K = syms.map(function (s) { const k = COIN[s].kurse, a = new Float64Array(L); a.set(k, L - k.length); return a; });
     WV = { d0: d0, start: start };
-    SER = LEDGER.series(state.tx, syms, K, start, L); LED = SER.book;
+    SER = LEDGER.series(alle, syms, K, start, L); LED = SER.book;
   }
   // Kontodaten aus dem Bitvavo-Abruf der Desktop-App: gleiche Form wie der CSV-Export, also derselbe Import.
   let KONTO = null;
@@ -3248,15 +3353,20 @@ const TREFFER = (function () {
       // Neue Dateien kommen zu den bisherigen Buchungen dazu (z. B. Bitvavo + Trade Republic).
       // Zeilen, die schon da sind (dieselbe Datei später noch einmal), zählen nur einmal.
       const tx = state.tx.length ? LEDGER.merge([state.tx, neuTx]) : neuTx;
-      const boersen = [], umbenannt = [], wp = [], ohneKrypto = [];
+      const boersen = [], umbenannt = [], wp = [], ohneKrypto = [], bis = {};
       parts.forEach(function (p) {
         if (p.boerse && boersen.indexOf(p.boerse) < 0) boersen.push(p.boerse);
+        // Letzter Tag je Börse in der Datei: Bis dahin ist die Datei maßgeblich
+        if (p.boerse) p.tx.forEach(function (x) { const d = String(x[0]).slice(0, 10); if (!bis[p.boerse] || d > bis[p.boerse]) bis[p.boerse] = d; });
         (p.umbenannt || []).forEach(function (u) { if (umbenannt.indexOf(u) < 0) umbenannt.push(u); });
         (p.ohneKrypto || []).forEach(function (u) { if (ohneKrypto.indexOf(u) < 0) ohneKrypto.push(u); });
         if (p.wp && ((p.wp.ereignisse && p.wp.ereignisse.length) || p.wp.liste.length)) wp.push(p.wp);
       });
+      // Käufe von Hand und aus Sparplänen dieser Börse bis zum letzten Tag der Datei fallen weg (die Datei hat die echten);
+      // „direkt“ gebuchte fallen immer weg, weil der Import den Bestand neu aufbaut
+      const hand = state.hand.filter(function (x) { return !x.direkt && !(x.boerse && bis[x.boerse] && x.d.slice(0, 10) <= bis[x.boerse]); });
       pending = {
-        tx: tx, neu: tx.length - state.tx.length, inDatei: neuTx.length, book: LEDGER.run(tx), boersen: boersen, umbenannt: umbenannt, wp: wp, ohneKrypto: ohneKrypto,
+        tx: tx, hand: hand, ersetzt: state.hand.length - hand.length, neu: tx.length - state.tx.length, inDatei: neuTx.length, book: LEDGER.run(allTx(tx, hand)), boersen: boersen, umbenannt: umbenannt, wp: wp, ohneKrypto: ohneKrypto,
         steuer: sum(parts.map(function (p) { return p.steuer || 0; })),
         fremd: sum(parts.map(function (p) { return p.fremd; })), schlecht: sum(parts.map(function (p) { return p.schlecht; }))
       };
@@ -3314,6 +3424,7 @@ const TREFFER = (function () {
       notes.unshift(g.bank + ': ' + g.liste.length + (g.liste.length === 1 ? ' Wertpapier' : ' Wertpapiere') + ' in der Datei, davon ' + offen.length + ' noch im Depot'
         + (offen.length ? ' (' + offen.map(function (p) { return p.name; }).join(', ') + ')' : '') + '. Sie kommen beim Übernehmen in den Bereich „Wertpapiere“; ihr Geld läuft hier über das Guthaben.');
     });
+    if (pending.ersetzt) notes.unshift(pending.ersetzt === 1 ? '1 Krypto-Kauf von Hand oder aus einem Sparplan wird durch die Datei ersetzt.' : nf0.format(pending.ersetzt) + ' Krypto-Käufe von Hand oder aus Sparplänen werden durch die Datei ersetzt.');
     if (pending.ohneKrypto.length) notes.push('Diese Krypto-Werte ließen sich keinem Coin zuordnen und zählen nur über das Guthaben: ' + pending.ohneKrypto.join(', ') + '.');
     if (pending.steuer > 0.004) notes.push('Laut Datei wurden ' + eur2(pending.steuer) + ' Steuer bereits einbehalten. Die Steuerübersicht rechnet trotzdem den vollen Betrag; prüfe die Jahresbescheinigung deines Anbieters.');
     ul.hidden = !notes.length;
@@ -3327,7 +3438,7 @@ const TREFFER = (function () {
     if (!pending) return;
     const boersen = ((state.tx.length && state.info && state.info.boersen) || []).slice();
     pending.boersen.forEach(function (b) { if (boersen.indexOf(b) < 0) boersen.push(b); });
-    state.tx = pending.tx; state.imp = true; state.info = { at: TODAY, fremd: pending.fremd, boersen: boersen };
+    state.tx = pending.tx; state.hand = pending.hand; state.imp = true; state.info = { at: TODAY, fremd: pending.fremd, boersen: boersen };
     const neu = pending.book.pos;
     state.pos = [];
     setActive(Object.keys(neu).filter(function (s) { return COIN[s] && neu[s].qty > 1e-9; }).concat(state.extra));
@@ -3340,14 +3451,83 @@ const TREFFER = (function () {
     if ($('imp-cash').checked && LEDGER.eurOk(LED)) state.cash = Math.max(0, Math.round(LED.eur * 100) / 100);
     state.targets = {}; pending = null; taxYear = null;
     buildEditor(); renderCoins(); refresh();
+    document.dispatchEvent(new Event('krypto-hand'));
   }
   function removeImport() {
     state.tx = []; state.info = null; state.imp = false; state.targets = {}; state.snaps = []; state.prog = []; state.cash = 0;
-    state.pos = [];
+    state.pos = []; state.hand = [];
     pending = null; impError = ''; taxYear = null;
     setActive(state.extra);
     rebuildLedger(); buildEditor(); refresh();
+    document.dispatchEvent(new Event('krypto-hand'));
   }
+
+  // ---------- Käufe von Hand und aus Sparplänen (nachkauf.js) ----------
+  // Mit Import laufen sie als zusätzliche Buchungen durch Bestand, Wertverlauf und Steuer, bis eine Datei derselben
+  // Börse sie ersetzt. Ohne Import werden sie direkt auf Stück und Einstand der Position gebucht.
+  function mitImport() { return !!(state.imp && state.tx.length); }
+  function handNeuRechnen() {
+    if (mitImport()) {
+      state.pos = [];
+      rebuildLedger();
+      const neu = LED.pos;
+      setActive(Object.keys(neu).filter(function (s) { return COIN[s] && neu[s].qty > 1e-9; }).concat(state.extra));
+      state.pos.forEach(function (p) {
+        const b = LED.pos[p.sym];
+        p.stueck = b ? +b.qty.toPrecision(12) : 0;
+        p.einstand = b ? Math.round(b.cost * 100) / 100 : 0;
+      });
+      taxYear = null;
+    } else setActive(wanted());
+    buildEditor(); refresh();
+    document.dispatchEvent(new Event('krypto-hand'));
+  }
+  function direktBuchen(x, vorzeichen) {
+    let p = state.pos.find(function (q) { return q.sym === x.sym; });
+    if (!p) { p = { sym: x.sym, stueck: 0, einstand: 0 }; state.pos.push(p); }
+    p.stueck = Math.max(0, +(p.stueck + vorzeichen * x.qty).toPrecision(12));
+    p.einstand = Math.max(0, Math.round((p.einstand + vorzeichen * (x.eur + x.fee)) * 100) / 100);
+  }
+  window.KRYPTO_HAND = {
+    mitImport: mitImport,
+    liste: function () { return state.hand.map(function (x) { return Object.assign({}, x); }); },
+    coins: function () {
+      return ORDER.map(function (s) {
+        const p = state.pos.find(function (q) { return q.sym === s; });
+        return { sym: s, name: NAME[s], gehalten: !!(p && p.stueck > 0) };
+      });
+    },
+    boersen: function () { return ((state.info && state.info.boersen) || []).slice(); },
+    // Eingelesene Käufe (für erkannte Sparpläne): bezahlter Betrag samt Gebühr
+    echteKaeufe: function () { return state.tx.filter(function (x) { return x[1] === 'buy'; }).map(function (x) { return { d: x[0], sym: x[2], betrag: x[4] + x[5] }; }); },
+    // Tagesschlusskurs in Euro (Bitvavo) an einem Tag; nach dem letzten Kurstag der letzte Kurs
+    kurs: function (sym, d) {
+      const c = COIN[sym];
+      if (!c) return null;
+      const k = c.kurse, i = k.length - 1 - Math.round((ENDE - Date.parse(String(d).slice(0, 10) + 'T00:00:00Z')) / 864e5);
+      if (!(i >= 0)) return null;
+      return k[Math.min(k.length - 1, i)] || null;
+    },
+    hinzu: function (liste) {
+      const direkt = !mitImport();
+      liste.forEach(function (x) {
+        if (!x || !COIN[x.sym] || !(x.qty > 0) || state.hand.some(function (y) { return y.id === x.id; })) return;
+        const e = { id: String(x.id).slice(0, 60), d: String(x.d).slice(0, 19), sym: x.sym, qty: x.qty, eur: x.eur, fee: x.fee || 0, boerse: x.boerse || '', plan: x.plan || '', direkt: direkt };
+        state.hand.push(e);
+        if (direkt) direktBuchen(e, 1);
+      });
+      state.hand.sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+      handNeuRechnen();
+    },
+    entfernen: function (ids) {
+      state.hand = state.hand.filter(function (x) {
+        if (ids.indexOf(x.id) < 0) return true;
+        if (x.direkt) direktBuchen(x, -1);
+        return false;
+      });
+      handNeuRechnen();
+    }
+  };
 
   // ---------- Wertverlauf ----------
   function snapshot(c) {
@@ -3714,7 +3894,7 @@ const TREFFER = (function () {
   const ABSCHNITTE = {
     portfolio: [['wertverlauf', 'Wertverlauf'], ['ergebnis', 'Ergebnis je Coin'], ['verhalten', 'Anlegerprofil'], ['dividenden', 'Dividenden']],
     steuer: [['steuerjahr', 'Krypto'], ['steuer-wp', 'Aktien & ETFs']],
-    import: [['import', 'CSV-Dateien'], ['wertpapiere', 'Wertpapiere'], ['wallets', 'Wallets'], ['sicherung', 'Sicherung']],
+    import: [['import', 'CSV-Dateien'], ['nachkauf', 'Nachkauf'], ['wertpapiere', 'Wertpapiere'], ['wallets', 'Wallets'], ['sicherung', 'Sicherung']],
     risiko: [['check', 'Portfolio-Check'], ['bandbreite', 'Bandbreite'], ['risiko', 'Risiko'], ['stresstest', 'Stresstest'], ['treffer', 'Trefferquote']],
     planung: [['umschichten', 'Umschichten'], ['trendhilfe', 'Trend ableiten'], ['coins', 'Coins']]
   };
@@ -4564,7 +4744,12 @@ const TREFFER = (function () {
     ['check', 'wertverlauf', 'bandbreite', 'risiko', 'stresstest', 'umschichten', 'treffer'].forEach(function (id) { $(id).hidden = leer; });
     renderTrendhilfe();
     renderVerhalten();
-    if (leer) { renderOutputs(); renderImport(); renderTax(); syncSub(); save(); return; }
+    if (leer) {
+      // Krypto-Teil für Gesamtvermögen und Aufteilung auf null setzen (sonst bliebe der letzte Stand stehen)
+      window.KRYPTO_STAND = { coins: 0, cash: state.cash, total: state.cash, daten: false, positionen: [], label: function (sym) { return posLabel(sym); } };
+      document.dispatchEvent(new Event('vermoegen'));
+      renderOutputs(); renderImport(); renderTax(); syncSub(); save(); return;
+    }
     syncSub();
     snapshot(last);
     logbuch();
@@ -4587,6 +4772,7 @@ const TREFFER = (function () {
   zeitraumText();
   rebuildLedger();
   buildEditor(); buildTargets(); buildHeat(); syncControls();
+  setTimeout(function () { document.dispatchEvent(new Event('krypto-hand')); }, 0);   // nachkauf.js: Krypto ist bereit
 
   $('imp-wahl').addEventListener('click', function () { $('imp-datei').click(); });
   $('imp-datei').addEventListener('change', function (e) { readFiles(e.target.files); e.target.value = ''; });
@@ -4596,7 +4782,7 @@ const TREFFER = (function () {
     const wpGruppen = pending ? pending.wp : [];
     applyImport();
     // Aktien/ETFs aus der Datei (z. B. Trade Republic) an den Bereich „Wertpapiere“ geben
-    if (wpGruppen.length && window.WP) wpGruppen.forEach(function (g) { window.WP.uebernehmen(g.bank, g.liste, g.ereignisse); });
+    if (wpGruppen.length && window.WP) wpGruppen.forEach(function (g) { window.WP.uebernehmen(g.bank, g.liste, g.ereignisse, g.bis); });
     let versucht = {};
     try { versucht = JSON.parse(localStorage.getItem('krypto-freunde-ohne-kurs') || '{}') || {}; } catch (x) { versucht = {}; }
     if (vorher.some(function (s) { return !versucht[s]; })) setTimeout(function () { location.reload(); }, 300);
@@ -5310,9 +5496,13 @@ const TREFFER = (function () {
         r.append(n, td(nfq.format(p.stueck)), td(eur(p.einstand)),
           td(w.ok ? eur(w.kurs) + (w.tag ? ' (' + w.tag + ')' : '') : 'kein Kurs'), td(eur(w.wert)),
           td(eurS(g) + (p.einstand > 0 ? ' · ' + pct(g / p.einstand) : ''), ton(g)));
-        var bc = document.createElement('td'), k = document.createElement('button');
+        var bc = document.createElement('td'), k = document.createElement('button'), kauf = document.createElement('button');
         k.type = 'button'; k.textContent = 'Bearbeiten'; k.addEventListener('click', function () { oeffne(i); });
-        bc.append(k); r.append(bc); body.append(r);
+        // Nachkauf: öffnet das Formular im Bereich „Nachkauf“ (nachkauf.js)
+        kauf.type = 'button'; kauf.textContent = '+ Kauf'; kauf.style.marginRight = '6px';
+        kauf.addEventListener('click', function () { document.dispatchEvent(new CustomEvent('nachkauf-oeffnen', { detail: { art: 'wp', ziel: posId(p) } })); });
+        bc.style.whiteSpace = 'nowrap';
+        bc.append(kauf, k); r.append(bc); body.append(r);
       });
       if (daten.liste.length > 1) {
         var rs = document.createElement('tr');
@@ -5472,14 +5662,21 @@ const TREFFER = (function () {
   // Kommen Einzelbuchungen mit, werden sie mit den früher eingelesenen derselben Bank zusammengeführt
   // (gleiche Buchungsnummer zählt einmal) und die Positionen aus ALLEN Buchungen neu gerechnet. So kann
   // man mehrere Dateien nacheinander einlesen, etwa eine pro Jahr.
-  function uebernehmen(bank, liste, ereignisse) {
+  // Käufe von Hand oder aus einem Sparplan (hand: true) gelten nur, bis eine Datei derselben Bank den Zeitraum abdeckt:
+  // Beim Import fallen alle bis zum letzten Tag der Datei weg, die echten Käufe stehen dann in der Datei.
+  function uebernehmen(bank, liste, ereignisse, dateiBis) {
     if (ereignisse && ereignisse.length) {
       daten.ereignisse = daten.ereignisse || {};
-      var alle = {}, alt = daten.ereignisse[bank] || [];
+      var alle = {}, alt = daten.ereignisse[bank] || [], ausDatei = ereignisse.filter(function (e) { return !e.hand; });
+      if (ausDatei.length) {
+        var bis = ausDatei.reduce(function (m, e) { var d = String(e.d).slice(0, 10); return d > m ? d : m; }, dateiBis || '');
+        alt = alt.filter(function (e) { return !(e.hand && String(e.d).slice(0, 10) <= bis); });
+      }
       alt.concat(ereignisse).forEach(function (e) { if (e && e.id) alle[e.id] = e; });
       daten.ereignisse[bank] = Object.keys(alle).map(function (k) { return alle[k]; }).sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
       liste = positionenAus(daten.ereignisse[bank]);
-    }
+    } else if (!liste && daten.ereignisse && daten.ereignisse[bank]) liste = positionenAus(daten.ereignisse[bank]);
+    liste = liste || [];
     var kuerzelVon = {};
     daten.liste.forEach(function (p) { if (p.isin && p.kuerzel) kuerzelVon[p.isin] = { k: p.kuerzel, auto: p.auto }; });
     var isins = liste.map(function (p) { return p.isin; }).filter(Boolean);
@@ -5542,6 +5739,85 @@ const TREFFER = (function () {
         einstand: Math.round(p.kosten * 100) / 100, realisiert: p.realisiert, dividenden: p.dividenden, steuer: p.steuer, gebuehren: p.gebuehren };
     });
   }
+  // ---------- Käufe von Hand und aus Sparplänen ----------
+  function posId(p) { return (p.bank || '') + '|' + (p.isin || p.kuerzel || p.name); }
+  function findePos(id) { return daten.liste.filter(function (p) { return posId(p) === id; })[0] || null; }
+  // k: {id, ziel (posId), d, stueck, betrag, gebuehr, plan}
+  function kaufHinzu(kaeufe) {
+    var banken = {}, im = daten.ereignisse || {};
+    kaeufe.forEach(function (k) {
+      var p = findePos(k.ziel);
+      if (!p || !(k.stueck > 0)) return;
+      if (p.quelle === 'import' && p.bank && im[p.bank] && im[p.bank].length) {
+        if (im[p.bank].some(function (e) { return e.id === k.id; })) return;
+        (banken[p.bank] = banken[p.bank] || []).push({ id: k.id, d: k.d, isin: p.isin || '', kuerzel: p.kuerzel || '', name: p.name, lang: p.lang || '', klasse: p.klasse || '',
+          art: 'kauf', stueck: k.stueck, betrag: k.betrag, gebuehr: k.gebuehr || 0, kest: 0, hand: true, plan: k.plan || '' });
+      } else {
+        // Von Hand eingetragene Position: direkt auf Stück und Einstand, gemerkt zum Rückgängigmachen
+        p.kaeufe = p.kaeufe || [];
+        if (p.kaeufe.some(function (x) { return x.id === k.id; })) return;
+        p.kaeufe.push({ id: k.id, d: k.d, stueck: k.stueck, betrag: k.betrag, gebuehr: k.gebuehr || 0, plan: k.plan || '' });
+        p.stueck = +(p.stueck + k.stueck).toPrecision(12); p.einstand = Math.round((p.einstand + k.betrag + (k.gebuehr || 0)) * 100) / 100;
+      }
+    });
+    Object.keys(banken).forEach(function (b) { uebernehmen(b, null, banken[b]); });
+    schreib(KEY, daten); zeichne();
+  }
+  function kaufEntfernen(ids) {
+    var im = daten.ereignisse || {};
+    Object.keys(im).forEach(function (b) {
+      var vorher = im[b].length;
+      im[b] = im[b].filter(function (e) { return !(e.hand && ids.indexOf(e.id) >= 0); });
+      if (im[b].length !== vorher) uebernehmen(b, null, null);
+    });
+    daten.liste.forEach(function (p) {
+      (p.kaeufe || []).forEach(function (k) {
+        if (ids.indexOf(k.id) < 0) return;
+        p.stueck = Math.max(0, +(p.stueck - k.stueck).toPrecision(12)); p.einstand = Math.max(0, Math.round((p.einstand - k.betrag - (k.gebuehr || 0)) * 100) / 100);
+      });
+      if (p.kaeufe) p.kaeufe = p.kaeufe.filter(function (k) { return ids.indexOf(k.id) < 0; });
+    });
+    schreib(KEY, daten); zeichne();
+  }
+  function handListe() {
+    var out = [], im = daten.ereignisse || {};
+    Object.keys(im).forEach(function (b) {
+      im[b].forEach(function (e) { if (e.hand) out.push({ id: e.id, d: e.d, name: e.name, bank: b, stueck: e.stueck, betrag: e.betrag, gebuehr: e.gebuehr, plan: e.plan || '' }); });
+    });
+    daten.liste.forEach(function (p) {
+      (p.kaeufe || []).forEach(function (k) { out.push({ id: k.id, d: k.d, name: p.name, bank: p.bank || '', stueck: k.stueck, betrag: k.betrag, gebuehr: k.gebuehr, plan: k.plan || '' }); });
+    });
+    return out.sort(function (a, b) { return a.d < b.d ? 1 : -1; });
+  }
+  // Kurs in Euro an einem Tag: Tagesschluss von onvista (Xetra, sonst der gewählte Euro-Handelsplatz),
+  // für heute und als Notlösung der aktuelle Kurs. Liefert {kurs, text} oder null.
+  var historie = {};
+  function kursAm(ziel, d) {
+    var p = findePos(ziel);
+    if (!p) return Promise.resolve(null);
+    var aktuell = function () { var w = wertVon(p); return w.ok ? { kurs: w.kurs, text: 'aktueller Kurs' } : null; };
+    var tag = String(d).slice(0, 10);
+    if (tag >= heute() || !(p.isin || p.kuerzel)) return Promise.resolve(aktuell());
+    var key = ovKey(p);
+    var hol = historie[key] || (historie[key] = ovFinde(p, key).then(function (id) {
+      var basisUrl = OVURL + encodeURIComponent(id.t) + '/' + encodeURIComponent(id.v) + '/';
+      return ovJson(basisUrl + 'snapshot').then(function (s) {
+        var q = waehleQuote(s), n = q && q.market && q.market.idNotation;
+        var von = new Date(Date.now() - 400 * 864e5).toISOString().slice(0, 10);
+        return ovJson(basisUrl + 'eod_history?range=Y1&startDate=' + von + (n ? '&idNotation=' + n : ''));
+      });
+    }).then(function (h) {
+      if (!h || h.isoCurrency !== 'EUR' || !Array.isArray(h.datetimeLast)) throw new Error('keine Euro-Historie');
+      return h.datetimeLast.map(function (t, i) { return [new Date(t * 1000).toISOString().slice(0, 10), h.last[i]]; }).filter(function (x) { return x[1] > 0; });
+    }));
+    return hol.then(function (reihe) {
+      // letzter Schlusskurs an oder vor dem Tag (Wochenende, Feiertag)
+      var x = null;
+      reihe.forEach(function (r) { if (r[0] <= tag) x = r; });
+      return x ? { kurs: x[1], text: 'Schlusskurs ' + datum(x[0]) } : aktuell();
+    }).catch(function () { delete historie[key]; return aktuell(); });
+  }
+
   // Alle abgerechneten Buchungen aller Banken, für Steuer und Dividenden (aktien.js)
   function alleEreignisse() {
     var im = daten.ereignisse || {}, out = [];
@@ -5564,6 +5840,17 @@ const TREFFER = (function () {
     // Jahreswerte von Hand (Banken ohne Datei); wandern mit der Sicherung
     jahreswerte: function () { return (daten.jahreswerte || []).slice(); },
     setzeJahreswerte: function (l) { daten.jahreswerte = l; schreib(KEY, daten); document.dispatchEvent(new Event('wertpapiere')); },
+    // ---- Nachkauf und Sparpläne (nachkauf.js) ----
+    ziele: function () {
+      var im = daten.ereignisse || {};
+      return daten.liste.map(function (p) {
+        return { id: posId(p), name: p.name, bank: p.bank || '', isin: p.isin || '', kuerzel: p.kuerzel || '', ausDatei: !!(p.quelle === 'import' && p.bank && im[p.bank] && im[p.bank].length) };
+      });
+    },
+    kaufHinzu: kaufHinzu,
+    kaufEntfernen: kaufEntfernen,
+    handListe: handListe,
+    kursAm: kursAm,
     summe: function () { return daten.liste.length ? letzteSumme : 0; },
     // Für Aufteilung und Kachel-Grafik der Übersicht: Wert und Veränderung seit dem Vortag je Wertpapier
     positionen: function () {
@@ -5944,6 +6231,345 @@ const TREFFER = (function () {
     if (e.target.closest('[data-go], .subnav button')) setTimeout(function () { if (!$('dividenden').hidden && $('div-chart').clientWidth !== breite) { breite = $('div-chart').clientWidth; zeichneDividenden(); } }, 30);
   });
   alles();
+})();
+</script>
+<script>
+/* Nachkauf & Sparpläne: Käufe ohne Datei eintragen und Sparpläne, die ihre Termine selbst buchen.
+   Krypto über window.KRYPTO_HAND (Hauptskript), Aktien/ETFs über window.WP (wertpapiere.js).
+   Eine später eingelesene Datei derselben Börse/Bank ersetzt diese Käufe bis zu ihrem letzten Tag. */
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  if (!$('nachkauf') || !window.WP) return;
+  var KEY = 'krypto-freunde-sparplaene';
+  var GEBUEHR = { Bitvavo: 0.25, Bitpanda: 1.49, 'Trade Republic': 0, Andere: 0 };
+
+  var nf2 = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var nfq = new Intl.NumberFormat('de-DE', { maximumSignificantDigits: 8 });
+  var eur = function (x) { return nf2.format(x).replace('-', '−') + ' €'; };
+  var zwei = function (x) { return (x < 10 ? '0' : '') + x; };
+  var iso = function (dt) { return dt.getFullYear() + '-' + zwei(dt.getMonth() + 1) + '-' + zwei(dt.getDate()); };
+  var heute = function () { return iso(new Date()); };
+  var datum = function (s) { return s ? s.slice(8, 10) + '.' + s.slice(5, 7) + '.' + s.slice(0, 4) : ''; };
+  var RHYTHMUS = { monat: 'monatlich', '2wochen': 'alle 2 Wochen', woche: 'wöchentlich', quartal: 'vierteljährlich' };
+  function zahl(s) {
+    var t = String(s == null ? '' : s).replace(/[\s€%]/g, '');
+    if (!t) return 0;
+    var c = t.lastIndexOf(','), d = t.lastIndexOf('.');
+    if (c >= 0 && d >= 0) t = c > d ? t.replace(/\./g, '').replace(',', '.') : t.replace(/,/g, '');
+    else if (c >= 0) t = t.replace(',', '.');
+    var v = Number(t);
+    return isFinite(v) ? v : NaN;
+  }
+  function lies() { try { var v = JSON.parse(localStorage.getItem(KEY) || 'null'); return v && Array.isArray(v.liste) ? v : { v: 1, liste: [] }; } catch (e) { return { v: 1, liste: [] }; } }
+  function schreib() { try { localStorage.setItem(KEY, JSON.stringify(plaene)); } catch (e) { /* Speicher gesperrt */ } }
+  var plaene = lies();
+  var KH = function () { return window.KRYPTO_HAND || null; };
+  function el(tag, attrs, text) {
+    var e = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function zeile(zellen, tag) {
+    var r = el('tr');
+    zellen.forEach(function (z) { var c = el(tag || 'td'); if (z && z.nodeType) c.append(z); else c.textContent = z == null ? '' : z; r.append(c); });
+    return r;
+  }
+  function status(t, warn) { var s = $('nk-status'); s.textContent = t; s.className = 'note callout' + (warn ? ' warn' : ''); }
+
+  // ---------- Ziele ----------
+  function zielName(art, ziel) {
+    if (art === 'krypto') { var c = KH() && KH().coins().filter(function (x) { return x.sym === ziel; })[0]; return c ? c.name + ' (' + c.sym + ')' : ziel; }
+    var w = window.WP.ziele().filter(function (x) { return x.id === ziel; })[0];
+    return w ? w.name + (w.bank ? ' · ' + w.bank : '') : ziel;
+  }
+  function fuelleZiele(art, gewaehlt) {
+    var s = $('nk-ziel'); s.textContent = '';
+    $('nk-ziel-label').textContent = art === 'krypto' ? 'Coin' : 'Wertpapier';
+    $('nk-boerse-feld').hidden = art !== 'krypto';
+    if (art === 'krypto') {
+      var cs = KH() ? KH().coins() : [];
+      var gh = cs.filter(function (c) { return c.gehalten; }), rest = cs.filter(function (c) { return !c.gehalten; });
+      [['In deinem Bestand', gh], ['Weitere Coins', rest]].forEach(function (g) {
+        if (!g[1].length) return;
+        var og = el('optgroup', { label: g[0] });
+        g[1].forEach(function (c) { og.append(el('option', { value: c.sym }, c.name + ' (' + c.sym + ')')); });
+        s.append(og);
+      });
+      $('nk-ziel-info').textContent = KH() && KH().mitImport() ? '' : 'Ohne eingelesene Datei wird der Kauf direkt auf Stück und Einstand gebucht.';
+    } else {
+      var ws = window.WP.ziele();
+      ws.forEach(function (w) { s.append(el('option', { value: w.id }, w.name + (w.bank ? ' · ' + w.bank : ''))); });
+      $('nk-ziel-info').textContent = ws.length ? '' : 'Noch keine Wertpapiere. Lies sie im Reiter CSV-Dateien ein oder trag sie im Reiter Wertpapiere ein.';
+    }
+    if (gewaehlt) s.value = gewaehlt;
+  }
+
+  // ---------- Formular ----------
+  var modus = 'kauf', planIndex = -1;
+  function oeffne(m, vorgabe) {
+    modus = m; vorgabe = vorgabe || {};
+    var p = m === 'plan' && vorgabe.index >= 0 ? plaene.liste[vorgabe.index] : null;
+    planIndex = p ? vorgabe.index : -1;
+    $('nk-form-titel').textContent = m === 'kauf' ? 'Kauf eintragen' : p ? 'Sparplan bearbeiten' : 'Sparplan anlegen';
+    document.querySelectorAll('#nk-form .nk-nur-kauf').forEach(function (e) { e.hidden = m !== 'kauf'; });
+    document.querySelectorAll('#nk-form .nk-nur-plan').forEach(function (e) { e.hidden = m !== 'plan'; });
+    var art = (p && p.art) || vorgabe.art || 'krypto';
+    $('nk-art').value = art;
+    fuelleZiele(art, (p && p.ziel) || vorgabe.ziel);
+    var b = (p && p.boerse) || vorgabe.boerse || (KH() && KH().boersen()[0]) || 'Bitvavo';
+    $('nk-boerse').value = GEBUEHR[b] != null ? b : 'Andere';
+    $('nk-betrag').value = p ? nf2.format(p.betrag) : vorgabe.betrag ? nf2.format(vorgabe.betrag) : '';
+    $('nk-datum').value = heute(); $('nk-gebuehr').value = ''; $('nk-stueck').value = ''; $('nk-kurs-info').textContent = '';
+    $('nk-rhythmus').value = (p && p.rhythmus) || vorgabe.rhythmus || 'monat';
+    $('nk-ab').value = p ? naechster(p) || p.ab : vorgabe.ab || heute();
+    $('nk-prozent').value = p ? nf2.format(p.prozent) : String(GEBUEHR[$('nk-boerse').value] || 0).replace('.', ',');
+    $('nk-plan-loeschen').hidden = !p;
+    $('nk-fehler').hidden = true;
+    $('nk-form').hidden = false;
+    $('nk-form').scrollIntoView({ block: 'nearest' });
+    kursZeigen();
+  }
+  function schliesse() { $('nk-form').hidden = true; planIndex = -1; }
+  $('nk-kauf-neu').addEventListener('click', function () { oeffne('kauf'); });
+  $('nk-plan-neu').addEventListener('click', function () { oeffne('plan'); });
+  $('nk-abbrechen').addEventListener('click', schliesse);
+  $('nk-art').addEventListener('change', function () { fuelleZiele($('nk-art').value); kursZeigen(); });
+  $('nk-boerse').addEventListener('change', function () { if (modus === 'plan' && planIndex < 0) $('nk-prozent').value = String(GEBUEHR[$('nk-boerse').value] || 0).replace('.', ','); });
+  ['nk-ziel', 'nk-datum', 'nk-betrag', 'nk-gebuehr'].forEach(function (id) { $(id).addEventListener('change', kursZeigen); });
+
+  // Kurs am Tag holen (Krypto sofort aus den Bitvavo-Tageskursen, Wertpapiere über onvista)
+  function kursAm(art, ziel, d) {
+    if (art === 'krypto') { var k = KH() && KH().kurs(ziel, d); return Promise.resolve(k ? { kurs: k, text: d >= heute() ? 'letzter Kurs' : 'Schlusskurs ' + datum(d) } : null); }
+    return window.WP.kursAm(ziel, d);
+  }
+  var kursLauf = 0;
+  function kursZeigen() {
+    if (modus !== 'kauf') return;
+    var art = $('nk-art').value, ziel = $('nk-ziel').value, d = $('nk-datum').value, n = ++kursLauf;
+    if (!ziel || !d) { $('nk-kurs-info').textContent = ''; return; }
+    $('nk-kurs-info').textContent = 'Kurs wird gesucht …';
+    kursAm(art, ziel, d).then(function (k) {
+      if (n !== kursLauf) return;
+      var b = zahl($('nk-betrag').value) - (zahl($('nk-gebuehr').value) || 0);
+      $('nk-kurs-info').textContent = k ? (k.text + ': ' + eur(k.kurs) + (b > 0 ? ' → etwa ' + nfq.format(b / k.kurs) + ' Stück' : '')) : 'Kein Kurs gefunden. Trag die Stückzahl selbst ein.';
+    });
+  }
+
+  $('nk-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var art = $('nk-art').value, ziel = $('nk-ziel').value, betrag = zahl($('nk-betrag').value);
+    var fehler = function (t) { $('nk-fehler').textContent = t; $('nk-fehler').hidden = false; };
+    if (!ziel) return fehler(art === 'krypto' ? 'Bitte einen Coin wählen.' : 'Bitte ein Wertpapier wählen.');
+    if (!(betrag > 0)) return fehler('Bitte den Betrag in Euro eintragen.');
+    if (modus === 'plan') {
+      var ab = $('nk-ab').value, pr = zahl($('nk-prozent').value);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(ab)) return fehler('Bitte das Datum der nächsten Ausführung wählen.');
+      if (!(pr >= 0 && pr < 20)) return fehler('Die Gebühr in Prozent sieht nicht richtig aus.');
+      var r = $('nk-rhythmus').value;
+      if ((r === 'monat' || r === 'quartal') && +ab.slice(8, 10) > 28) ab = ab.slice(0, 8) + '28';
+      var alt = planIndex >= 0 ? plaene.liste[planIndex] : null;
+      var plan = { id: alt ? alt.id : 'p' + Date.now().toString(36), art: art, ziel: ziel, name: zielName(art, ziel), boerse: art === 'krypto' ? $('nk-boerse').value : '',
+        betrag: betrag, prozent: pr, rhythmus: r, ab: ab, bis: '', aktiv: alt ? alt.aktiv : true };
+      // Beim Bearbeiten bleiben schon gebuchte Termine, wie sie sind; neu gebucht wird erst danach
+      if (alt) plan.bis = alt.bis || '';
+      if (alt) plaene.liste[planIndex] = plan; else plaene.liste.push(plan);
+      schreib(); schliesse(); zeichne();
+      ausfuehren();
+      return;
+    }
+    var d = $('nk-datum').value, geb = zahl($('nk-gebuehr').value) || 0, st = zahl($('nk-stueck').value);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || d > heute()) return fehler('Bitte ein Datum bis heute wählen.');
+    if (!(geb >= 0) || geb >= betrag) return fehler('Die Gebühr muss kleiner als der Betrag sein.');
+    if (isNaN(st) || st < 0) return fehler('Die Stückzahl sieht nicht richtig aus.');
+    $('nk-speichern').disabled = true;
+    (st > 0 ? Promise.resolve(null) : kursAm(art, ziel, d)).then(function (k) {
+      $('nk-speichern').disabled = false;
+      var stueck = st > 0 ? st : k ? (betrag - geb) / k.kurs : 0;
+      if (!(stueck > 0)) return fehler('Für diesen Tag gibt es keinen Kurs. Trag die Stückzahl selbst ein.');
+      buche(art, ziel, [{ id: 'hand:' + Date.now().toString(36), d: d + 'T12:00:00', stueck: stueck, betrag: betrag - geb, gebuehr: geb, plan: '' }], $('nk-boerse').value);
+      status('Kauf eingetragen: ' + nfq.format(stueck) + ' ' + zielName(art, ziel) + ' für ' + eur(betrag) + '.');
+      schliesse(); zeichne();
+    });
+  });
+  function buche(art, ziel, kaeufe, boerse) {
+    if (art === 'krypto') {
+      if (!KH()) return;
+      KH().hinzu(kaeufe.map(function (k) { return { id: k.id, d: k.d, sym: ziel, qty: k.stueck, eur: k.betrag, fee: k.gebuehr, boerse: boerse === 'Andere' ? '' : boerse, plan: k.plan }; }));
+    } else window.WP.kaufHinzu(kaeufe.map(function (k) { return { id: k.id, ziel: ziel, d: k.d, stueck: k.stueck, betrag: k.betrag, gebuehr: k.gebuehr, plan: k.plan }; }));
+  }
+  $('nk-plan-loeschen').addEventListener('click', function () {
+    var p = plaene.liste[planIndex];
+    if (!p) return;
+    var n = gebucht(p.id).length;
+    var weg = window.confirm('Sparplan „' + p.name + '“ löschen?' + (n ? '\n\nOK: auch die ' + n + ' schon gebuchten Käufe entfernen.\nAbbrechen: nichts löschen.' : ''));
+    if (!weg) return;
+    if (n) entferne(gebucht(p.id));
+    plaene.liste.splice(planIndex, 1); schreib(); schliesse(); zeichne();
+  });
+
+  // ---------- Termine ----------
+  function vorTag(d) { var t = new Date(d + 'T12:00:00'); t.setDate(t.getDate() - 1); return iso(t); }
+  function plus(d, r) {
+    var t = new Date(d + 'T12:00:00');
+    if (r === 'woche') t.setDate(t.getDate() + 7);
+    else if (r === '2wochen') t.setDate(t.getDate() + 14);
+    else t.setMonth(t.getMonth() + (r === 'quartal' ? 3 : 1));
+    return iso(t);
+  }
+  function termine(p, bis) {
+    var out = [], d = p.ab, n = 0;
+    while (d <= bis && n++ < 600) { if (!p.bis || d > p.bis) out.push(d); d = plus(d, p.rhythmus); }
+    return out;
+  }
+  function naechster(p) { var d = p.ab, n = 0; while ((d <= (p.bis || '') || d < heute()) && n++ < 600) d = plus(d, p.rhythmus); return d; }
+
+  // Fällige Termine buchen. Gibt es für einen Tag (noch) keinen Kurs, bleibt der Plan dort stehen und versucht es beim nächsten Öffnen.
+  var laeuft = false;
+  function ausfuehren() {
+    if (laeuft) return;
+    var faellig = plaene.liste.filter(function (p) { return p.aktiv && termine(p, heute()).length; });
+    if (!faellig.length || (faellig.some(function (p) { return p.art === 'krypto'; }) && !KH())) return;
+    laeuft = true;
+    var gesamt = 0;
+    faellig.reduce(function (kette, p) {
+      return kette.then(function () {
+        var ds = termine(p, heute()), kaeufe = [], stand = p.bis;
+        return ds.reduce(function (k2, d) {
+          return k2.then(function (stop) {
+            if (stop) return true;
+            return kursAm(p.art, p.ziel, d).then(function (k) {
+              if (!k || !(k.kurs > 0)) return true;
+              var geb = Math.round(p.betrag * p.prozent) / 100;
+              kaeufe.push({ id: 'plan:' + p.id + ':' + d, d: d + 'T12:00:00', stueck: (p.betrag - geb) / k.kurs, betrag: p.betrag - geb, gebuehr: geb, plan: p.id });
+              stand = d;
+              return false;
+            });
+          });
+        }, Promise.resolve(false)).then(function () {
+          if (kaeufe.length) { buche(p.art, p.ziel, kaeufe, p.boerse); gesamt += kaeufe.length; }
+          p.bis = stand;
+        });
+      });
+    }, Promise.resolve()).then(function () {
+      laeuft = false; schreib(); zeichne();
+      if (gesamt) status(gesamt === 1 ? '1 Sparplan-Kauf wurde gebucht.' : gesamt + ' Sparplan-Käufe wurden gebucht.');
+    }, function () { laeuft = false; });
+  }
+
+  // ---------- Eingetragene Käufe ----------
+  function alleKaeufe() {
+    var out = [];
+    if (KH()) KH().liste().forEach(function (x) { out.push({ id: x.id, art: 'krypto', d: x.d, name: zielName('krypto', x.sym), bank: x.boerse, stueck: x.qty, betrag: x.eur + x.fee, plan: x.plan }); });
+    window.WP.handListe().forEach(function (x) { out.push({ id: x.id, art: 'wp', d: x.d, name: x.name, bank: x.bank, stueck: x.stueck, betrag: x.betrag + (x.gebuehr || 0), plan: x.plan }); });
+    return out.sort(function (a, b) { return a.d < b.d ? 1 : a.d > b.d ? -1 : 0; });
+  }
+  function gebucht(planId) { return alleKaeufe().filter(function (k) { return k.plan === planId; }); }
+  function entferne(kaeufe) {
+    var kr = kaeufe.filter(function (k) { return k.art === 'krypto'; }).map(function (k) { return k.id; });
+    var wp = kaeufe.filter(function (k) { return k.art === 'wp'; }).map(function (k) { return k.id; });
+    if (kr.length && KH()) KH().entfernen(kr);
+    if (wp.length) window.WP.kaufEntfernen(wp);
+  }
+
+  // ---------- Erkannte Sparpläne ----------
+  // Mindestens 3 Käufe in den letzten 120 Tagen mit ähnlichem Betrag (±15 %) und gleichmäßigem Abstand
+  function vorschlaege() {
+    var gruppen = {}, grenze = iso(new Date(Date.now() - 120 * 864e5));
+    if (KH()) KH().echteKaeufe().forEach(function (k) { if (k.d.slice(0, 10) >= grenze) (gruppen['krypto|' + k.sym] = gruppen['krypto|' + k.sym] || []).push(k); });
+    var ziele = window.WP.ziele();
+    window.WP.ereignisse().forEach(function (e) {
+      if (e.art !== 'kauf' || e.hand || e.d.slice(0, 10) < grenze) return;
+      var z = ziele.filter(function (w) { return w.bank === e.bank && (w.isin ? w.isin === e.isin : w.kuerzel === e.kuerzel); })[0];
+      if (z) (gruppen['wp|' + z.id] = gruppen['wp|' + z.id] || []).push({ d: e.d, betrag: e.betrag + (e.gebuehr || 0) });
+    });
+    var out = [];
+    Object.keys(gruppen).forEach(function (g) {
+      var l = gruppen[g].sort(function (a, b) { return a.d < b.d ? -1 : 1; });
+      // Teilausführungen am selben Tag zusammenfassen
+      var tage = [];
+      l.forEach(function (k) { var t = k.d.slice(0, 10), x = tage[tage.length - 1]; if (x && x.d === t) x.betrag += k.betrag; else tage.push({ d: t, betrag: k.betrag }); });
+      if (tage.length < 3) return;
+      var b = tage.map(function (t) { return t.betrag; }).sort(function (x, y) { return x - y; }), med = b[Math.floor(b.length / 2)];
+      if (!tage.every(function (t) { return Math.abs(t.betrag - med) <= 0.15 * med; })) return;
+      var abst = [];
+      for (var i = 1; i < tage.length; i++) abst.push((Date.parse(tage[i].d) - Date.parse(tage[i - 1].d)) / 864e5);
+      var r = abst.every(function (a) { return a >= 25 && a <= 35; }) ? 'monat' : abst.every(function (a) { return a >= 13 && a <= 15; }) ? '2wochen' : abst.every(function (a) { return a >= 6 && a <= 8; }) ? 'woche' : '';
+      if (!r) return;
+      var art = g.split('|')[0], ziel = g.slice(art.length + 1);
+      if (plaene.liste.some(function (p) { return p.art === art && p.ziel === ziel; })) return;
+      var letzt = tage[tage.length - 1].d, ab = plus(letzt, r);
+      while (ab < heute()) ab = plus(ab, r);
+      if ((r === 'monat') && +ab.slice(8, 10) > 28) ab = ab.slice(0, 8) + '28';
+      out.push({ art: art, ziel: ziel, betrag: Math.round(med * 100) / 100, rhythmus: r, ab: ab, n: tage.length });
+    });
+    return out;
+  }
+
+  // ---------- Anzeige ----------
+  function zeichne() {
+    var t = $('nk-plaene'); t.textContent = '';
+    if (plaene.liste.length) {
+      var th = el('thead'); t.append(th); th.append(zeile(['Sparplan', 'Betrag', 'Rhythmus', 'Gebucht', 'Nächster Termin', ''], 'th'));
+      var tb = el('tbody');
+      plaene.liste.forEach(function (p, i) {
+        var bear = el('button', { type: 'button' }, 'Ändern'), pause = el('button', { type: 'button', style: 'margin-left:6px' }, p.aktiv ? 'Pause' : 'Weiter');
+        bear.addEventListener('click', function () { oeffne('plan', { index: i }); });
+        pause.addEventListener('click', function () { p.aktiv = !p.aktiv; if (p.aktiv && naechster(p) < heute()) p.bis = vorTag(heute()); schreib(); zeichne(); });
+        var knoepfe = el('span', { style: 'white-space:nowrap' }); knoepfe.append(bear, pause);
+        // Name mit kleiner Zeile darunter (am Handy fehlen die Spalten Rhythmus und Termin)
+        var nm = el('span'); nm.append(el('b', null, p.name + (p.boerse ? ' · ' + p.boerse : '')),
+          el('small', { class: 'nur-handy' }, RHYTHMUS[p.rhythmus] + ' · ' + (p.aktiv ? 'nächster ' + datum(naechster(p)) : 'pausiert')));
+        tb.append(zeile([nm, eur(p.betrag) + (p.prozent ? ' (' + nf2.format(p.prozent) + ' % Gebühr)' : ''), RHYTHMUS[p.rhythmus],
+          String(gebucht(p.id).length), p.aktiv ? datum(naechster(p)) : 'pausiert', knoepfe]));
+      });
+      t.append(tb);
+    }
+    var vs = vorschlaege(), ul = $('nk-vorschlag-liste'); ul.textContent = '';
+    $('nk-vorschlaege').hidden = !vs.length;
+    vs.forEach(function (v) {
+      var li = el('li'), txt = el('span', null, zielName(v.art, v.ziel) + ': ' + v.n + ' Käufe um ' + eur(v.betrag) + ', ' + RHYTHMUS[v.rhythmus]);
+      var k = el('button', { type: 'button' }, 'Als Sparplan übernehmen');
+      k.addEventListener('click', function () { oeffne('plan', { art: v.art, ziel: v.ziel, betrag: v.betrag, rhythmus: v.rhythmus, ab: v.ab }); });
+      li.style.gridTemplateColumns = 'minmax(0,1fr) auto';
+      li.append(txt, k); ul.append(li);
+    });
+    var l = alleKaeufe(), lt = $('nk-liste'); lt.textContent = '';
+    $('nk-liste-box').hidden = !l.length;
+    $('nk-liste-titel').textContent = 'Eingetragene Käufe (' + l.length + ')';
+    if (l.length) {
+      var lh = el('thead'); lt.append(lh); lh.append(zeile(['Datum', 'Was', 'Stück', 'Betrag', 'Herkunft', ''], 'th'));
+      var lb = el('tbody');
+      l.slice(0, 200).forEach(function (k) {
+        var weg = el('button', { type: 'button' }, 'Entfernen');
+        weg.addEventListener('click', function () { if (window.confirm('Kauf vom ' + datum(k.d) + ' (' + k.name + ') entfernen?')) { entferne([k]); zeichne(); } });
+        lb.append(zeile([datum(k.d), k.name + (k.bank ? ' · ' + k.bank : ''), nfq.format(k.stueck), eur(k.betrag), k.plan ? 'Sparplan' : 'von Hand', weg]));
+      });
+      lt.append(lb);
+    }
+    if (!$('nk-status').textContent || !laeuft) {
+      var nPl = plaene.liste.filter(function (p) { return p.aktiv; }).length;
+      status((nPl ? nPl + (nPl === 1 ? ' aktiver Sparplan' : ' aktive Sparpläne') + '. ' : 'Noch kein Sparplan. ')
+        + (l.length ? l.length + (l.length === 1 ? ' Kauf ist' : ' Käufe sind') + ' eingetragen, bis eine Datei sie ersetzt.' : 'Käufe zwischendurch trägst du mit „Kauf eintragen“ ein.'));
+    }
+  }
+
+  document.addEventListener('nachkauf-oeffnen', function (e) {
+    var k = document.querySelector('.subnav[data-fuer="import"] button[data-ziel="nachkauf"]');
+    if (k) k.click();
+    oeffne('kauf', e.detail || {});
+  });
+  var bereit = false;
+  function start() { zeichne(); ausfuehren(); }
+  document.addEventListener('krypto-hand', function () { if (!bereit) { bereit = true; start(); } else zeichne(); });
+  document.addEventListener('wertpapiere', function () { if (bereit) zeichne(); });
+  // Läuft die App länger offen, die Termine des neuen Tages nachholen
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && bereit) ausfuehren(); });
+  // Mit frischem Kurs-Cache läuft das Hauptskript schon vor dieser Datei: dann gleich starten
+  if (window.KRYPTO_HAND) setTimeout(function () { if (!bereit) { bereit = true; start(); } }, 0);
+  // Ohne Krypto-Teil (Hauptskript lädt nicht) trotzdem anzeigen
+  setTimeout(function () { if (!bereit) { bereit = true; start(); } }, 15000);
 })();
 </script>
 <script>
