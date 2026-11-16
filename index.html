@@ -914,6 +914,27 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
   #pf-zeit .tile .v{font-size:18px}
 }
 @media (min-width:621px){.pf-sort{display:none}}
+/* Jahresende (jahresende.js) und Ziele (ziele.js) */
+/* Bei „Ziele“ gelten eigene Annahmen: die Regler des Krypto-Modells ausblenden */
+.view[data-view="planung"]:has(#ziele:not(.zu)) .zwei{grid-template-columns:minmax(0,1fr)}
+.view[data-view="planung"]:has(#ziele:not(.zu)) .slot{display:none}
+.se-tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;font-size:11.5px;background:var(--sunken);color:var(--ink-2);white-space:nowrap}
+#se-minus td:first-child,#se-plus td:first-child{min-width:140px}
+.zl-balken{height:10px;border-radius:999px;background:var(--sunken);overflow:hidden;margin:10px 0 6px}
+.zl-balken i{display:block;height:100%;width:0;border-radius:999px;background:var(--verlauf,var(--s1));transition:width .5s ease}
+.zl-liste{display:flex;flex-wrap:wrap;gap:8px}
+.zl-liste button[aria-pressed="true"]{background:var(--verlauf);border-color:transparent;color:var(--on-accent)}
+.zl-felder{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px 16px}
+.zl-felder .zl-breit{grid-column:1/-1}
+.ok-chart .zl-unten{fill:none;stroke:none}
+.ok-chart .zl-band{fill:var(--s1);fill-opacity:.26;stroke:none}
+.ok-chart .zl-mitte{fill:none;stroke:var(--s1);stroke-width:2}
+.ok-chart .zl-ziel{fill:none;stroke:var(--s2);stroke-width:1.5;stroke-dasharray:6 4}
+.ok-chart .zl-ein{fill:none;stroke:var(--ink-2);stroke-width:1.3;stroke-dasharray:2 3}
+.ok-legende i.zl-l-band{background:var(--s1);opacity:.3}
+.ok-legende i.zl-l-mitte{height:0;border-top:2px solid var(--s1);border-radius:0;vertical-align:3px}
+.ok-legende i.zl-l-ziel{height:0;border-top:2px dashed var(--s2);border-radius:0;vertical-align:3px}
+.ok-legende i.zl-l-ein{height:0;border-top:2px dotted var(--ink-2);border-radius:0;vertical-align:3px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 <script>
@@ -1064,6 +1085,17 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
             <section class="sheet" data-karte="news" aria-labelledby="h-ov-news">
               <header class="reihe"><h2 id="h-ov-news">Schlagzeile</h2><button type="button" data-go="markt">Zur Marktzeitung</button></header>
               <div id="ov-news"></div>
+            </section>
+            <section class="sheet" id="ov-ende" data-karte="steuerende" aria-labelledby="h-ov-ende" hidden>
+              <header class="reihe"><h2 id="h-ov-ende">Steuer bis 31.12.</h2><button type="button" data-go="steuer" data-ziel="steuer-ende">Ansehen</button></header>
+              <p class="ok-zahl" id="ov-ende-zahl"></p>
+              <p class="note" id="ov-ende-satz"></p>
+            </section>
+            <section class="sheet" id="ov-ziel" data-karte="ziel" aria-labelledby="h-ov-ziel" hidden>
+              <header class="reihe"><h2 id="h-ov-ziel">Mein Ziel</h2><button type="button" data-go="planung" data-ziel="ziele">Ziele</button></header>
+              <p class="ok-zahl" id="ov-ziel-zahl"></p>
+              <div class="zl-balken" aria-hidden="true"><i id="ov-ziel-balken"></i></div>
+              <p class="s" id="ov-ziel-satz"></p>
             </section>
             <section class="sheet" id="ov-wp" data-karte="wp" aria-labelledby="h-ov-wp" hidden>
               <header class="reihe"><h2 id="h-ov-wp">Wertpapiere</h2><button type="button" data-go="import" data-ziel="wertpapiere">Bearbeiten</button></header>
@@ -1665,6 +1697,64 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
         <div class="zwei">
           <div class="slot"></div>
           <div class="stapel">
+      <section class="sheet" id="ziele" aria-labelledby="h-ziele">
+        <header>
+          <h2 id="h-ziele">Ziele</h2>
+          <p>Wie wahrscheinlich du ein Vermögensziel erreichst. Die App spielt 5.000 mögliche Verläufe deines Vermögens durch, mit deinen Sparplänen und der Schwankung deiner Anlagen. Das ist eine Rechnung mit Annahmen und keine Vorhersage.</p>
+        </header>
+        <div class="zl-liste" id="zl-liste" role="group" aria-label="Deine Ziele"></div>
+        <form class="fig" id="zl-form" autocomplete="off" hidden>
+          <div class="zl-felder">
+            <div class="field zl-breit"><label for="zl-f-name">Name</label><input type="text" id="zl-f-name" maxlength="40" placeholder="z. B. Wohnung, Weltreise, finanziell frei"></div>
+            <div class="field"><label for="zl-f-betrag">Zielbetrag (€)</label><input type="text" id="zl-f-betrag" inputmode="decimal" placeholder="z. B. 100.000"></div>
+            <div class="field"><label for="zl-f-bis">Bis wann</label><input type="month" id="zl-f-bis"></div>
+            <div class="field"><label for="zl-f-extra">Zusätzlich pro Monat (€)</label><input type="text" id="zl-f-extra" inputmode="decimal" placeholder="0"><small>zu deinen Sparplänen dazu</small></div>
+          </div>
+          <p class="note callout warn" id="zl-f-fehler" hidden></p>
+          <div class="btns">
+            <button type="submit" class="primary">Ziel speichern</button>
+            <button type="button" id="zl-f-abbrechen">Abbrechen</button>
+            <button type="button" id="zl-f-loeschen" hidden>Ziel löschen</button>
+          </div>
+        </form>
+        <div class="note callout" id="zl-leer" hidden></div>
+        <div class="fig" id="zl-inhalt" hidden>
+          <div class="pf-kopf">
+            <div>
+              <p class="ok-zahl" id="zl-zahl"></p>
+              <div class="zl-balken" aria-hidden="true"><i id="zl-balken"></i></div>
+              <p class="s" id="zl-stand"></p>
+            </div>
+            <div class="btns"><button type="button" id="zl-bearbeiten">Ziel ändern</button></div>
+          </div>
+          <div class="ok-sp-ergebnis" id="zl-werte"></div>
+          <figure class="fig">
+            <figcaption><h3>Mögliche Verläufe</h3></figcaption>
+            <div class="chart ok-chart" id="zl-chart"></div>
+            <ul class="ok-legende" id="zl-legende">
+              <li><i class="zl-l-band"></i>8 von 10 Verläufen</li>
+              <li><i class="zl-l-mitte"></i>mittlerer Verlauf</li>
+              <li><i class="zl-l-ziel"></i>Ziel</li>
+              <li><i class="zl-l-ein"></i>nur eingezahlt</li>
+            </ul>
+            <p class="cap" id="zl-chart-cap"></p>
+          </figure>
+          <p class="note callout" id="zl-satz"></p>
+          <details class="tw" id="zl-annahmen">
+            <summary>Annahmen ändern</summary>
+            <div class="zl-felder">
+              <div class="field"><label for="zl-a-rk">Krypto: Rendite pro Jahr (%)</label><input type="text" id="zl-a-rk" inputmode="decimal"></div>
+              <div class="field"><label for="zl-a-vk">Krypto: Schwankung pro Jahr (%)</label><input type="text" id="zl-a-vk" inputmode="decimal"><small id="zl-a-vk-info"></small></div>
+              <div class="field"><label for="zl-a-rw">Aktien &amp; ETFs: Rendite pro Jahr (%)</label><input type="text" id="zl-a-rw" inputmode="decimal"></div>
+              <div class="field"><label for="zl-a-vw">Aktien &amp; ETFs: Schwankung pro Jahr (%)</label><input type="text" id="zl-a-vw" inputmode="decimal"></div>
+              <div class="field"><label for="zl-a-rc">Cash: Zinsen pro Jahr (%)</label><input type="text" id="zl-a-rc" inputmode="decimal"></div>
+              <label class="check zl-breit"><input type="checkbox" id="zl-a-real"><span>In heutiger Kaufkraft rechnen (2 % Inflation pro Jahr abziehen)</span></label>
+            </div>
+            <div class="btns"><button type="button" id="zl-a-zurueck">Annahmen zurücksetzen</button></div>
+          </details>
+          <ul class="hinweise" id="zl-hinweise"></ul>
+        </div>
+      </section>
       <section class="sheet" id="trendhilfe" aria-labelledby="h-th">
         <header>
           <h2 id="h-th">Trend ableiten</h2>
@@ -1865,6 +1955,26 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
             <div class="btns"><button type="submit" class="primary">Jahreswerte speichern</button></div>
           </form>
         </details>
+      </section>
+      <section class="sheet" id="steuer-ende" aria-labelledby="h-se">
+        <header>
+          <h2 id="h-se">Jahresende</h2>
+          <p id="se-unter">Was bis 31.12. noch in dieses Steuerjahr fällt: realisierte Gewinne und Verluste aus Krypto, Aktien und ETFs zusammen, dazu die offenen Gewinne und Verluste in deinem Bestand. Die Seite gibt Hinweise und keine Empfehlung zum Kaufen oder Verkaufen.</p>
+        </header>
+        <div class="note callout" id="se-leer" hidden></div>
+        <div class="fig" id="se-inhalt" hidden>
+          <div class="tiles inset" id="se-kpis"></div>
+          <p class="note callout" id="se-satz"></p>
+          <figure class="fig" id="se-minus-fig">
+            <figcaption>
+              <h3>Positionen im Minus</h3>
+              <p class="cap" id="se-minus-cap"></p>
+            </figcaption>
+            <div class="scroll"><table id="se-minus"></table></div>
+          </figure>
+          <details class="tw" id="se-plus-box"><summary id="se-plus-sum">Positionen im Plus</summary><p class="cap" id="se-plus-cap"></p><div class="scroll"><table id="se-plus"></table></div></details>
+          <ul class="hinweise" id="se-hinweise"></ul>
+        </div>
       </section>
       </div>
 
@@ -4171,21 +4281,29 @@ const TREFFER = (function () {
   const ANSICHTEN = { uebersicht: 'Übersicht', portfolio: 'Portfolio', import: 'Import', risiko: 'Risiko', planung: 'Planung', markt: 'Markt', steuer: 'Steuer', methode: 'Methode und Grenzen' };
   const ABSCHNITTE = {
     portfolio: [['wertverlauf', 'Wertverlauf'], ['positionen', 'Positionen'], ['dividenden', 'Dividenden'], ['verhalten', 'Anlegerprofil']],
-    steuer: [['steuerjahr', 'Krypto'], ['steuer-wp', 'Aktien & ETFs']],
+    // Im November und Dezember steht „Jahresende“ vorne, sonst hinten
+    steuer: new Date().getMonth() >= 10 ? [['steuer-ende', 'Jahresende'], ['steuerjahr', 'Krypto'], ['steuer-wp', 'Aktien & ETFs']]
+      : [['steuerjahr', 'Krypto'], ['steuer-wp', 'Aktien & ETFs'], ['steuer-ende', 'Jahresende']],
     import: [['import', 'CSV-Dateien'], ['nachkauf', 'Nachkauf'], ['wertpapiere', 'Wertpapiere'], ['wallets', 'Wallets'], ['sicherung', 'Sicherung']],
     risiko: [['check', 'Portfolio-Check'], ['bandbreite', 'Bandbreite'], ['risiko', 'Risiko'], ['stresstest', 'Stresstest'], ['treffer', 'Trefferquote']],
-    planung: [['umschichten', 'Umschichten'], ['trendhilfe', 'Trend ableiten'], ['coins', 'Coins']]
+    planung: [['ziele', 'Ziele'], ['umschichten', 'Umschichten'], ['trendhilfe', 'Trend ableiten'], ['coins', 'Coins']]
   };
   const ANSICHT_KEY = 'krypto-freunde-ansicht', THEMA_KEY = 'krypto-freunde-thema';
   const ruhig = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   let ansicht = 'uebersicht';
   // In Risiko und Planung ist immer nur ein Abschnitt offen (Reiter). In Portfolio springen die Knöpfe nur zum Abschnitt.
-  const REITER_KEY = 'krypto-freunde-reiter', REITER = { import: 'import', risiko: 'check', planung: 'umschichten', steuer: 'steuerjahr' };
+  const REITER_KEY = 'krypto-freunde-reiter', REITER = { import: 'import', risiko: 'check', planung: 'ziele', steuer: ABSCHNITTE.steuer[0][0] };
   try {
     const g = JSON.parse(localStorage.getItem(REITER_KEY) || 'null');
     if (g && typeof g === 'object') Object.keys(REITER).forEach(function (v) {
       if (ABSCHNITTE[v].some(function (x) { return x[0] === g[v]; })) REITER[v] = g[v];
     });
+    // Einmal im Jahr (ab November) öffnet die Steuer-Ansicht beim Jahresende; danach gilt wieder die eigene Wahl
+    const jk = 'krypto-freunde-jahresende-reiter', jy = String(new Date().getFullYear());
+    if (new Date().getMonth() >= 10 && localStorage.getItem(jk) !== jy) {
+      REITER.steuer = 'steuer-ende';
+      localStorage.setItem(jk, jy); localStorage.setItem(REITER_KEY, JSON.stringify(REITER));
+    }
   } catch (e) { /* egal */ }
   function setReiter(v, id, merken) {
     const ids = ABSCHNITTE[v].map(function (x) { return x[0]; });
@@ -6183,7 +6301,9 @@ const TREFFER = (function () {
         return { name: p.name, kurz: p.kuerzel ? p.kuerzel.replace(/\.DEX$/, '') : (p.isin || ''), v: w.wert, x: w.ok && w.heute && vor > 0 ? w.heute / vor : null, ohneKurs: !w.ok,
           // für den Portfolio-Bereich (portfolio.js)
           id: posId(p), isin: p.isin || '', kuerzel: p.kuerzel || '', klasse: p.klasse || '', bank: p.bank || '', stueck: p.stueck, einstand: p.einstand || 0,
-          kurs: w.ok ? w.kurs : null, kursZeit: w.tag || '', realisiert: p.realisiert || 0, dividenden: p.dividenden || 0 };
+          kurs: w.ok ? w.kurs : null, kursZeit: w.tag || '', realisiert: p.realisiert || 0, dividenden: p.dividenden || 0,
+          // steuerlicher Einstand ohne Gebühren (Jahresende); von Hand eingetragene Positionen kennen nur den Einstand samt Gebühr
+          einstandSt: a ? Math.round(a.kostenSt * 100) / 100 : p.einstand || 0, steuerGenau: !!a };
       }).filter(function (p) { return p.v > 0; });
     }
   };
@@ -6316,6 +6436,8 @@ const TREFFER = (function () {
     return { y: Y, ev: ev, banken: liste, krypto: krypto && krypto.n ? krypto : null, summe: summe, gesamt: gesamt, faellig: faellig, abgezogen: abgezogen,
       gew: liste.reduce(function (s, b) { return s + b.gew; }, 0), ver: liste.reduce(function (s, b) { return s + b.ver; }, 0), div: liste.reduce(function (s, b) { return s + b.div; }, 0) };
   }
+  // Für den Reiter „Jahresende“ (jahresende.js): dieselbe Jahresrechnung samt Krypto
+  window.WP_STEUER = { jahr: jahresDaten, satz: SATZ };
   function jahre() {
     var j = {};
     window.WP.ereignisse().forEach(function (e) { if (e.art === 'verkauf' || e.art === 'dividende' || e.kest) j[+e.d.slice(0, 4)] = 1; });
@@ -8971,6 +9093,593 @@ const TREFFER = (function () {
 })();
 </script>
 <script>
+/* Steuer → Jahresende (Österreich, 27,5 %): was bis 31.12. noch in dieses Steuerjahr fällt.
+   Realisiert: window.WP_STEUER.jahr(y) (aktien.js, enthält Krypto über KRYPTO_STEUER).
+   Offen: Krypto aus KRYPTO_STAND.positionen (kosten = steuerlicher Einstand inkl. Kaufgebühr),
+   Wertpapiere aus WP.positionen() (einstandSt ohne Gebühren). Wallets haben keinen Einstand und fehlen.
+   Nur Hinweise, keine Empfehlung. */
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  if (!$('steuer-ende')) return;
+  var SATZ = 0.275, ALT_KRYPTO = '2021-03-01', ALT_WP = '2011-01-01';
+
+  var nf2 = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var nf0 = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 });
+  var nfp = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  var eur = function (x) { return nf2.format(x).replace('-', '−') + ' €'; };
+  var eurS = function (x) { return (x > 0.004 ? '+' : '') + eur(x); };
+  var ton = function (x) { return x > 0.004 ? 'up' : x < -0.004 ? 'down' : ''; };
+
+  function el(tag, attrs, kinder) {
+    var e = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'text') e.textContent = attrs[k]; else if (attrs[k] != null) e.setAttribute(k, attrs[k]);
+    });
+    (kinder || []).forEach(function (c) { if (c != null) e.append(c); });
+    return e;
+  }
+  function zeile(zellen, tag, tone) {
+    return el('tr', null, zellen.map(function (z, i) {
+      var c = el(tag || 'td');
+      if (z && z.nodeType) c.append(z); else c.textContent = z == null ? '' : z;
+      if (tone && tone[i]) c.className = tone[i];
+      return c;
+    }));
+  }
+  function kachel(k, v, s, cls) {
+    return el('div', { class: 'tile' }, [el('div', { class: 'k', text: k }), el('div', { class: 'v' + (cls ? ' ' + cls : ''), text: v }), el('div', { class: 's', text: s })]);
+  }
+  function fuelle(id, nodes) { var e = $(id); e.textContent = ''; nodes.forEach(function (n) { e.append(n); }); }
+
+  function heute() { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function tageBisJahresende() { var h = heute(); return Math.round((new Date(h.getFullYear(), 11, 31) - h) / 864e5); }
+  // KESt-Wirkung eines zusätzlichen Ergebnisses x bei bisherigem Saldo s (Verluste ohne Gewinne bringen nichts)
+  function wirkung(s, x) { return SATZ * (Math.max(0, s + x) - Math.max(0, s)); }
+
+  // ---------- Daten ----------
+  function daten() {
+    var Y = new Date().getFullYear();
+    var T = window.WP_STEUER ? window.WP_STEUER.jahr(Y) : null;
+    var ks = window.KRYPTO_STAND || null;
+    var kSt = window.KRYPTO_STEUER ? window.KRYPTO_STEUER.jahr(Y) : null;
+    // Ohne aktien.js (keine Wertpapiere) trotzdem mit Krypto rechnen
+    var saldo = T ? T.gesamt : kSt && kSt.n ? kSt.saldo : 0;
+    var abgezogen = T ? T.abgezogen : 0;
+    var realisiert = T ? (T.krypto ? T.krypto.n : 0) + T.ev.filter(function (e) { return e.art === 'verkauf' || e.art === 'dividende'; }).length + T.banken.filter(function (b) { return b.hand; }).length
+      : kSt ? kSt.n : 0;
+    // Banken mit Gewinn im Jahr: dort gleicht die Bank einen Verlust selbst aus
+    var bankPlus = {};
+    if (T) T.banken.forEach(function (b) { if (b.saldo > 0.004 && !b.hand) bankPlus[b.bank] = b.saldo; });
+
+    var pos = [];
+    // Krypto: Altbestand-Käufe vor dem 1. März 2021
+    var alt = {};
+    if (ks && ks.kaeufe) { try { ks.kaeufe().forEach(function (t) { if (String(t[0]).slice(0, 10) < ALT_KRYPTO) alt[t[2]] = 1; }); } catch (e) { /* egal */ } }
+    if (ks && ks.daten && ks.positionen) ks.positionen.forEach(function (p) {
+      if (!(p.v > 0) || !(p.kosten > 0)) return;
+      pos.push({ art: 'Krypto', name: p.name + (p.name !== p.sym ? ' (' + p.sym + ')' : ''), ort: 'Krypto-Börse', v: p.v, ein: p.kosten, erg: p.v - p.kosten, alt: !!alt[p.sym], genau: true });
+    });
+    // Wertpapiere: Altbestand-Käufe vor 2011
+    var altWp = {};
+    if (window.WP && window.WP.ereignisse) {
+      try { window.WP.ereignisse().forEach(function (e) { if ((e.art === 'kauf' || e.art === 'zugang') && String(e.d).slice(0, 10) < ALT_WP) altWp[e.bank + '|' + (e.isin || e.kuerzel || e.name)] = 1; }); } catch (e) { /* egal */ }
+    }
+    if (window.WP && window.WP.positionen) window.WP.positionen().forEach(function (p) {
+      if (p.ohneKurs || !(p.v > 0) || !(p.einstandSt > 0)) return;
+      pos.push({ art: /FUND|ETF/i.test(p.klasse) ? 'ETF' : 'Wertpapier', name: p.name, ort: p.bank || 'Bank', bank: p.bank || '', v: p.v, ein: p.einstandSt, erg: p.v - p.einstandSt,
+        alt: !!altWp[(p.bank || '') + '|' + (p.isin || p.kuerzel || p.name)], genau: !!p.steuerGenau });
+    });
+    var minus = pos.filter(function (p) { return p.erg < -0.5 && !p.alt; }).sort(function (a, b) { return a.erg - b.erg; });
+    var plus = pos.filter(function (p) { return p.erg > 0.5 && !p.alt; }).sort(function (a, b) { return b.erg - a.erg; });
+    var verlust = minus.reduce(function (s, p) { return s + p.erg; }, 0);
+    var gewinn = plus.reduce(function (s, p) { return s + p.erg; }, 0);
+    return {
+      Y: Y, T: T, saldo: saldo, kest: SATZ * Math.max(0, saldo), abgezogen: abgezogen, realisiert: realisiert, bankPlus: bankPlus,
+      pos: pos, minus: minus, plus: plus, verlust: verlust, gewinn: gewinn, altPos: pos.filter(function (p) { return p.alt; }),
+      hatDaten: pos.length > 0 || realisiert > 0, wallets: window.WALLET && window.WALLET.summe ? window.WALLET.summe() > 0 : false
+    };
+  }
+
+  // ---------- Steuer → Jahresende ----------
+  function zeichne() {
+    var D = daten(), tage = tageBisJahresende();
+    $('se-unter').textContent = 'Was bis 31.12.' + D.Y + ' noch in dieses Steuerjahr fällt: realisierte Gewinne und Verluste aus Krypto, Aktien und ETFs zusammen, dazu die offenen Gewinne und Verluste in deinem Bestand. Die Seite gibt Hinweise und keine Empfehlung zum Kaufen oder Verkaufen.';
+    $('se-leer').hidden = D.hatDaten; $('se-inhalt').hidden = !D.hatDaten;
+    zeichneKarte(D, tage);
+    if (!D.hatDaten) {
+      $('se-leer').textContent = '';
+      $('se-leer').append(el('p', { text: 'Dafür braucht die App deine Käufe und Verkäufe. Lies im Bereich Import deine Dateien ein oder trag Wertpapiere ein.' }),
+        el('div', { class: 'btns' }, [el('button', { type: 'button', 'data-go': 'import', 'data-ziel': 'import', text: 'Zum Import' })]));
+      return;
+    }
+
+    fuelle('se-kpis', [
+      kachel('Realisiert ' + D.Y, eurS(D.saldo), D.realisiert ? 'Gewinne minus Verluste, mit Dividenden' : 'noch keine Verkäufe oder Dividenden', ton(D.saldo)),
+      kachel('KESt darauf', eur(D.kest), D.abgezogen > 0.004 ? 'davon schon abgezogen: ' + eur(D.abgezogen) : '27,5 % auf den Saldo'),
+      kachel('Offene Verluste', eur(D.verlust), D.minus.length + (D.minus.length === 1 ? ' Position im Minus' : ' Positionen im Minus'), D.verlust < -0.004 ? 'down' : ''),
+      kachel('Bis 31.12.', tage + (tage === 1 ? ' Tag' : ' Tage'), 'Xetra handelt am 31.12. nicht')
+    ]);
+
+    // Kernsatz je nach Lage
+    var satz = '', alleWirkung = wirkung(D.saldo, D.verlust);
+    if (D.saldo > 0.004 && D.minus.length) {
+      satz = 'Du hast ' + D.Y + ' bisher ' + eurS(D.saldo) + ' realisiert, darauf fallen ' + eur(D.kest) + ' KESt an. '
+        + 'Würdest du alle Positionen im Minus verkaufen, sänke der Saldo um ' + eur(-D.verlust) + ' und die KESt um ' + eur(-alleWirkung) + '. '
+        + 'Ob das sinnvoll ist, hängt davon ab, ob du diese Werte ohnehin behalten willst: Gebühren und ein späterer Rückkauf kosten auch.';
+    } else if (D.saldo > 0.004) {
+      satz = 'Du hast ' + D.Y + ' bisher ' + eurS(D.saldo) + ' realisiert (KESt ' + eur(D.kest) + '). Keine deiner Positionen steht im Minus, mit Verlusten lässt sich heuer also nichts ausgleichen.';
+    } else if (D.saldo < -0.004) {
+      satz = 'Du hast ' + D.Y + ' bisher mehr Verlust als Gewinn realisiert (' + eur(D.saldo) + '). Verluste verfallen am 31.12., du kannst sie nicht ins nächste Jahr mitnehmen. '
+        + (D.plus.length ? 'Gewinne bis ' + eur(-D.saldo) + ', die du ohnehin mitnehmen wolltest, blieben heuer ohne KESt. Welche Positionen im Plus stehen, siehst du unten.'
+          : 'Im Moment steht keine Position im Plus, mit der sich der Verlust nutzen ließe.');
+    } else {
+      satz = 'Du hast ' + D.Y + ' noch nichts realisiert. Ein Verlustverkauf bringt heuer steuerlich nichts, weil es keinen Gewinn auszugleichen gibt, und ins nächste Jahr mitnehmen kannst du Verluste nicht.';
+    }
+    $('se-satz').textContent = satz;
+
+    // Positionen im Minus
+    $('se-minus-fig').hidden = !D.minus.length;
+    $('se-minus-cap').textContent = 'Verlust, wenn du heute verkaufst, gerechnet mit dem steuerlichen Einstand (gleitender Durchschnittspreis). „KESt-Wirkung“ zeigt, um wie viel die KESt ' + D.Y + ' sinken würde, wenn du nur diese eine Position verkaufst.';
+    var t = $('se-minus'); t.textContent = '';
+    if (D.minus.length) {
+      t.append(el('thead', null, [zeile(['Position', 'Wert heute', 'Einstand', 'Verlust', 'KESt-Wirkung', 'Ausgleich'], 'th')]));
+      var tb = el('tbody');
+      D.minus.forEach(function (p) {
+        var nm = el('span', { text: p.name });
+        nm.append(el('span', { class: 'se-tag', text: p.art }));
+        if (!p.genau) nm.append(el('span', { class: 'se-tag', text: 'Einstand mit Gebühr' }));
+        var bp = D.bankPlus[p.bank] || 0;
+        var ausgl = D.saldo <= 0.004 ? '–' : p.art === 'Krypto' || !bp ? 'Steuererklärung (E1kv)'
+          : bp >= -p.erg ? 'automatisch bei ' + p.bank : 'bis ' + eur(bp) + ' bei ' + p.bank + ', Rest E1kv';
+        tb.append(zeile([nm, eur(p.v), eur(p.ein), eur(p.erg), D.saldo > 0.004 ? eur(wirkung(D.saldo, p.erg)) : '0,00 €', ausgl], 'td', [0, 0, 0, 'down']));
+      });
+      t.append(tb);
+    }
+
+    // Positionen im Plus (zugeklappt, außer bei realisiertem Verlust)
+    $('se-plus-box').hidden = !D.plus.length;
+    if (D.saldo < -0.004 && D.plus.length) $('se-plus-box').open = true;
+    $('se-plus-sum').textContent = 'Positionen im Plus (' + D.plus.length + ', zusammen ' + eurS(D.gewinn) + ')';
+    $('se-plus-cap').textContent = D.saldo < -0.004
+      ? 'Bis ' + eur(-D.saldo) + ' Gewinn gleicht dein realisierter Verlust aus. „Ohne KESt“ zeigt, wie viel vom Gewinn je Position steuerfrei bliebe.'
+      : 'Würdest du diese verkaufen, käme der Gewinn zum Saldo dazu. „KESt dazu“ zeigt die zusätzliche Steuer.';
+    var tp = $('se-plus'); tp.textContent = '';
+    if (D.plus.length) {
+      var neg = D.saldo < -0.004;
+      tp.append(el('thead', null, [zeile(['Position', 'Wert heute', 'Einstand', 'Gewinn', neg ? 'Ohne KESt' : 'KESt dazu'], 'th')]));
+      var pb = el('tbody');
+      D.plus.forEach(function (p) {
+        var nm = el('span', { text: p.name }); nm.append(el('span', { class: 'se-tag', text: p.art }));
+        pb.append(zeile([nm, eur(p.v), eur(p.ein), eurS(p.erg), neg ? eur(Math.min(p.erg, -D.saldo)) : eur(wirkung(D.saldo, p.erg))], 'td', [0, 0, 0, 'up']));
+      });
+      tp.append(pb);
+    }
+
+    // Hinweise
+    var n = [];
+    n.push('Zählen tut der Tag des Verkaufs. Plane Verkäufe bis spätestens 30.12. ein: Xetra und viele Handelsplätze haben am 31.12. geschlossen, Krypto-Börsen handeln durchgehend.');
+    n.push('Verluste gleichen im selben Jahr Kursgewinne, Dividenden und Krypto-Gewinne aus, nicht aber Zinsen von Sparbuch oder Konto. Innerhalb derselben Bank macht das die Bank selbst, zwischen verschiedenen Banken und mit Krypto nur über die Steuererklärung (Beilage E1kv, Verlustausgleich).');
+    n.push('Ob ein Verkauf mit sofortigem Rückkauf desselben Werts steuerlich anerkannt wird, ist in Österreich nicht ausdrücklich geregelt. Frag im Zweifel eine Steuerberatung. Wer zurückkauft, hat außerdem einen niedrigeren Einstand: Die Steuer wird verschoben, nicht gespart.');
+    n.push('Ein Tausch von Krypto gegen Krypto ist in Österreich steuerneutral und realisiert keinen Verlust. Zählen tut nur der Verkauf gegen Euro.');
+    n.push('Jeder Verkauf kostet Gebühren und Spread. Bei Wertpapieren zählen Gebühren steuerlich nicht, der Verlust oben ist also ohne Gebühren gerechnet; bei Krypto ist die Kaufgebühr im Einstand enthalten.');
+    if (D.altPos.length) n.push('Altbestand: ' + D.altPos.map(function (p) { return p.name; }).join(', ') + ' hast du (zumindest teilweise) vor dem Stichtag gekauft (Krypto vor dem 1.3.2021, Wertpapiere vor 2011). Gewinne und Verluste daraus sind nicht steuerbar, deshalb fehlen diese Positionen oben. Ob du zuerst Alt- oder Neubestand verkaufst, darfst du bei Krypto wählen; die Steuerübersicht der App behandelt alle Coins als Neubestand.');
+    if (D.pos.some(function (p) { return !p.genau; })) n.push('„Einstand mit Gebühr“: Diese Wertpapiere hast du von Hand eingetragen, die App kennt nur den Einstand samt Kaufgebühr. Der steuerliche Verlust ist dort etwas kleiner.');
+    if (D.wallets) n.push('Wallets fehlen hier, weil die App deren Einstand nicht kennt.');
+    n.push('Die Seite ist eine Rechenhilfe und keine Steuerberatung. Sie empfiehlt keinen Kauf und keinen Verkauf.');
+    fuelle('se-hinweise', n.map(function (x) { return el('li', { text: x }); }));
+  }
+
+  // ---------- Übersichtskarte (nur November und Dezember) ----------
+  function zeichneKarte(D, tage) {
+    var k = $('ov-ende');
+    if (!k) return;
+    var zeit = new Date().getMonth() >= 10;
+    k.hidden = !(zeit && D.hatDaten);
+    if (k.hidden) return;
+    var z = $('ov-ende-zahl'); z.textContent = 'KESt ' + D.Y + ' bisher: ' + eur(D.kest);
+    z.append(el('small', { text: 'realisiert ' + eurS(D.saldo) + ' · noch ' + tage + (tage === 1 ? ' Tag' : ' Tage') + ' bis 31.12.' }));
+    var s;
+    if (D.saldo > 0.004 && D.minus.length) s = D.minus.length + (D.minus.length === 1 ? ' Position steht' : ' Positionen stehen') + ' im Minus, zusammen ' + eur(D.verlust) + '. Verkauft würde die KESt um bis zu ' + eur(-wirkung(D.saldo, D.verlust)) + ' sinken.';
+    else if (D.saldo < -0.004) s = 'Du hast ' + eur(-D.saldo) + ' Verlust realisiert. Er verfällt am 31.12.' + (D.plus.length ? ' Gewinne bis zu dieser Höhe blieben heuer ohne KESt.' : '');
+    else if (D.saldo > 0.004) s = 'Keine Position im Minus, es gibt nichts auszugleichen.';
+    else s = 'Noch nichts realisiert. Verlustverkäufe brächten heuer steuerlich nichts.';
+    $('ov-ende-satz').textContent = s;
+  }
+
+  // ---------- Neu zeichnen ----------
+  var uhr = 0;
+  function bald() { clearTimeout(uhr); uhr = setTimeout(zeichne, 150); }
+  ['wertpapiere', 'krypto-steuer', 'vermoegen', 'krypto-hand'].forEach(function (n) { document.addEventListener(n, bald); });
+  bald();
+})();
+</script>
+<script>
+/* Planung → Ziele: Wie wahrscheinlich ein Vermögensziel bis zu einem Datum erreicht wird.
+   Monte-Carlo mit Monatsschritten und drei Töpfen: Krypto (Coins + Wallets), Aktien & ETFs, Cash.
+   Krypto und Aktien schwanken lognormal (Korrelation 0,3), Cash wächst mit festem Zins.
+   Monatliche Zuflüsse: aktive Sparpläne (nachkauf.js) plus ein Zusatzbetrag je Ziel.
+   Feste Zufallsfolge: gleiche Eingaben geben immer dasselbe Ergebnis.
+   Speicher: krypto-freunde-ziele {v:1, liste:[{id,name,betrag,bis:'YYYY-MM',extra}], aktiv, ann:{rk,vk,rw,vw,rc,real}} – wandert mit der Sicherung. */
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  if (!$('ziele')) return;
+  var KEY = 'krypto-freunde-ziele', SPAR = 'krypto-freunde-sparplaene';
+  var STD = { rk: 8, rw: 6, vw: 16, rc: 1 }, VK_ERSATZ = 65, RHO = 0.3, N_VOLL = 5000, N_KARTE = 2000, N_SUCHE = 1500;
+  var MONATSFAKTOR = { monat: 1, '2wochen': 26 / 12, woche: 52 / 12, quartal: 1 / 3 };
+
+  var nf0 = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 });
+  var nf1 = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 });
+  var eur0 = function (x) { return nf0.format(Math.round(x)).replace('-', '−') + ' €'; };
+  var eurAx = function (x) { return Math.abs(x) >= 1e6 ? nf1.format(x / 1e6) + ' Mio. €' : Math.abs(x) >= 1e4 ? nf0.format(x / 1000) + ' Tsd. €' : eur0(x); };
+  var pct = function (x) { return nf0.format(Math.round(x * 100)) + ' %'; };
+  var MONL = ['Jänner', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+  var monatText = function (ym) { return MONL[+ym.slice(5, 7) - 1] + ' ' + ym.slice(0, 4); };
+  var dMon = new Intl.DateTimeFormat('de-DE', { month: 'short', year: '2-digit', timeZone: 'UTC' });
+
+  function el(tag, attrs, kinder) {
+    var e = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'text') e.textContent = attrs[k]; else if (attrs[k] != null) e.setAttribute(k, attrs[k]);
+    });
+    (kinder || []).forEach(function (c) { if (c != null) e.append(c); });
+    return e;
+  }
+  function zahl(s) {
+    var t = String(s == null ? '' : s).replace(/[\s€%]/g, '');
+    if (!t) return NaN;
+    var c = t.lastIndexOf(','), d = t.lastIndexOf('.');
+    if (c >= 0 && d >= 0) t = c > d ? t.replace(/\./g, '').replace(',', '.') : t.replace(/,/g, '');
+    else if (c >= 0) t = t.replace(',', '.');
+    else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');   // 100.000 = hunderttausend
+    var v = Number(t);
+    return isFinite(v) ? v : NaN;
+  }
+
+  // ---------- Speicher ----------
+  function lade() {
+    try {
+      var x = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (x && Array.isArray(x.liste)) return { v: 1, liste: x.liste.filter(function (z) { return z && z.id && z.betrag > 0 && /^\d{4}-\d{2}$/.test(z.bis); }), aktiv: x.aktiv || '', ann: x.ann && typeof x.ann === 'object' ? x.ann : {} };
+    } catch (e) { /* egal */ }
+    return { v: 1, liste: [], aktiv: '', ann: {} };
+  }
+  var D = lade();
+  function speichere() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) { /* egal */ } }
+  function aktivesZiel() { return D.liste.filter(function (z) { return z.id === D.aktiv; })[0] || D.liste[0] || null; }
+
+  // ---------- Eingangsdaten ----------
+  function toepfe() {
+    var ks = window.KRYPTO_STAND || null;
+    var wal = window.WALLET && window.WALLET.summe ? window.WALLET.summe() || 0 : 0;
+    return { K: (ks ? ks.coins || 0 : 0) + wal, W: window.WP && window.WP.summe ? window.WP.summe() || 0 : 0, C: ks ? Math.max(0, ks.cash || 0) : 0, wal: wal };
+  }
+  function sparen() {
+    var out = { K: 0, W: 0, n: 0 };
+    try {
+      var s = JSON.parse(localStorage.getItem(SPAR) || 'null');
+      (s && Array.isArray(s.liste) ? s.liste : []).forEach(function (p) {
+        if (!p.aktiv || !(p.betrag > 0)) return;
+        var m = p.betrag * (MONATSFAKTOR[p.rhythmus] || 1);
+        if (p.art === 'krypto') out.K += m; else out.W += m;
+        out.n++;
+      });
+    } catch (e) { /* egal */ }
+    return out;
+  }
+  // Schwankung des Krypto-Teils aus den Tageskursen der letzten drei Jahre, gewichtet mit dem heutigen Wert je Coin
+  var volCache = { key: '', v: null };
+  function kryptoVol() {
+    var ks = window.KRYPTO_STAND, K = window.KARTEN;
+    if (!ks || !ks.positionen || !K || !K.kryptoReihe) return null;
+    var pos = ks.positionen.filter(function (p) { return p.v > 0; });
+    var key = pos.map(function (p) { return p.sym + ':' + Math.round(p.v); }).join(',');
+    if (key === volCache.key) return volCache.v;
+    var summe = pos.reduce(function (s, p) { return s + p.v; }, 0), reihen = [];
+    pos.forEach(function (p) {
+      var r = K.kryptoReihe(p.sym);
+      if (r && r.length > 60) reihen.push({ w: p.v / summe, k: r.slice(-1096).map(function (x) { return x[1]; }) });
+    });
+    var v = null;
+    if (reihen.length) {
+      var lang = Math.max.apply(null, reihen.map(function (r) { return r.k.length; })), ret = [];
+      for (var t = 1; t < lang; t++) {
+        var s = 0, w = 0;
+        reihen.forEach(function (r) {
+          var i = r.k.length - lang + t;   // Reihen hinten ausrichten (gleicher letzter Tag)
+          if (i >= 1 && r.k[i - 1] > 0 && r.k[i] > 0) { s += r.w * Math.log(r.k[i] / r.k[i - 1]); w += r.w; }
+        });
+        if (w > 0.5) ret.push(s / w);
+      }
+      if (ret.length > 60) {
+        var m = ret.reduce(function (a, b) { return a + b; }, 0) / ret.length;
+        var va = ret.reduce(function (a, b) { return a + (b - m) * (b - m); }, 0) / (ret.length - 1);
+        v = Math.round(Math.min(120, Math.max(20, Math.sqrt(va * 365) * 100)));
+      }
+    }
+    volCache = { key: key, v: v };
+    return v;
+  }
+  function annahmen() {
+    var a = D.ann || {}, vkAuto = kryptoVol();
+    var nimm = function (x, std) { return typeof x === 'number' && isFinite(x) ? x : std; };
+    return { rk: nimm(a.rk, STD.rk), vk: nimm(a.vk, vkAuto || VK_ERSATZ), vkAuto: vkAuto, rw: nimm(a.rw, STD.rw), vw: nimm(a.vw, STD.vw), rc: nimm(a.rc, STD.rc), real: !!a.real };
+  }
+  function monateBis(ym) {
+    var h = new Date();
+    return (+ym.slice(0, 4) - h.getFullYear()) * 12 + (+ym.slice(5, 7) - 1 - h.getMonth());
+  }
+
+  // ---------- Zufall (fest) ----------
+  function zufall(seed) {
+    var a = seed >>> 0, rest = null;
+    var u = function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    return function () {
+      if (rest !== null) { var r = rest; rest = null; return r; }
+      var u1 = u() || 1e-12, u2 = u(), m = Math.sqrt(-2 * Math.log(u1));
+      rest = m * Math.sin(2 * Math.PI * u2);
+      return m * Math.cos(2 * Math.PI * u2);
+    };
+  }
+
+  // ---------- Simulation ----------
+  // z: Ziel, N: Läufe, nurEnde: ohne Verlauf (für die Suche), extra: Zusatzbetrag statt z.extra
+  function simuliere(z, N, nurEnde, extra) {
+    var t = toepfe(), sp = sparen(), A = annahmen();
+    var n = Math.max(1, monateBis(z.bis));
+    if (extra == null) extra = z.extra || 0;
+    var basis = t.K + t.W, fk = basis > 0 ? t.K / basis : sp.K + sp.W > 0 ? sp.K / (sp.K + sp.W) : 0;
+    var mK = sp.K + extra * fk, mW = sp.W + extra * (1 - fk);
+    var sK = A.vk / 100 / Math.sqrt(12), sW = A.vw / 100 / Math.sqrt(12);
+    var muK = Math.log(1 + A.rk / 100) / 12 - sK * sK / 2, muW = Math.log(1 + A.rw / 100) / 12 - sW * sW / 2;
+    var gC = Math.pow(1 + A.rc / 100, 1 / 12), inf = A.real ? Math.pow(1.02, 1 / 12) : 1, r2 = Math.sqrt(1 - RHO * RHO);
+    var g = zufall(20261116);
+    var K = new Float64Array(N).fill(t.K), W = new Float64Array(N).fill(t.W), C = new Float64Array(N).fill(t.C), S = new Float64Array(N);
+    var schritt = Math.max(1, Math.ceil(n / 120)), start = t.K + t.W + t.C;
+    var out = { n: n, x: [0], p10: [start], p50: [start], p90: [start], ein: [start], monat: [0] };
+    var ein = start, defl = 1;
+    var q = function (a, f) { return a[Math.min(a.length - 1, Math.max(0, Math.round(f * (a.length - 1))))]; };
+    for (var m = 1; m <= n; m++) {
+      for (var i = 0; i < N; i++) {
+        var z1 = g(), z2 = RHO * z1 + r2 * g();
+        K[i] = K[i] * Math.exp(muK + sK * z1) + mK;
+        W[i] = W[i] * Math.exp(muW + sW * z2) + mW;
+        C[i] *= gC;
+      }
+      ein += mK + mW; defl *= inf;
+      if (!nurEnde && (m % schritt === 0 || m === n)) {
+        for (var j = 0; j < N; j++) S[j] = (K[j] + W[j] + C[j]) / defl;
+        var sortiert = S.slice().sort();
+        out.monat.push(m); out.p10.push(q(sortiert, 0.1)); out.p50.push(q(sortiert, 0.5)); out.p90.push(q(sortiert, 0.9)); out.ein.push(ein / defl);
+      }
+    }
+    var treffer = 0;
+    for (var k = 0; k < N; k++) if ((K[k] + W[k] + C[k]) / defl >= z.betrag) treffer++;
+    out.p = treffer / N; out.start = start; out.t = t; out.sp = sp; out.A = A; out.mK = mK; out.mW = mW; out.extra = extra;
+    return out;
+  }
+  // Wie viel mehr pro Monat für 8 von 10 Verläufen?
+  function bedarf80(z) {
+    var p = function (x) { return simuliere(z, N_SUCHE, true, (z.extra || 0) + x).p; };
+    var hi = Math.max(50, z.betrag / Math.max(1, monateBis(z.bis)));
+    var n = 0;
+    while (p(hi) < 0.8 && n++ < 12) hi *= 2;
+    if (n > 12) return null;
+    var lo = 0;
+    for (var i = 0; i < 14; i++) { var mid = (lo + hi) / 2; if (p(mid) >= 0.8) hi = mid; else lo = mid; }
+    return Math.ceil(hi / 10) * 10;
+  }
+
+  // ---------- Zeichnen: Planung → Ziele ----------
+  var letzte = { key: '', r: null };
+  function schluessel(z) { var t = toepfe(), sp = sparen(); return JSON.stringify([z, D.ann, Math.round(t.K), Math.round(t.W), Math.round(t.C), Math.round(sp.K), Math.round(sp.W), volCache.v]); }
+
+  function zeichneListe() {
+    var box = $('zl-liste'), az = aktivesZiel();
+    box.textContent = '';
+    D.liste.forEach(function (z) {
+      var b = el('button', { type: 'button', 'aria-pressed': String(!!az && z.id === az.id), text: z.name || 'Ziel' });
+      b.addEventListener('click', function () { D.aktiv = z.id; speichere(); $('zl-form').hidden = true; alles(); });
+      box.append(b);
+    });
+    var neu = el('button', { type: 'button', text: '+ Neues Ziel' });
+    neu.addEventListener('click', function () { oeffneForm(null); });
+    box.append(neu);
+    box.hidden = !D.liste.length;
+  }
+
+  var bearbeitet = null;
+  function oeffneForm(z) {
+    bearbeitet = z;
+    var t = toepfe(), heute = t.K + t.W + t.C, h = new Date();
+    var vorschlag = Math.max(10000, Math.ceil(heute * 2 / 10000) * 10000);
+    $('zl-f-name').value = z ? z.name : D.liste.length ? '' : 'Mein Ziel';
+    $('zl-f-betrag').value = z ? nf0.format(z.betrag) : nf0.format(vorschlag);
+    $('zl-f-bis').value = z ? z.bis : (h.getFullYear() + 10) + '-12';
+    $('zl-f-extra').value = z && z.extra ? nf0.format(z.extra) : '';
+    $('zl-f-loeschen').hidden = !z;
+    $('zl-f-abbrechen').hidden = !D.liste.length;
+    $('zl-f-fehler').hidden = true;
+    $('zl-form').hidden = false;
+    $('zl-inhalt').hidden = true; $('zl-leer').hidden = true;
+    if (D.liste.length) $('zl-f-name').focus();
+  }
+  $('zl-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = $('zl-f-name').value.trim().slice(0, 40) || 'Ziel', betrag = zahl($('zl-f-betrag').value), bis = $('zl-f-bis').value, extra = zahl($('zl-f-extra').value);
+    if (!isFinite(extra)) extra = $('zl-f-extra').value.trim() ? NaN : 0;
+    var n = /^\d{4}-\d{2}$/.test(bis) ? monateBis(bis) : NaN;
+    var fehler = !(betrag > 0) ? 'Bitte einen Zielbetrag eintragen.' : !(n >= 1) ? 'Das Datum muss mindestens einen Monat in der Zukunft liegen.'
+      : n > 720 ? 'Bitte höchstens 60 Jahre in die Zukunft.' : !isFinite(extra) || extra < 0 ? 'Der Zusatzbetrag ist nicht lesbar.' : '';
+    $('zl-f-fehler').textContent = fehler; $('zl-f-fehler').hidden = !fehler;
+    if (fehler) return;
+    var z = bearbeitet || { id: 'z' + Date.now().toString(36) };
+    z.name = name; z.betrag = Math.round(betrag * 100) / 100; z.bis = bis; z.extra = Math.round(extra * 100) / 100;
+    if (!bearbeitet) D.liste.push(z);
+    D.aktiv = z.id; bearbeitet = null;
+    speichere();
+    $('zl-form').hidden = true;
+    alles();
+  });
+  $('zl-f-abbrechen').addEventListener('click', function () { bearbeitet = null; $('zl-form').hidden = true; alles(); });
+  $('zl-f-loeschen').addEventListener('click', function () {
+    if (!bearbeitet || !window.confirm('Ziel „' + bearbeitet.name + '“ löschen?')) return;
+    var id = bearbeitet.id;
+    D.liste = D.liste.filter(function (z) { return z.id !== id; });
+    if (D.aktiv === id) D.aktiv = D.liste[0] ? D.liste[0].id : '';
+    bearbeitet = null; speichere();
+    $('zl-form').hidden = true;
+    alles();
+  });
+  $('zl-bearbeiten').addEventListener('click', function () { oeffneForm(aktivesZiel()); });
+
+  // Annahmen
+  var ANN = [['zl-a-rk', 'rk'], ['zl-a-vk', 'vk'], ['zl-a-rw', 'rw'], ['zl-a-vw', 'vw'], ['zl-a-rc', 'rc']];
+  function zeigeAnnahmen() {
+    var A = annahmen();
+    ANN.forEach(function (x) {
+      var f = $(x[0]);
+      if (document.activeElement !== f) f.value = typeof D.ann[x[1]] === 'number' ? nf1.format(D.ann[x[1]]) : '';
+      f.placeholder = nf1.format(x[1] === 'vk' ? A.vkAuto || VK_ERSATZ : STD[x[1]]);
+    });
+    $('zl-a-real').checked = A.real;
+    $('zl-a-vk-info').textContent = A.vkAuto ? 'leer = aus deinen Kursen der letzten 3 Jahre: ' + A.vkAuto + ' %' : 'leer = ' + VK_ERSATZ + ' % (ohne Kursdaten)';
+  }
+  ANN.forEach(function (x) {
+    $(x[0]).addEventListener('change', function (e) {
+      var v = zahl(e.target.value), grenze = x[1] === 'rk' || x[1] === 'rw' || x[1] === 'rc' ? [-50, 100] : [0, 200];
+      if (!e.target.value.trim() || !isFinite(v)) delete D.ann[x[1]]; else D.ann[x[1]] = Math.min(grenze[1], Math.max(grenze[0], v));
+      speichere(); alles();
+    });
+  });
+  $('zl-a-real').addEventListener('change', function (e) { D.ann.real = e.target.checked; speichere(); alles(); });
+  $('zl-a-zurueck').addEventListener('click', function () { D.ann = {}; speichere(); alles(); });
+
+  // Vorschlag im leeren Formular nachziehen, solange niemand etwas eingetippt hat (Kurse kommen erst nach dem Start)
+  var beruehrt = false;
+  $('zl-form').addEventListener('input', function () { beruehrt = true; });
+  function zeichnePlanung() {
+    zeichneListe();
+    if (!$('zl-form').hidden) {
+      if (!D.liste.length && !bearbeitet && !beruehrt) oeffneForm(null);
+      return;
+    }
+    var z = aktivesZiel();
+    if (!z) { oeffneForm(null); return; }
+    var t = toepfe(), sp = sparen();
+    if (t.K + t.W + t.C <= 0 && sp.K + sp.W <= 0 && !(z.extra > 0)) {
+      $('zl-inhalt').hidden = true; $('zl-leer').hidden = false;
+      $('zl-leer').textContent = '';
+      $('zl-leer').append(el('p', { text: 'Noch kein Vermögen und kein Sparplan. Lies im Bereich Import deine Dateien ein oder trag beim Ziel einen Betrag unter „Zusätzlich pro Monat“ ein.' }),
+        el('div', { class: 'btns' }, [el('button', { type: 'button', 'data-go': 'import', 'data-ziel': 'import', text: 'Zum Import' })]));
+      return;
+    }
+    $('zl-leer').hidden = true; $('zl-inhalt').hidden = false;
+    if (!$('zl-chart').clientWidth) return;   // Ansicht nicht sichtbar: später zeichnen
+
+    var key = schluessel(z);
+    var r = letzte.key === key && letzte.r && letzte.r.voll ? letzte.r : simuliere(z, N_VOLL, false);
+    r.voll = true;
+    if (r.bedarf === undefined) r.bedarf = r.p < 0.8 ? bedarf80(z) : null;
+    letzte = { key: key, r: r };
+    zeigeAnnahmen();
+
+    var zz = $('zl-zahl'); zz.textContent = pct(r.p);
+    zz.append(el('small', { text: 'Wahrscheinlichkeit, ' + eur0(z.betrag) + ' bis ' + monatText(z.bis) + ' zu erreichen' + (r.A.real ? ' (in heutiger Kaufkraft)' : '') }));
+    $('zl-balken').style.width = Math.min(100, r.start / z.betrag * 100).toFixed(1) + '%';
+    var monatlich = r.mK + r.mW;
+    $('zl-stand').textContent = 'Heute ' + eur0(r.start) + ' · ' + pct(Math.min(1, r.start / z.betrag)) + ' des Ziels · noch ' + r.n + (r.n === 1 ? ' Monat' : ' Monate')
+      + ' · ' + (monatlich > 0 ? eur0(monatlich) + ' pro Monat' + (r.sp.n ? ' (' + r.sp.n + (r.sp.n === 1 ? ' Sparplan' : ' Sparpläne') + (r.extra > 0 ? ' + ' + eur0(r.extra) + ' zusätzlich' : '') + ')' : '') : 'ohne monatliche Einzahlung');
+
+    var L = r.p50.length - 1, werte = $('zl-werte');
+    werte.textContent = '';
+    [['Mittlerer Verlauf', r.p50[L]], ['Schlechter Verlauf (1 von 10)', r.p10[L]], ['Guter Verlauf (1 von 10)', r.p90[L]], ['Nur eingezahlt', r.ein[L]]].forEach(function (x) {
+      werte.append(el('div', null, [el('span', { text: x[0] }), el('b', { text: eur0(x[1]) })]));
+    });
+
+    // Diagramm
+    var h = new Date(), basisTag = Math.floor(Date.UTC(h.getFullYear(), h.getMonth(), 1) / 864e5);
+    var tagVon = function (m) { var d = new Date(Date.UTC(h.getFullYear(), h.getMonth() + m, 1)); return Math.floor(d.getTime() / 864e5); };
+    var xs = r.monat.map(tagVon);
+    xs[0] = basisTag;
+    var cap = $('zl-chart-cap');
+    var capStd = 'Der Fächer zeigt, wo 8 von 10 Verläufen landen. Fahr über das Diagramm für die Werte eines Monats.';
+    cap.textContent = capStd;
+    if (window.KARTEN && window.KARTEN.chart) {
+      window.KARTEN.chart($('zl-chart'), {
+        x: xs, h: 220, null: false, label: 'Mögliche Verläufe deines Vermögens',
+        ebenen: [{ y: r.p10, cls: 'zl-unten' }, { y: r.p90.map(function (v, i) { return v - r.p10[i]; }), cls: 'zl-band' }],
+        linien: [{ y: r.ein, cls: 'zl-ein' }, { y: r.p50, cls: 'zl-mitte' }, { y: z.betrag, cls: 'zl-ziel' }],
+        xFmt: function (t) { return dMon.format(new Date(t * 864e5)); }, yFmt: eurAx,
+        hover: function (i) {
+          cap.textContent = i == null ? capStd : dMon.format(new Date(xs[i] * 864e5)) + ': mittlerer Verlauf ' + eur0(r.p50[i]) + ', 8 von 10 zwischen ' + eur0(r.p10[i]) + ' und ' + eur0(r.p90[i]) + ', eingezahlt ' + eur0(r.ein[i]) + '.';
+        }
+      });
+    }
+
+    // Kernsatz
+    var erreicht = -1;
+    for (var i = 0; i < r.p50.length; i++) if (r.p50[i] >= z.betrag) { erreicht = i; break; }
+    var s = [];
+    if (erreicht === 0) s.push('Du hast das Ziel heute schon erreicht. Die Wahrscheinlichkeit sagt, wie oft du am Zieltag noch darüber liegst.');
+    else if (erreicht > 0) { var dm = new Date(Date.UTC(h.getFullYear(), h.getMonth() + r.monat[erreicht], 1)); s.push('Im mittleren Verlauf erreichst du das Ziel etwa im ' + MONL[dm.getUTCMonth()] + ' ' + dm.getUTCFullYear() + '.'); }
+    else s.push('Im mittleren Verlauf fehlen am Zieltag noch ' + eur0(z.betrag - r.p50[L]) + '.');
+    if (r.p >= 0.8) s.push('In 8 von 10 Verläufen oder mehr kommst du hin.');
+    else if (r.bedarf) s.push('Mit ' + eur0(r.bedarf) + ' mehr pro Monat stiege die Wahrscheinlichkeit auf 80 %.');
+    else s.push('Selbst mit deutlich mehr Einzahlung bleibt das Ziel bis dahin unsicher. Ein späteres Datum oder ein kleinerer Betrag rechnen sich anders.');
+    $('zl-satz').textContent = s.join(' ');
+
+    // Hinweise
+    var A = r.A, n = [];
+    n.push('Annahmen: Krypto ' + nf1.format(A.rk) + ' % Rendite pro Jahr bei ' + nf1.format(A.vk) + ' % Schwankung' + (A.vkAuto && typeof D.ann.vk !== 'number' ? ' (aus deinen Kursen der letzten 3 Jahre)' : '')
+      + ', Aktien & ETFs ' + nf1.format(A.rw) + ' % bei ' + nf1.format(A.vw) + ' %, Cash ' + nf1.format(A.rc) + ' % Zinsen. Krypto und Aktien bewegen sich teils gemeinsam (Korrelation 0,3). Ändern kannst du das unter „Annahmen ändern“.');
+    n.push('Die Renditen sind Annahmen und keine Vorhersage. Die Schwankung der Vergangenheit sagt wenig darüber, wie es weitergeht; gerade bei Krypto kann es deutlich schlechter laufen als im schlechten Verlauf hier.');
+    n.push('Deine aktiven Sparpläne laufen in der Rechnung bis zum Zieltag unverändert weiter, der Zusatzbetrag verteilt sich wie dein heutiges Vermögen auf Krypto und Aktien. Wallets zählen zu Krypto.');
+    n.push('Ohne Steuern, Gebühren und Entnahmen. ' + (A.real ? 'Alle Beträge in heutiger Kaufkraft (2 % Inflation pro Jahr abgezogen).' : 'Beträge ohne Inflation: 100.000 € in zehn Jahren kaufen weniger als heute.'));
+    $('zl-hinweise').textContent = '';
+    n.forEach(function (x) { $('zl-hinweise').append(el('li', { text: x })); });
+  }
+
+  // ---------- Übersichtskarte ----------
+  var karte = { key: '', p: null };
+  function zeichneKarte() {
+    var k = $('ov-ziel');
+    if (!k) return;
+    var z = aktivesZiel();
+    k.hidden = !z;
+    if (!z) return;
+    var key = schluessel(z), p;
+    if (letzte.key === key && letzte.r) p = letzte.r.p;
+    else if (karte.key === key) p = karte.p;
+    else { p = simuliere(z, N_KARTE, true).p; karte = { key: key, p: p }; }
+    var t = toepfe(), heute = t.K + t.W + t.C;
+    var zz = $('ov-ziel-zahl'); zz.textContent = pct(p) + ' Wahrscheinlichkeit';
+    zz.append(el('small', { text: z.name + ': ' + eur0(z.betrag) + ' bis ' + monatText(z.bis) }));
+    $('ov-ziel-balken').style.width = Math.min(100, heute / z.betrag * 100).toFixed(1) + '%';
+    $('ov-ziel-satz').textContent = 'Heute ' + eur0(heute) + ', also ' + pct(Math.min(1, heute / z.betrag)) + ' des Ziels.' + (D.liste.length > 1 ? ' Weitere Ziele unter Planung.' : '');
+  }
+
+  // ---------- Neu zeichnen ----------
+  var uhr = 0;
+  function alles() {
+    clearTimeout(uhr);
+    uhr = setTimeout(function () { zeichnePlanung(); zeichneKarte(); }, 200);
+  }
+  ['vermoegen', 'wertpapiere', 'kurse-bereit', 'krypto-hand'].forEach(function (n) { document.addEventListener(n, alles); });
+  // Sparpläne und Ziele können sich in einem anderen Bereich oder per Sicherung ändern
+  window.addEventListener('storage', function (e) { if (e.key === KEY) D = lade(); if (e.key === KEY || e.key === SPAR) alles(); });
+  // Das Diagramm braucht die Breite: zeichnen, sobald Planung → Ziele sichtbar wird
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('[data-go], .subnav button, #nav button')) setTimeout(function () { if ($('zl-chart').clientWidth) zeichnePlanung(); }, 40);
+  });
+  var breite = 0;
+  window.addEventListener('resize', function () { var b = $('zl-chart').clientWidth; if (b && Math.abs(b - breite) > 8) { breite = b; zeichnePlanung(); } });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) { D = lade(); alles(); } });
+  alles();
+})();
+</script>
+<script>
 /* Übersicht anpassen: Karten ein- und ausblenden (gespeichert je Gerät).
    Fest: Gesamtvermögen (mit Anteilen in Prozent) und Schlagzeile. */
 (function () {
@@ -8984,6 +9693,8 @@ const TREFFER = (function () {
     { k: 'anlegertyp', t: 'Dein Anlegertyp', s: 'Ein Satz und Eigenschaften aus all deinen Käufen', an: true },
     { k: 'kacheln', t: 'Kennzahlen', s: 'Einstand, Buchergebnis, Abstand zum Einstand', an: true },
     { k: 'check', t: 'Portfolio-Check', s: 'Die wichtigsten Risiko-Punkte', an: true },
+    { k: 'ziel', t: 'Mein Ziel', s: 'Fortschritt und Wahrscheinlichkeit, sobald du unter Planung ein Ziel angelegt hast', an: true },
+    { k: 'steuerende', t: 'Steuer bis 31.12.', s: 'Nur im November und Dezember: KESt bisher und offene Verluste', an: true },
     { k: 'wp', t: 'Wertpapiere', s: 'Erscheint, sobald Aktien oder ETFs eingetragen sind', an: true },
     { k: 'wal', t: 'Wallets', s: 'Erscheint, sobald Wallets eingetragen sind', an: true },
     { k: 'alloc', t: 'Aufteilung', s: 'Nach Art oder nach einzelner Position', an: true },
@@ -9024,7 +9735,7 @@ const TREFFER = (function () {
   // Feste Reihenfolge nach Wichtigkeit; Gesamtvermögen und Krypto & Cash bleiben links (breite Spalte),
   // die Schlagzeile rechts, alles andere kommt jeweils in die gerade kürzere Spalte.
   // Bei einer Spalte (schmales Fenster, Handy) stehen alle Karten in dieser Reihenfolge untereinander.
-  var REIHE = ['leer', 'gesamt', 'news', 'krypto', 'wp', 'wal', 'gverlauf', 'gewinner', 'kverlauf', 'anlegertyp',
+  var REIHE = ['leer', 'gesamt', 'news', 'krypto', 'ziel', 'steuerende', 'wp', 'wal', 'gverlauf', 'gewinner', 'kverlauf', 'anlegertyp',
     'kacheln', 'alloc', 'check', 'sparrechner', 'zins', 'import'];
   var FEST = { leer: 'L', gesamt: 'L', krypto: 'L', news: 'R' };
   var ov = document.querySelector('.ov');
