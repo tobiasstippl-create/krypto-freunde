@@ -914,6 +914,23 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
   #pf-zeit .tile .v{font-size:18px}
 }
 @media (min-width:621px){.pf-sort{display:none}}
+/* Jahresrückblick (rueckblick.js): Vollbild mit Bild im Story-Format */
+.rb-jahr-feld{margin:0}
+.rb-jahr-feld select{width:auto;padding:5px 10px;font-size:13px}
+.rb-story{position:fixed;inset:0;z-index:2000;background:rgba(2,5,12,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px 12px calc(12px + env(safe-area-inset-bottom))}
+.rb-story[hidden]{display:none!important}
+.rb-oben{display:flex;align-items:center;gap:10px;width:min(100%,calc((100dvh - 150px) * 9 / 16),460px)}
+.rb-balken{display:flex;gap:4px;flex:1}
+.rb-balken i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.25)}
+.rb-balken i.an{background:#fff}
+.rb-zu{border:0;background:rgba(255,255,255,.12);color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;flex:none}
+.rb-story canvas{display:block;height:auto;width:min(100%,calc((100dvh - 150px) * 9 / 16),460px);aspect-ratio:9/16;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.5);cursor:pointer;touch-action:manipulation}
+.rb-leiste{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:center;color:#fff;font-size:14px}
+.rb-leiste .check span{color:#fff}
+.rb-leiste button.primary{min-width:140px}
+.rb-leiste .check{order:3;flex-basis:100%;justify-content:center;display:flex}
+.rb-nav{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:8px 18px;cursor:pointer;font-size:18px;min-width:52px}
+.rb-nav:disabled{opacity:.35;cursor:default}
 /* Jahresende (jahresende.js) und Ziele (ziele.js) */
 /* Bei „Ziele“ gelten eigene Annahmen: die Regler des Krypto-Modells ausblenden */
 .view[data-view="planung"]:has(#ziele:not(.zu)) .zwei{grid-template-columns:minmax(0,1fr)}
@@ -1091,6 +1108,11 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
               <p class="ok-zahl" id="ov-ende-zahl"></p>
               <p class="note" id="ov-ende-satz"></p>
             </section>
+            <section class="sheet" id="ov-rb" data-karte="rueckblick" aria-labelledby="h-ov-rb" hidden>
+              <header class="reihe"><h2 id="h-ov-rb">Dein Jahr</h2><button type="button" id="ov-rb-start">Ansehen</button></header>
+              <p class="ok-zahl" id="ov-rb-zahl"></p>
+              <p class="s" id="ov-rb-satz"></p>
+            </section>
             <section class="sheet" id="ov-ziel" data-karte="ziel" aria-labelledby="h-ov-ziel" hidden>
               <header class="reihe"><h2 id="h-ov-ziel">Mein Ziel</h2><button type="button" data-go="planung" data-ziel="ziele">Ziele</button></header>
               <p class="ok-zahl" id="ov-ziel-zahl"></p>
@@ -1261,6 +1283,15 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
           </div>
         </details>
       </section>
+      <section class="sheet" id="rueckblick" aria-labelledby="h-rb" hidden>
+        <header class="reihe">
+          <h2 id="h-rb">Jahresrückblick</h2>
+          <div class="field rb-jahr-feld"><select id="rb-jahr" aria-label="Jahr"></select></div>
+        </header>
+        <p class="cap">Dein Anlagejahr in ein paar Bildern zum Durchtippen und Teilen. Euro-Beträge zeigt der Rückblick nur, wenn du sie einschaltest. So kannst du ihn bedenkenlos Freunden schicken.</p>
+        <div class="ok-sp-ergebnis" id="rb-vorschau"></div>
+        <div class="btns"><button type="button" class="primary" id="rb-start">Rückblick ansehen</button></div>
+      </section>
       </div>
 
 <div class="view" data-view="import" hidden>
@@ -1276,6 +1307,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
           <button type="button" id="imp-weg" hidden>Alle Importe entfernen</button>
           <input type="file" id="imp-datei" accept=".csv,text/csv,text/plain" multiple hidden>
         </div>
+        <p class="cap" id="imp-teilen" hidden></p>
         <div class="fig" id="imp-vorschau" hidden>
           <h3>Vorschau: Das würde sich ändern</h3>
           <p class="cap" id="imp-kopf"></p>
@@ -4280,7 +4312,7 @@ const TREFFER = (function () {
   // Immer genau eine Ansicht ist sichtbar. Die Annahmen-Karte zieht in die Ansicht um, in der sie wirkt.
   const ANSICHTEN = { uebersicht: 'Übersicht', portfolio: 'Portfolio', import: 'Import', risiko: 'Risiko', planung: 'Planung', markt: 'Markt', steuer: 'Steuer', methode: 'Methode und Grenzen' };
   const ABSCHNITTE = {
-    portfolio: [['wertverlauf', 'Wertverlauf'], ['positionen', 'Positionen'], ['dividenden', 'Dividenden'], ['verhalten', 'Anlegerprofil']],
+    portfolio: [['wertverlauf', 'Wertverlauf'], ['positionen', 'Positionen'], ['dividenden', 'Dividenden'], ['verhalten', 'Anlegerprofil'], ['rueckblick', 'Jahresrückblick']],
     // Im November und Dezember steht „Jahresende“ vorne, sonst hinten
     steuer: new Date().getMonth() >= 10 ? [['steuer-ende', 'Jahresende'], ['steuerjahr', 'Krypto'], ['steuer-wp', 'Aktien & ETFs']]
       : [['steuerjahr', 'Krypto'], ['steuer-wp', 'Aktien & ETFs'], ['steuer-ende', 'Jahresende']],
@@ -5172,6 +5204,9 @@ const TREFFER = (function () {
 
   $('imp-wahl').addEventListener('click', function () { $('imp-datei').click(); });
   $('imp-datei').addEventListener('change', function (e) { readFiles(e.target.files); e.target.value = ''; });
+  // Dateien von außen (Teilen-Menü am Handy, „Öffnen mit“ am PC; teilen.js): in den Import-Bereich, dort erscheint die Vorschau
+  window.WEALTH_IMPORT = function (files) { zeige('import', 'import'); readFiles(files); };
+  document.dispatchEvent(new Event('import-bereit'));
   $('imp-ok').addEventListener('click', function () {
     // Coins ohne Kurse: Der Lader holt sie beim Start bei Bitvavo. Damit sie gleich erscheinen, einmal neu laden.
     const vorher = pending ? extraCoins(pending.book) : [];
@@ -8646,6 +8681,8 @@ const TREFFER = (function () {
     });
   }
   function serie(modus) { return modus === 'k' ? Promise.resolve(serieK()) : modus === 'w' ? serieW() : serieAlle(); }
+  // Für den Jahresrückblick (rueckblick.js): derselbe Wertverlauf samt Einzahlungen
+  window.PORTFOLIO = { serie: serie };
 
   // ---------- Kennzahlen ----------
   // Ergebnis zwischen dem Tagesende vor „ab“ und heute, Einzahlungen herausgerechnet
@@ -9680,6 +9717,452 @@ const TREFFER = (function () {
 })();
 </script>
 <script>
+/* Jahresrückblick: das Anlagejahr als Bilder im Story-Format (1080 × 1920) zum Durchtippen und Teilen.
+   Euro-Beträge nur, wenn eingeschaltet (Standard: aus), damit man die Bilder Freunden schicken kann.
+   Daten: PORTFOLIO.serie('alle') (Wertverlauf samt Einzahlungen), KRYPTO_STAND (Käufe, Kurse),
+   WP (Buchungen, Positionen), KARTEN.wpReihe (onvista-Kurse), Anlegertyp aus der Übersichtskarte. */
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  if (!$('rueckblick')) return;
+  var B = 1080, H = 1920;
+  var nf0 = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 });
+  var nf1 = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  var eur0 = function (x) { return nf0.format(Math.round(x)).replace('-', '−') + ' €'; };
+  var eurS = function (x) { return (x > 0.5 ? '+' : '') + eur0(x); };
+  var pctS = function (x) { return (x > 0.0005 ? '+' : x < -0.0005 ? '−' : '±') + nf1.format(Math.abs(x) * 100) + ' %'; };
+  var MONL = ['Jänner', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+  var TAGE = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+  var tagNr = function (iso) { return Math.round(Date.parse(String(iso).slice(0, 10) + 'T00:00:00Z') / 864e5); };
+  var HEUTE = Math.floor(Date.now() / 864e5);
+  var datumKurz = function (iso) { var d = new Date(String(iso).slice(0, 10) + 'T00:00:00Z'); return d.getUTCDate() + '. ' + MONL[d.getUTCMonth()]; };
+  var KS = function () { return window.KRYPTO_STAND || null; };
+
+  var BETRAG_KEY = 'krypto-freunde-rueckblick-betraege';
+  var betraege = false;
+  try { betraege = localStorage.getItem(BETRAG_KEY) === '1'; } catch (e) { /* egal */ }
+
+  // ---------- Daten sammeln ----------
+  function standardJahr() { var d = new Date(); return d.getMonth() === 0 ? d.getFullYear() - 1 : d.getFullYear(); }
+  function kaeufeKrypto() {
+    var ks = KS();
+    if (!ks || !ks.kaeufe) return [];
+    var nameVon = function (sym) { var k = ks.kurse ? ks.kurse(sym) : null; return k && typeof k.name === 'string' ? k.name : sym; };
+    try { return ks.kaeufe().map(function (t) { return { d: String(t[0]), name: nameVon(t[2]), sym: t[2], art: 'k', stueck: +t[3], betrag: +t[4], gebuehr: +t[5] || 0 }; }); }
+    catch (e) { return []; }
+  }
+  function ereignisseWP() { try { return window.WP && window.WP.ereignisse ? window.WP.ereignisse() : []; } catch (e) { return []; } }
+  function kaeufeWP() {
+    return ereignisseWP().filter(function (e) { return e.art === 'kauf' && e.stueck > 0; })
+      .map(function (e) { return { d: String(e.d), name: e.name, isin: e.isin, kuerzel: e.kuerzel, art: 'w', stueck: +e.stueck, betrag: +e.betrag, gebuehr: +e.gebuehr || 0 }; });
+  }
+  function jahreMitDaten() {
+    var j = {};
+    kaeufeKrypto().concat(kaeufeWP()).forEach(function (k) { j[+k.d.slice(0, 4)] = 1; });
+    var ks = KS();
+    if (ks && ks.daten) j[new Date().getFullYear()] = 1;
+    return Object.keys(j).map(Number).filter(function (y) { return y >= 2010 && y <= new Date().getFullYear(); }).sort(function (a, b) { return b - a; });
+  }
+  // Kurs eines Werts an einem Tag (Krypto aus den Tageskursen, Wertpapiere über onvista)
+  function kryptoKurs(sym, t) {
+    var r = window.KARTEN && window.KARTEN.kryptoReihe ? window.KARTEN.kryptoReihe(sym) : null;
+    return r && r.length ? window.KARTEN.kursBis(r, t) || r[0][1] : null;
+  }
+  function wpKurs(p, t) {
+    if (!window.KARTEN || !window.KARTEN.wpReihe || !(p.isin || p.kuerzel)) return Promise.resolve(null);
+    var lang = t < HEUTE - 360;
+    return window.KARTEN.wpReihe({ isin: p.isin, kuerzel: p.kuerzel, name: p.name }, lang).then(function (r) {
+      return r && r.length ? (window.KARTEN.kursBis(r, t) || null) : null;
+    }).catch(function () { return null; });
+  }
+
+  // Ergebnis zwischen zwei Tagen, Einzahlungen herausgerechnet (wie im Wertverlauf)
+  function spanne(s, von, bis) {
+    var b = -1, e = -1;
+    for (var i = 0; i < s.days.length; i++) { if (s.days[i] < von) b = i; if (s.days[i] <= bis) e = i; }
+    if (e < 0 || e <= b) return null;
+    var Wb = b >= 0 ? s.W[b] : 0, Ib = b >= 0 && s.I ? s.I[b] : 0;
+    if (!s.I && b < 0) Wb = s.W[0];
+    var zu = s.I ? s.I[e] - Ib : 0, g = s.W[e] - Wb - zu, basis = Wb + Math.max(0, zu);
+    return { g: g, p: basis > 50 ? g / basis : null, e: e, b: b };
+  }
+
+  function sammle(Y) {
+    var von = tagNr(Y + '-01-01'), bis = Math.min(HEUTE, tagNr(Y + '-12-31')), fertig = bis < HEUTE;
+    var R = { Y: Y, fertig: fertig };
+    var typ = $('ov-at-typ'), satz = $('ov-at-satz');
+    R.typ = typ && typ.textContent.trim() || '';
+    R.typSatz = satz && satz.textContent.trim() || '';
+    // Käufe im Jahr
+    var alle = kaeufeKrypto().concat(kaeufeWP()).filter(function (k) { return k.d.slice(0, 4) === String(Y) && k.stueck > 0 && k.betrag > 0; });
+    R.kaeufe = alle.length;
+    R.investiert = alle.reduce(function (s, k) { return s + k.betrag + k.gebuehr; }, 0);
+    var namen = {}, monate = {}, wt = [0, 0, 0, 0, 0, 0, 0];
+    alle.forEach(function (k) { namen[k.name] = 1; monate[k.d.slice(5, 7)] = 1; wt[new Date(k.d.slice(0, 10) + 'T12:00:00Z').getUTCDay()]++; });
+    R.werte = Object.keys(namen).length; R.monate = Object.keys(monate).length;
+    var maxWt = Math.max.apply(null, wt);
+    // Nur nennen, wenn ein Wochentag wirklich auffällt
+    R.lieblingstag = alle.length >= 6 && maxWt >= 3 && maxWt > alle.length / 7 * 1.8 ? TAGE[wt.indexOf(maxWt)] : '';
+    R.gebuehren = alle.reduce(function (s, k) { return s + k.gebuehr; }, 0);
+    // Dividenden
+    var div = ereignisseWP().filter(function (e) { return e.art === 'dividende' && String(e.d).slice(0, 4) === String(Y); });
+    R.divN = div.length; R.div = div.reduce(function (s, e) { return s + (+e.betrag || 0); }, 0);
+
+    var auf = [];
+    // Wertverlauf: Rendite, beste und schwächste Monate, Kurve
+    auf.push(window.PORTFOLIO ? window.PORTFOLIO.serie('alle').then(function (s) {
+      if (!s || s.days.length < 2) return;
+      var j = spanne(s, von, bis);
+      if (j) { R.rendite = j.p; R.ergebnis = j.g; }
+      var mon = [];
+      for (var m = 0; m < 12; m++) {
+        var a = tagNr(Y + '-' + (m < 9 ? '0' : '') + (m + 1) + '-01'), z = tagNr(m === 11 ? (Y + 1) + '-01-01' : Y + '-' + (m < 8 ? '0' : '') + (m + 2) + '-01') - 1;
+        if (a > bis) break;
+        var x = spanne(s, a, Math.min(z, bis));
+        if (x && x.p != null && z - a > 20) mon.push({ m: m, p: x.p, g: x.g });
+      }
+      if (mon.length >= 2) {
+        mon.sort(function (p, q) { return q.p - p.p; });
+        R.besterMonat = mon[0]; R.schwaechsterMonat = mon[mon.length - 1];
+      }
+      // Kurve fürs Bild: Wert minus Einzahlungen seit Jahresbeginn (Ergebnis), wöchentlich
+      var kurve = [], b0 = j ? j.b : -1, Ib = b0 >= 0 && s.I ? s.I[b0] : 0, Wb = b0 >= 0 ? s.W[b0] : s.W[0];
+      for (var i = 0; i < s.days.length; i++) {
+        if (s.days[i] < von || s.days[i] > bis) continue;
+        if ((s.days[i] - von) % 4 && i !== (j ? j.e : -1)) continue;
+        kurve.push(s.W[i] - Wb - ((s.I ? s.I[i] : 0) - Ib));
+      }
+      R.kurve = kurve;
+    }).catch(function () { /* ohne Verlauf */ }) : Promise.resolve());
+
+    // Bester Kauf und schlechtester Zeitpunkt: Kaufkurs gegen Kurs am Jahresende (bzw. heute)
+    auf.push(Promise.all(alle.map(function (k) {
+      var p0 = k.betrag / k.stueck;
+      var jetzt = k.art === 'k' ? Promise.resolve(kryptoKurs(k.sym, bis)) : wpKurs(k, bis);
+      return jetzt.then(function (p1) { return p1 && p0 > 0 ? { k: k, x: p1 / p0 - 1 } : null; });
+    })).then(function (l) {
+      l = l.filter(Boolean).sort(function (a, b) { return b.x - a.x; });
+      if (l.length) { R.besterKauf = l[0]; if (l.length > 1 && l[l.length - 1].x < l[0].x) R.schlechtesterKauf = l[l.length - 1]; }
+    }));
+
+    // Star und Schlusslicht: Kursentwicklung der heutigen Werte im Jahr (ab Jahresbeginn oder erstem Kauf)
+    var pos = [];
+    var ks = KS();
+    if (ks && ks.positionen) ks.positionen.forEach(function (p) { pos.push({ art: 'k', name: p.name || p.sym, sym: p.sym }); });
+    if (window.WP && window.WP.positionen) { try { window.WP.positionen().forEach(function (p) { pos.push({ art: 'w', name: p.name, isin: p.isin, kuerzel: p.kuerzel }); }); } catch (e) { /* egal */ } }
+    auf.push(Promise.all(pos.map(function (p) {
+      var erster = alle.filter(function (k) { return k.name === p.name; }).map(function (k) { return tagNr(k.d); }).sort()[0];
+      var start = Math.max(von - 1, isFinite(erster) ? erster : -Infinity);
+      var hol = function (t) { return p.art === 'k' ? Promise.resolve(kryptoKurs(p.sym, t)) : wpKurs(p, t); };
+      return Promise.all([hol(start), hol(bis)]).then(function (k) { return k[0] > 0 && k[1] > 0 ? { name: p.name, x: k[1] / k[0] - 1 } : null; });
+    })).then(function (l) {
+      l = l.filter(Boolean).sort(function (a, b) { return b.x - a.x; });
+      if (l.length) { R.star = l[0]; if (l.length > 1) R.schlusslicht = l[l.length - 1]; }
+    }));
+    return Promise.all(auf).then(function () { return R; });
+  }
+
+  // ---------- Bilder ----------
+  function farben() {
+    var cs = getComputedStyle(document.documentElement);
+    var v = function (n, d) { return (cs.getPropertyValue(n) || '').trim() || d; };
+    return { s1: v('--s1', '#438de9'), s2: v('--s2', '#dd612d'), a2: v('--accent-2', '#39c5bb'), up: '#3fd28b', down: '#ff6b6b',
+      disp: v('--font-display', 'Sora, sans-serif'), body: v('--font-body', 'Inter, sans-serif') };
+  }
+  function folien(R) {
+    var f = [], Y = R.Y;
+    f.push({ typ: 'intro', eyebrow: R.fertig ? 'DEIN JAHR' : 'DEIN JAHR BIS HEUTE', gross: String(Y), sub: R.typ ? 'Anlegertyp: ' + R.typ : 'Krypto · Aktien · ETFs',
+      // Der Satz zum Anlegertyp nennt Euro-Beträge: nur zeigen, wenn Beträge eingeschaltet sind
+      klein: betraege && R.typSatz ? R.typSatz : 'Ein paar Bilder zu deinem Anlagejahr. Tippe rechts für weiter.' });
+    if (R.rendite != null) f.push({ typ: 'rendite', eyebrow: R.fertig ? 'RENDITE ' + Y : 'SEIT 1. JÄNNER', gross: pctS(R.rendite), ton: R.rendite,
+      sub: betraege ? eurS(R.ergebnis) + ' Ergebnis' : 'Einzahlungen herausgerechnet', klein: betraege ? 'Einzahlungen herausgerechnet' : '', kurve: R.kurve });
+    if (R.besterMonat) f.push({ typ: 'monat', eyebrow: 'DEIN BESTER MONAT', gross: MONL[R.besterMonat.m], sub: pctS(R.besterMonat.p) + (betraege ? ' · ' + eurS(R.besterMonat.g) : ''), ton: R.besterMonat.p,
+      zeilen: [['Schwächster Monat', MONL[R.schwaechsterMonat.m] + ' ' + pctS(R.schwaechsterMonat.p)]] });
+    if (R.kaeufe) {
+      var z = [['Verschiedene Werte', nf0.format(R.werte)], ['Monate mit Kauf', R.monate + ' von ' + (R.fertig ? 12 : new Date().getMonth() + 1)]];
+      if (R.lieblingstag) z.push(['Am liebsten am', R.lieblingstag]);
+      if (betraege) z.push(['Investiert', eur0(R.investiert)]);
+      f.push({ typ: 'kaeufe', eyebrow: 'GEKAUFT', gross: nf0.format(R.kaeufe), sub: R.kaeufe === 1 ? 'Kauf im Jahr ' + Y : 'Käufe im Jahr ' + Y, zeilen: z });
+    }
+    if (R.besterKauf) f.push({ typ: 'kauf', eyebrow: 'DEIN BESTER KAUF', gross: pctS(R.besterKauf.x), ton: R.besterKauf.x,
+      sub: R.besterKauf.k.name + ' am ' + datumKurz(R.besterKauf.k.d), klein: R.fertig ? 'bis Jahresende' : 'bis heute',
+      zeilen: R.schlechtesterKauf ? [['Schlechtester Zeitpunkt', R.schlechtesterKauf.k.name + ', ' + datumKurz(R.schlechtesterKauf.k.d) + ': ' + pctS(R.schlechtesterKauf.x)]] : null });
+    if (R.star) f.push({ typ: 'star', eyebrow: 'STAR DES JAHRES', gross: R.star.name, grossText: true, sub: pctS(R.star.x) + (R.fertig ? ' im Jahr ' + Y : ' seit 1. Jänner'), ton: R.star.x,
+      zeilen: R.schlusslicht ? [['Schlusslicht', R.schlusslicht.name + ' ' + pctS(R.schlusslicht.x)]] : null });
+    if (R.divN || R.gebuehren > 0.5) {
+      var zz = [];
+      if (R.divN) zz.push(['Dividenden', R.divN + (R.divN === 1 ? ' Zahlung' : ' Zahlungen') + (betraege ? ', ' + eur0(R.div) : '')]);
+      if (R.gebuehren > 0.5) zz.push(['Kaufgebühren', betraege ? eur0(R.gebuehren) : nf1.format(R.gebuehren / Math.max(1, R.investiert) * 100) + ' % vom Kaufbetrag']);
+      f.push({ typ: 'ertrag', eyebrow: R.divN ? 'AUSGESCHÜTTET' : 'KOSTEN', gross: R.divN ? (betraege ? eur0(R.div) : String(R.divN)) : (betraege ? eur0(R.gebuehren) : nf1.format(R.gebuehren / Math.max(1, R.investiert) * 100) + ' %'),
+        sub: R.divN ? (betraege ? 'Dividenden und Ausschüttungen' : R.divN === 1 ? 'Dividende bekommen' : 'Dividenden bekommen') : 'Kaufgebühren', zeilen: zz });
+    }
+    var sum = [];
+    if (R.rendite != null) sum.push(['Rendite', pctS(R.rendite)]);
+    if (R.kaeufe) sum.push(['Käufe', nf0.format(R.kaeufe)]);
+    if (R.besterKauf) sum.push(['Bester Kauf', R.besterKauf.k.name + ' ' + pctS(R.besterKauf.x)]);
+    if (R.star) sum.push(['Star', R.star.name]);
+    if (R.besterMonat) sum.push(['Bester Monat', MONL[R.besterMonat.m]]);
+    if (R.typ) sum.push(['Typ', R.typ]);
+    f.push({ typ: 'summe', eyebrow: Y + ' IN ZAHLEN', gross: 'Mein Jahr', sub: '', zeilen: sum });
+    return f;
+  }
+
+  function umbrechen(ctx, text, breite) {
+    var w = String(text || '').split(/\s+/), out = [], z = '';
+    w.forEach(function (x) { var t = z ? z + ' ' + x : x; if (ctx.measureText(t).width > breite && z) { out.push(z); z = x; } else z = t; });
+    if (z) out.push(z);
+    return out;
+  }
+  function zeichne(c, F, nr, gesamt, R) {
+    var ctx = c.getContext('2d'), C = farben();
+    c.width = B; c.height = H;
+    // Hintergrund: Nachtblau mit zwei Lichtflecken, je Bild leicht verschoben
+    var g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#071022'); g.addColorStop(1, '#03060d');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, B, H);
+    var fleck = function (x, y, r, farbe, a) { var rg = ctx.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, farbe); rg.addColorStop(1, 'rgba(0,0,0,0)'); ctx.globalAlpha = a; ctx.fillStyle = rg; ctx.fillRect(0, 0, B, H); ctx.globalAlpha = 1; };
+    var w = nr / Math.max(1, gesamt - 1);
+    fleck(180 + 700 * w, 360, 760, C.s1, 0.55);
+    fleck(900 - 600 * w, 1650, 820, F.ton != null ? (F.ton >= 0 ? C.a2 : C.s2) : C.s2, 0.42);
+    // Kopf
+    ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.font = '600 34px ' + C.disp; ctx.textBaseline = 'alphabetic';
+    if (ctx.letterSpacing !== undefined) ctx.letterSpacing = '6px';
+    ctx.fillText('WEALTHLENS', 90, 150);
+    ctx.textAlign = 'right'; ctx.fillText(String(R.Y), B - 90, 150); ctx.textAlign = 'left';
+    // Eyebrow
+    var y = F.typ === 'summe' ? 420 : 640;
+    ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '600 40px ' + C.body;
+    if (ctx.letterSpacing !== undefined) ctx.letterSpacing = '5px';
+    ctx.fillText(F.eyebrow, 90, y);
+    if (ctx.letterSpacing !== undefined) ctx.letterSpacing = '0px';
+    // Großer Wert
+    var gr = F.grossText ? 150 : 220;
+    ctx.font = '700 ' + gr + 'px ' + C.disp;
+    while (ctx.measureText(F.gross).width > B - 180 && gr > 80) { gr -= 8; ctx.font = '700 ' + gr + 'px ' + C.disp; }
+    y += gr * 0.95 + 30;
+    ctx.fillStyle = F.ton == null ? '#ffffff' : F.ton >= 0 ? C.up : C.down;
+    if (F.typ === 'intro' || F.typ === 'summe') {
+      var tg = ctx.createLinearGradient(90, 0, B - 90, 0); tg.addColorStop(0, '#ffffff'); tg.addColorStop(1, C.s1); ctx.fillStyle = tg;
+    }
+    ctx.fillText(F.gross, 90, y);
+    // Untertitel
+    ctx.fillStyle = '#ffffff'; ctx.font = '600 56px ' + C.body;
+    if (F.sub) umbrechen(ctx, F.sub, B - 180).forEach(function (z, i) { y += i ? 72 : 110; ctx.fillText(z, 90, y); });
+    if (F.klein) { ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '500 40px ' + C.body; y += 24; umbrechen(ctx, F.klein, B - 180).slice(0, 4).forEach(function (z) { y += 56; ctx.fillText(z, 90, y); }); }
+    // Kurve (Rendite)
+    if (F.kurve && F.kurve.length > 2) {
+      var k = F.kurve, lo = Math.min.apply(null, k.concat([0])), hi = Math.max.apply(null, k.concat([0])), sp = hi - lo || 1;
+      var x0 = 90, x1 = B - 90, yo = 1180, yu = 1560;
+      var px = function (i) { return x0 + (x1 - x0) * i / (k.length - 1); }, py = function (v) { return yu - (yu - yo) * (v - lo) / sp; };
+      ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 2; ctx.setLineDash([8, 10]);
+      ctx.beginPath(); ctx.moveTo(x0, py(0)); ctx.lineTo(x1, py(0)); ctx.stroke(); ctx.setLineDash([]);
+      var fl = ctx.createLinearGradient(0, yo, 0, yu); fl.addColorStop(0, (F.ton >= 0 ? C.up : C.down)); fl.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.beginPath(); k.forEach(function (v, i) { if (i) ctx.lineTo(px(i), py(v)); else ctx.moveTo(px(i), py(v)); });
+      ctx.lineTo(x1, py(0)); ctx.lineTo(x0, py(0)); ctx.closePath(); ctx.globalAlpha = 0.25; ctx.fillStyle = fl; ctx.fill(); ctx.globalAlpha = 1;
+      ctx.beginPath(); k.forEach(function (v, i) { if (i) ctx.lineTo(px(i), py(v)); else ctx.moveTo(px(i), py(v)); });
+      ctx.strokeStyle = F.ton >= 0 ? C.up : C.down; ctx.lineWidth = 7; ctx.lineJoin = 'round'; ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.font = '500 34px ' + C.body;
+      ctx.fillText('Jänner', x0, yu + 60); ctx.textAlign = 'right'; ctx.fillText(R.fertig ? 'Dezember' : 'heute', x1, yu + 60); ctx.textAlign = 'left';
+    }
+    // Zeilen (Karte mit Paaren)
+    if (F.zeilen && F.zeilen.length) {
+      var zy = F.typ === 'summe' ? y + 90 : Math.max(y + 110, 1200);
+      var hz = 128, kh = F.zeilen.length * hz + 40;
+      ctx.fillStyle = 'rgba(255,255,255,.08)';
+      if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(70, zy, B - 140, kh, 36); ctx.fill(); } else ctx.fillRect(70, zy, B - 140, kh);
+      F.zeilen.forEach(function (z, i) {
+        var yy = zy + 40 + i * hz;
+        ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.font = '500 34px ' + C.body; ctx.fillText(z[0], 120, yy + 36);
+        ctx.fillStyle = '#ffffff'; ctx.font = '600 46px ' + C.body;
+        var t = z[1]; while (ctx.measureText(t).width > B - 240 && t.length > 4) t = t.slice(0, -2);
+        if (t !== z[1]) t = t.replace(/\s*\S?$/, '') + '…';
+        ctx.fillText(t, 120, yy + 92);
+        if (i < F.zeilen.length - 1) { ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.fillRect(120, yy + hz - 8, B - 240, 2); }
+      });
+    }
+    // Fuß
+    ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.font = '500 32px ' + C.body;
+    ctx.fillText(betraege ? 'Mit Euro-Beträgen' : 'Ohne Euro-Beträge', 90, H - 110);
+    ctx.textAlign = 'right'; ctx.fillText((nr + 1) + ' / ' + gesamt, B - 90, H - 110); ctx.textAlign = 'left';
+  }
+
+  // ---------- Ansicht (Vollbild) ----------
+  var box = document.createElement('div');
+  box.className = 'rb-story'; box.id = 'rb-story'; box.hidden = true;
+  box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', 'Jahresrückblick');
+  box.innerHTML = '<div class="rb-oben"><div class="rb-balken" id="rb-balken"></div><button type="button" class="rb-zu" id="rb-zu" aria-label="Schließen">✕</button></div>'
+    + '<canvas id="rb-bild" width="1080" height="1920" role="img" aria-label="Bild des Jahresrückblicks"></canvas>'
+    + '<div class="rb-leiste"><button type="button" class="rb-nav" id="rb-zurueck" aria-label="Voriges Bild">‹</button>'
+    + '<label class="check"><input type="checkbox" id="rb-betraege"><span>Euro-Beträge zeigen</span></label>'
+    + '<button type="button" class="primary" id="rb-teilen">Bild teilen</button>'
+    + '<button type="button" class="rb-nav" id="rb-weiter" aria-label="Nächstes Bild">›</button></div>';
+  document.body.append(box);
+  var cv = $('rb-bild'), daten = null, liste = [], idx = 0, vorher = null;
+
+  function zeige() {
+    var bal = $('rb-balken'); bal.textContent = '';
+    liste.forEach(function (_, i) { var x = document.createElement('i'); if (i <= idx) x.className = 'an'; bal.append(x); });
+    zeichne(cv, liste[idx], idx, liste.length, daten);
+    cv.setAttribute('aria-label', liste[idx].eyebrow + ': ' + liste[idx].gross + (liste[idx].sub ? ', ' + liste[idx].sub : ''));
+    $('rb-zurueck').disabled = idx === 0; $('rb-weiter').disabled = idx === liste.length - 1;
+  }
+  function blaettern(d) { var n = Math.max(0, Math.min(liste.length - 1, idx + d)); if (n !== idx) { idx = n; zeige(); } }
+  function oeffne(Y) {
+    vorher = document.activeElement;
+    var start = $('rb-start'); if (start) start.disabled = true;
+    (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { return sammle(Y); }).then(function (R) {
+      daten = R; liste = folien(R); idx = 0;
+      $('rb-betraege').checked = betraege;
+      box.hidden = false; document.documentElement.style.overflow = 'hidden';
+      zeige(); $('rb-zu').focus();
+    }).catch(function () { /* nichts */ }).then(function () { if (start) start.disabled = false; });
+  }
+  function schliesse() { box.hidden = true; document.documentElement.style.overflow = ''; if (vorher && vorher.focus) vorher.focus(); }
+  $('rb-zu').addEventListener('click', schliesse);
+  $('rb-zurueck').addEventListener('click', function () { blaettern(-1); });
+  $('rb-weiter').addEventListener('click', function () { blaettern(1); });
+  cv.addEventListener('click', function (e) { var r = cv.getBoundingClientRect(); blaettern(e.clientX - r.left < r.width / 3 ? -1 : 1); });
+  document.addEventListener('keydown', function (e) {
+    if (box.hidden) return;
+    if (e.key === 'Escape') schliesse(); else if (e.key === 'ArrowRight') blaettern(1); else if (e.key === 'ArrowLeft') blaettern(-1);
+  });
+  $('rb-betraege').addEventListener('change', function (e) {
+    betraege = e.target.checked;
+    try { localStorage.setItem(BETRAG_KEY, betraege ? '1' : '0'); } catch (x) { /* egal */ }
+    var t = liste[idx] && liste[idx].typ;
+    liste = folien(daten);
+    var n = liste.map(function (f) { return f.typ; }).indexOf(t); idx = n >= 0 ? n : Math.min(idx, liste.length - 1);
+    zeige();
+  });
+  $('rb-teilen').addEventListener('click', function () {
+    var name = 'wealthlens-' + daten.Y + '-' + (idx + 1) + '.png';
+    cv.toBlob(function (blob) {
+      if (!blob) return;
+      var file = null;
+      try { file = new File([blob], name, { type: 'image/png' }); } catch (e) { file = null; }
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], title: 'Mein Jahr ' + daten.Y }).catch(function () { /* abgebrochen */ });
+        return;
+      }
+      var url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = name; document.body.append(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    }, 'image/png');
+  });
+
+  // ---------- Portfolio-Abschnitt und Übersichtskarte ----------
+  var jahrWahl = null;
+  function vorschau() {
+    var js = jahreMitDaten(), sec = $('rueckblick');
+    sec.hidden = !js.length;
+    var knopf = document.querySelector('.subnav[data-fuer="portfolio"] button[data-ziel="rueckblick"]');
+    if (knopf) knopf.hidden = sec.hidden;
+    karte(js);
+    if (!js.length) return;
+    if (jahrWahl === null || js.indexOf(jahrWahl) < 0) jahrWahl = js.indexOf(standardJahr()) >= 0 ? standardJahr() : js[0];
+    var sel = $('rb-jahr');
+    if (sel.options.length !== js.length) { sel.textContent = ''; js.forEach(function (y) { var o = document.createElement('option'); o.value = String(y); o.textContent = String(y); sel.append(o); }); }
+    sel.value = String(jahrWahl);
+    var Y = jahrWahl, alle = kaeufeKrypto().concat(kaeufeWP()).filter(function (k) { return k.d.slice(0, 4) === String(Y); });
+    var v = $('rb-vorschau'); v.textContent = '';
+    var feld = function (k, w) { var d = document.createElement('div'), s = document.createElement('span'), b = document.createElement('b'); s.textContent = k; b.textContent = w; d.append(s, b); v.append(d); };
+    feld('Käufe ' + Y, nf0.format(alle.length));
+    feld('Verschiedene Werte', nf0.format(Object.keys(alle.reduce(function (o, k) { o[k.name] = 1; return o; }, {})).length));
+    var div = ereignisseWP().filter(function (e) { return e.art === 'dividende' && String(e.d).slice(0, 4) === String(Y); }).length;
+    if (div) feld('Dividenden', nf0.format(div));
+  }
+  $('rb-jahr').addEventListener('change', function (e) { jahrWahl = +e.target.value; vorschau(); });
+  $('rb-start').addEventListener('click', function () { oeffne(jahrWahl || standardJahr()); });
+
+  // Übersicht: nur im Dezember und Jänner
+  function karte(js) {
+    var k = $('ov-rb');
+    if (!k) return;
+    var m = new Date().getMonth(), Y = standardJahr();
+    k.hidden = !((m === 11 || m === 0) && js.indexOf(Y) >= 0);
+    if (k.hidden) return;
+    $('ov-rb-zahl').textContent = m === 0 ? 'Dein Jahr ' + Y + ' im Rückblick' : 'Dein Jahr ' + Y + ' bis heute';
+    $('ov-rb-satz').textContent = 'Rendite, bester Kauf, Star des Jahres: ein paar Bilder zum Durchtippen und Teilen, ohne Euro-Beträge.';
+  }
+  var ovStart = $('ov-rb-start');
+  if (ovStart) ovStart.addEventListener('click', function () { oeffne(standardJahr()); });
+
+  var uhr = 0;
+  function bald() { clearTimeout(uhr); uhr = setTimeout(vorschau, 250); }
+  ['vermoegen', 'wertpapiere', 'krypto-hand', 'kurse-bereit'].forEach(function (n) { document.addEventListener(n, bald); });
+  bald();
+  // Zum Testen: window.RUECKBLICK.oeffne(2026)
+  window.RUECKBLICK = { oeffne: oeffne, sammle: sammle };
+})();
+</script>
+<script>
+/* CSV von außen einlesen:
+   - Android (installierte App): Teilen-Menü → Wealthlens. sw.js legt die Dateien unter „geteilt-wealthlens“ ab
+     und leitet auf ./?geteilt=… weiter; hier werden sie abgeholt, gelöscht und an den Import gegeben.
+   - PC (Chrome/Edge, installierte App): „Öffnen mit → Wealthlens“ über die File-Handling-Schnittstelle (launchQueue).
+   Der Import selbst (Vorschau, Übernehmen) bleibt im Hauptskript: window.WEALTH_IMPORT(files). */
+(function () {
+  'use strict';
+  var GETEILT = 'geteilt-wealthlens';
+
+  // Das Hauptskript läuft je nach Kurs-Zwischenspeicher vor oder nach diesem Skript
+  function sobald(cb) {
+    if (window.WEALTH_IMPORT) cb(); else document.addEventListener('import-bereit', cb, { once: true });
+  }
+  function einlesen(files) {
+    if (!files || !files.length) return;
+    sobald(function () { window.WEALTH_IMPORT(files); });
+  }
+
+  // 1. Geteilte Dateien abholen
+  var such = new URLSearchParams(location.search);
+  if (such.has('geteilt')) {
+    try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { /* egal */ }
+    if (window.caches) {
+      caches.open(GETEILT).then(function (c) {
+        return c.keys().then(function (keys) {
+          return Promise.all(keys.map(function (k) {
+            return c.match(k).then(function (r) {
+              return r.blob().then(function (b) {
+                var name = 'geteilt.csv';
+                try { name = decodeURIComponent(r.headers.get('X-Name') || name); } catch (e) { /* egal */ }
+                return c.delete(k).then(function () { return new File([b], name, { type: b.type || 'text/csv' }); });
+              });
+            });
+          }));
+        });
+      }).then(einlesen).catch(function () { /* nichts geteilt */ });
+    }
+  }
+
+  // 2. „Öffnen mit“ am PC
+  if ('launchQueue' in window && window.launchQueue && window.launchQueue.setConsumer) {
+    window.launchQueue.setConsumer(function (p) {
+      if (!p || !p.files || !p.files.length) return;
+      Promise.all(p.files.map(function (h) { return h.getFile(); })).then(einlesen).catch(function () { /* egal */ });
+    });
+  }
+
+  // 3. Hinweis im Import-Bereich, passend zum Gerät
+  var hinweis = document.getElementById('imp-teilen');
+  if (hinweis) {
+    var ua = navigator.userAgent || '';
+    var ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    var android = /Android/.test(ua);
+    var app = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    var online = /^https?:/.test(location.protocol);
+    var t = '';
+    if (!online) t = '';
+    else if (android) t = app ? 'Schneller: In der App deiner Bank oder Börse die CSV-Datei teilen und „Wealthlens“ wählen. Sie landet direkt hier in der Vorschau.'
+      : 'Tipp: Installierst du Wealthlens als App („Als App öffnen“), kannst du CSV-Dateien aus der Bank-App direkt an Wealthlens teilen.';
+    else if (ios) t = 'Auf dem iPhone lassen sich Dateien nicht an Web-Apps teilen. Speichere die CSV in der Dateien-App und wähle sie dann hier mit „CSV-Datei wählen“.';
+    else t = app ? 'Schneller: Rechtsklick auf die CSV-Datei → Öffnen mit → Wealthlens. Sie landet direkt hier in der Vorschau.'
+      : 'Tipp: Installierst du Wealthlens als App (Chrome oder Edge), kannst du CSV-Dateien per Rechtsklick → Öffnen mit → Wealthlens einlesen.';
+    hinweis.textContent = t;
+    hinweis.hidden = !t;
+  }
+})();
+</script>
+<script>
 /* Übersicht anpassen: Karten ein- und ausblenden (gespeichert je Gerät).
    Fest: Gesamtvermögen (mit Anteilen in Prozent) und Schlagzeile. */
 (function () {
@@ -9693,6 +10176,7 @@ const TREFFER = (function () {
     { k: 'anlegertyp', t: 'Dein Anlegertyp', s: 'Ein Satz und Eigenschaften aus all deinen Käufen', an: true },
     { k: 'kacheln', t: 'Kennzahlen', s: 'Einstand, Buchergebnis, Abstand zum Einstand', an: true },
     { k: 'check', t: 'Portfolio-Check', s: 'Die wichtigsten Risiko-Punkte', an: true },
+    { k: 'rueckblick', t: 'Dein Jahr', s: 'Nur im Dezember und Jänner: Jahresrückblick zum Teilen', an: true },
     { k: 'ziel', t: 'Mein Ziel', s: 'Fortschritt und Wahrscheinlichkeit, sobald du unter Planung ein Ziel angelegt hast', an: true },
     { k: 'steuerende', t: 'Steuer bis 31.12.', s: 'Nur im November und Dezember: KESt bisher und offene Verluste', an: true },
     { k: 'wp', t: 'Wertpapiere', s: 'Erscheint, sobald Aktien oder ETFs eingetragen sind', an: true },
@@ -9735,7 +10219,7 @@ const TREFFER = (function () {
   // Feste Reihenfolge nach Wichtigkeit; Gesamtvermögen und Krypto & Cash bleiben links (breite Spalte),
   // die Schlagzeile rechts, alles andere kommt jeweils in die gerade kürzere Spalte.
   // Bei einer Spalte (schmales Fenster, Handy) stehen alle Karten in dieser Reihenfolge untereinander.
-  var REIHE = ['leer', 'gesamt', 'news', 'krypto', 'ziel', 'steuerende', 'wp', 'wal', 'gverlauf', 'gewinner', 'kverlauf', 'anlegertyp',
+  var REIHE = ['leer', 'gesamt', 'news', 'krypto', 'rueckblick', 'ziel', 'steuerende', 'wp', 'wal', 'gverlauf', 'gewinner', 'kverlauf', 'anlegertyp',
     'kacheln', 'alloc', 'check', 'sparrechner', 'zins', 'import'];
   var FEST = { leer: 'L', gesamt: 'L', krypto: 'L', news: 'R' };
   var ov = document.querySelector('.ov');
