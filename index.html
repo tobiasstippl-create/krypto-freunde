@@ -236,6 +236,7 @@ main{min-width:0}
   .nav{flex-direction:row;width:100%;gap:2px}
   .nav button{flex:1 1 0;min-width:0;flex-direction:column;gap:3px;padding:6px 2px;font-size:10.5px;text-align:center;justify-content:center}
   .nav button span{overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  @media (max-width:420px){.nav button{padding:6px 0;font-size:10px;letter-spacing:-.01em}}
   .inhalt{padding-block:18px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));gap:18px}
   .kopf .thema{display:inline-flex;align-items:center;gap:7px;flex:none}
 }
@@ -251,9 +252,6 @@ main{min-width:0}
 .zwei{display:grid;grid-template-columns:272px minmax(0,1fr);gap:20px;align-items:start}
 .stapel{display:flex;flex-direction:column;gap:20px;min-width:0}
 .slot{min-width:0}
-#ansichten.hat-daten #import{order:1}
-#ansichten.hat-daten #sicherung{order:2}
-#ansichten:not(.hat-daten) .subnav button[data-ziel="import"]{order:-1}
 #umschichten{order:-1}
 .kopf .schmal{display:none}
 @media (max-width:620px){.kopf .breit{display:none}.kopf .schmal{display:inline}}
@@ -787,6 +785,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
     <div class="nav" id="nav">
       <button type="button" data-go="uebersicht"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 11h7v9h-7zM4 14h7v6H4z"/></svg><span>Übersicht</span></button>
       <button type="button" data-go="portfolio"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h15a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3zM3 8a3 3 0 0 1 3-3h10v3M16.5 14h1.5"/></svg><span>Portfolio</span></button>
+      <button type="button" data-go="import"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11M7.500 9.500 12 14l4.500-4.500M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg><span>Import</span></button>
       <button type="button" data-go="risiko"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.500-8-9V6zM12 8v5M12 16v.5"/></svg><span>Risiko</span></button>
       <button type="button" data-go="planung"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M19 7h1M4 17h1M11 17h9"/><circle cx="16" cy="7" r="2.5"/><circle cx="8" cy="17" r="2.5"/></svg><span>Planung</span></button>
       <button type="button" data-go="markt"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2h-1M8 9h5M8 13h5M8 16h3"/></svg><span>Markt</span></button>
@@ -832,8 +831,8 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
           <div class="stapel">
             <section class="sheet leer-karte" id="leer-hinweis" hidden>
               <h2>Noch kein Portfolio</h2>
-              <p>Lies deinen Transaktionsverlauf von Bitvavo, Bitpanda oder Trade Republic ein. Aktien, ETFs und Wallets trägst du im Bereich Portfolio ein. Aus den Dateien rechnet die App deine Stückzahlen und den Einstand und füllt Wertverlauf, Bandbreite, Risiko und Steuerübersicht.</p>
-              <div class="btns"><button type="button" class="primary" data-go="portfolio" data-ziel="import">Zum Import</button></div>
+              <p>Lies deinen Transaktionsverlauf von Bitvavo, Bitpanda oder Trade Republic ein. Aktien, ETFs und Wallets trägst du ebenfalls im Bereich Import ein. Aus den Dateien rechnet die App deine Stückzahlen und den Einstand und füllt Wertverlauf, Bandbreite, Risiko und Steuerübersicht.</p>
+              <div class="btns"><button type="button" class="primary" data-go="import" data-ziel="import">Zum Import</button></div>
             </section>
             <section class="sheet gv" id="ov-gesamt" aria-labelledby="h-ov-gesamt" hidden>
               <p class="k" id="h-ov-gesamt">Gesamtvermögen</p>
@@ -866,13 +865,13 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
           </div>
           <div class="stapel">
             <section class="sheet" id="ov-wp" aria-labelledby="h-ov-wp" hidden>
-              <header class="reihe"><h2 id="h-ov-wp">Wertpapiere</h2><button type="button" data-go="portfolio" data-ziel="wertpapiere">Bearbeiten</button></header>
+              <header class="reihe"><h2 id="h-ov-wp">Wertpapiere</h2><button type="button" data-go="import" data-ziel="wertpapiere">Bearbeiten</button></header>
               <p class="hero-v" id="ov-wp-wert" style="font-size:clamp(26px,5vw,34px)">–</p>
               <p class="delta" id="ov-wp-delta"></p>
               <p class="s" id="ov-wp-gesamt"></p>
             </section>
             <section class="sheet" id="ov-wal" aria-labelledby="h-ov-wal" hidden>
-              <header class="reihe"><h2 id="h-ov-wal">Wallets</h2><button type="button" data-go="portfolio" data-ziel="wallets">Bearbeiten</button></header>
+              <header class="reihe"><h2 id="h-ov-wal">Wallets</h2><button type="button" data-go="import" data-ziel="wallets">Bearbeiten</button></header>
               <p class="hero-v" id="ov-wal-wert" style="font-size:clamp(26px,5vw,34px)">–</p>
               <p class="delta" id="ov-wal-delta"></p>
               <p class="s" id="ov-wal-gesamt"></p>
@@ -894,7 +893,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
               <div class="zinsen" id="ov-zins"></div>
             </section>
             <section class="sheet" hidden aria-labelledby="h-ov-import">
-              <header class="reihe"><h2 id="h-ov-import">Import</h2><button type="button" data-go="portfolio" data-ziel="import">Zum Import</button></header>
+              <header class="reihe"><h2 id="h-ov-import">Import</h2><button type="button" data-go="import" data-ziel="import">Zum Import</button></header>
               <p class="cap" id="ov-import"></p>
             </section>
           </div>
@@ -903,6 +902,11 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
 
       <div class="view" data-view="portfolio" hidden>
         <nav class="subnav" data-fuer="portfolio" aria-label="Abschnitte"></nav>
+      <section class="sheet leer-karte" data-leer>
+        <h2>Noch nichts eingelesen</h2>
+        <p>Wertverlauf, Ergebnis je Coin und Anlegerprofil entstehen aus deinen Transaktionsdateien. Lies sie im Bereich Import ein; dort trägst du auch Aktien, ETFs und Wallets ein.</p>
+        <div class="btns"><button type="button" class="primary" data-go="import" data-ziel="import">Zum Import</button></div>
+      </section>
       <section class="sheet" id="wertverlauf" aria-labelledby="h-wv">
         <header>
           <h2 id="h-wv">Wertverlauf</h2>
@@ -947,9 +951,13 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
           <figure class="ap" id="ap-mix"></figure>
         </div>
       </section>
+      </div>
+
+      <div class="view" data-view="import" hidden>
+        <nav class="subnav" data-fuer="import" aria-label="Abschnitte"></nav>
       <section class="sheet" id="import" aria-labelledby="h-import">
         <header>
-          <h2 id="h-import">Import</h2>
+          <h2 id="h-import">Transaktionsdateien (CSV)</h2>
           <p>Lies deinen Transaktionsverlauf ein. Daraus rechnet die Seite deine genauen Stückzahlen, den Einstand samt Gebühren, den Wertverlauf und die Steuerübersicht.</p>
         </header>
         <p class="note callout" id="imp-status"></p>
@@ -972,6 +980,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
         <details class="tw" id="imp-anleitung">
           <summary>So bekommst du die Datei</summary>
           <p class="cap"><b>Bitvavo:</b> Melde dich an, öffne den Transaktionsverlauf und klicke oben rechts auf „Exportieren“. Wähle den gesamten Zeitraum und das Format CSV.</p>
+          <p class="cap"><b>Trade Republic:</b> In der App unter Profil → Kontoauszüge → „Transaktionsexport“ als CSV (nicht der PDF-Kontoauszug). Krypto landet im Portfolio, Aktien und ETFs im Reiter Wertpapiere.</p>
           <p class="cap"><b>Bitpanda:</b> Exportiere im Web-Konto deinen Transaktionsverlauf als CSV über den gesamten Zeitraum (Datei „bitpanda-trades-….csv“). Kryptowerte werden übernommen, Aktien, ETFs und Metalle noch nicht.</p>
           <p class="cap"> Hast du mehrere Dateien, etwa eine pro Jahr, kannst du sie gemeinsam auswählen. Die Datei bleibt auf deinem Gerät, die Seite schickt nichts davon ins Internet.</p>
         </details>
@@ -1161,7 +1170,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
             <section class="sheet leer-karte" data-leer hidden>
               <h2>Dafür braucht es dein Portfolio</h2>
               <p>Check, Bandbreite, Risiko und Stresstest rechnen mit deinem Bestand. Lies zuerst deinen Transaktionsverlauf ein.</p>
-              <div class="btns"><button type="button" class="primary" data-go="portfolio" data-ziel="import">Zum Import</button></div>
+              <div class="btns"><button type="button" class="primary" data-go="import" data-ziel="import">Zum Import</button></div>
             </section>
       <section class="sheet" id="check" aria-labelledby="h-check">
         <header>
@@ -3585,9 +3594,10 @@ const TREFFER = (function () {
 
   // ---------- Ansichten ----------
   // Immer genau eine Ansicht ist sichtbar. Die Annahmen-Karte zieht in die Ansicht um, in der sie wirkt.
-  const ANSICHTEN = { uebersicht: 'Übersicht', portfolio: 'Portfolio', risiko: 'Risiko', planung: 'Planung', markt: 'Markt', steuer: 'Steuer', methode: 'Methode und Grenzen' };
+  const ANSICHTEN = { uebersicht: 'Übersicht', portfolio: 'Portfolio', import: 'Import', risiko: 'Risiko', planung: 'Planung', markt: 'Markt', steuer: 'Steuer', methode: 'Methode und Grenzen' };
   const ABSCHNITTE = {
-    portfolio: [['wertverlauf', 'Wertverlauf'], ['ergebnis', 'Ergebnis je Coin'], ['verhalten', 'Anlegerprofil'], ['wertpapiere', 'Wertpapiere'], ['wallets', 'Wallets'], ['import', 'Import'], ['sicherung', 'Sicherung']],
+    portfolio: [['wertverlauf', 'Wertverlauf'], ['ergebnis', 'Ergebnis je Coin'], ['verhalten', 'Anlegerprofil']],
+    import: [['import', 'CSV-Dateien'], ['wertpapiere', 'Wertpapiere'], ['wallets', 'Wallets'], ['sicherung', 'Sicherung']],
     risiko: [['check', 'Portfolio-Check'], ['bandbreite', 'Bandbreite'], ['risiko', 'Risiko'], ['stresstest', 'Stresstest'], ['treffer', 'Trefferquote']],
     planung: [['umschichten', 'Umschichten'], ['trendhilfe', 'Trend ableiten'], ['coins', 'Coins']]
   };
@@ -3595,7 +3605,7 @@ const TREFFER = (function () {
   const ruhig = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   let ansicht = 'uebersicht';
   // In Risiko und Planung ist immer nur ein Abschnitt offen (Reiter). In Portfolio springen die Knöpfe nur zum Abschnitt.
-  const REITER_KEY = 'krypto-freunde-reiter', REITER = { risiko: 'check', planung: 'umschichten' };
+  const REITER_KEY = 'krypto-freunde-reiter', REITER = { import: 'import', risiko: 'check', planung: 'umschichten' };
   try {
     const g = JSON.parse(localStorage.getItem(REITER_KEY) || 'null');
     if (g && typeof g === 'object') Object.keys(REITER).forEach(function (v) {
