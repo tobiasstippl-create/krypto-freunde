@@ -829,6 +829,82 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
   .scroll{overflow:visible}
   table{font-size:12px}
 }
+/* Portfolio-Bereich (portfolio.js) */
+.pf-kopf{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-start;justify-content:space-between}
+.pf-kopf>div:first-child{flex:1 1 320px;min-width:0}
+.sheet>header.reihe #pf-modus button{background:transparent;border-radius:9px;color:var(--ink-2)}
+.sheet>header.reihe #pf-modus button::after{content:none}
+.sheet>header.reihe #pf-modus button[aria-pressed="true"]{background:var(--verlauf);color:var(--on-accent);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 22px -12px var(--btn)}
+#pf-zeit .tile .v{font-size:21px}
+#pf-zeit .s,.pf-rendite .s{font-variant-numeric:tabular-nums}
+.pf-vgl{font-size:13px;color:var(--ink-2)}
+.ok-chart .pf-b1{fill:none;stroke:var(--accent-2);stroke-width:1.5;stroke-dasharray:2 3}
+.ok-chart .pf-b2{fill:none;stroke:var(--up);stroke-width:1.5;stroke-dasharray:7 4}
+.ok-legende i.b1{height:0;border-top:2px dotted var(--accent-2);border-radius:0;vertical-align:3px}
+.ok-legende i.b2{height:0;border-top:2px dashed var(--up);border-radius:0;vertical-align:3px}
+.pf-rendite{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.pf-rendite h3{margin:0;font-size:14px}
+#pf-mehr{margin-top:4px}
+#pf-mehr .tiles{margin-top:10px}
+.pf-leiste{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.pf-leiste .wahl{flex-wrap:wrap}
+.pf-sort{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)}
+.pf-sort select{width:auto;padding:5px 10px;font-size:13px}
+.pf-tabelle{width:100%}
+.pf-tabelle th button{all:unset;cursor:pointer;font:inherit;color:inherit;display:inline-flex;gap:4px;align-items:center}
+.pf-tabelle th button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.pf-tabelle th[aria-sort] button::after{content:'▾';font-size:11px}
+.pf-tabelle th[aria-sort="ascending"] button::after{content:'▴'}
+.pf-tabelle tbody tr.pf-z{cursor:pointer}
+.pf-tabelle tbody tr.pf-z:hover td{background:var(--hover)}
+.pf-tabelle tbody tr.pf-z[aria-expanded="true"] td{background:var(--sunken)}
+.pf-tabelle td.pf-ant{min-width:110px}
+.pf-ant-z{display:grid;grid-template-columns:minmax(40px,1fr) 46px;gap:8px;align-items:center}
+.pf-ant-z .bar,.pf-k .bar{background:var(--sunken)}
+.pf-ant-z .bar i.w,.pf-k .bar i.w{background:var(--s2);box-shadow:none}
+.pf-ant-z .bar i.l,.pf-k .bar i.l{background:var(--accent-2);box-shadow:none}
+.pf-ant-z .bar i.c,.pf-k .bar i.c{background:var(--deemph);box-shadow:none}
+.pf-name{display:flex;align-items:center;gap:9px;min-width:0}
+.pf-name>span{min-width:0;overflow:hidden}
+.pf-name b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
+.pf-name small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pf-name small{display:block;color:var(--muted);font-size:11.5px;font-weight:400}
+.pf-art{display:inline-block;width:10px;height:10px;border-radius:3px;flex:none}
+.pf-detail>td{padding:0!important;background:var(--sunken);white-space:normal;text-align:left}
+.pf-tabelle tfoot th{font-weight:600;font-size:14px;color:var(--ink);border-bottom:0;border-top:1px solid var(--axis);text-align:right}
+.pf-tabelle tfoot th:first-child{text-align:left}
+.pf-tabelle thead th:first-child{text-align:left}
+.pf-tabelle small.pf-nur-schmal{display:block;font-size:11.5px;font-weight:500}
+@media (max-width:1180px){.pf-tabelle .pf-breit{display:none}.pf-name b{max-width:190px}}
+@media (min-width:1181px){.pf-tabelle small.pf-nur-schmal{display:none}}
+.pf-d{padding:16px 18px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px 22px}
+.pf-d .ok-chart{min-height:180px}
+.pf-d dl{margin:0;display:grid;grid-template-columns:auto auto;gap:6px 14px;font-size:13.5px;align-content:start}
+.pf-d dt{color:var(--muted)}
+.pf-d dd{margin:0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.pf-d .cap{grid-column:1/-1;margin:0}
+.pf-d ul.pf-wal{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px;font-size:13.5px}
+.pf-d ul.pf-wal li{display:flex;justify-content:space-between;gap:10px}
+.pf-karten{display:none;list-style:none;margin:0;padding:0;flex-direction:column;gap:8px}
+.pf-k{border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.pf-k>button{all:unset;box-sizing:border-box;width:100%;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;padding:12px 14px}
+.pf-k>button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:14px}
+.pf-k .pf-w{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.pf-k .bar{grid-column:1/-1;height:6px}
+.pf-k .bar i{height:6px}
+.pf-k .pf-unten{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.pf-k .pf-d{grid-template-columns:minmax(0,1fr);padding:12px 14px 14px;border-top:1px solid var(--line);background:var(--sunken)}
+.pf-k.summe{background:var(--sunken)}
+.pf-k.summe>button{cursor:default}
+.ap-mehr{margin-top:4px}
+.ap-mehr .ap-grid{margin-top:12px}
+@media (max-width:620px){
+  .pf-tab-box{display:none}
+  .pf-karten{display:flex}
+  .pf-kopf .wahl{align-self:stretch}
+  #pf-zeit .tile .v{font-size:18px}
+}
+@media (min-width:621px){.pf-sort{display:none}}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 <script>
@@ -1030,52 +1106,81 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
         <nav class="subnav" data-fuer="portfolio" aria-label="Abschnitte"></nav>
       <section class="sheet leer-karte" data-leer>
         <h2>Noch nichts eingelesen</h2>
-        <p>Wertverlauf, Ergebnis je Coin und Anlegerprofil entstehen aus deinen Transaktionsdateien. Lies sie im Bereich Import ein; dort trägst du auch Aktien, ETFs und Wallets ein.</p>
+        <p>Wertverlauf, Positionen und Anlegerprofil entstehen aus deinen Transaktionsdateien. Lies sie im Bereich Import ein; dort trägst du auch Aktien, ETFs und Wallets ein.</p>
         <div class="btns"><button type="button" class="primary" data-go="import" data-ziel="import">Zum Import</button></div>
       </section>
       <section class="sheet" id="wertverlauf" aria-labelledby="h-wv">
-        <header>
-          <h2 id="h-wv">Wertverlauf</h2>
-          <p id="wv-intro"></p>
+        <header class="reihe pf-kopf">
+          <div>
+            <h2 id="h-wv">Wertverlauf</h2>
+            <p id="wv-intro" hidden></p>
+            <p id="pf-intro"></p>
+          </div>
+          <div class="wahl" id="pf-modus" role="group" aria-label="Welches Vermögen" hidden>
+            <button type="button" data-pf-modus="alle">Gesamt</button>
+            <button type="button" data-pf-modus="k">Krypto</button>
+            <button type="button" data-pf-modus="w">Aktien &amp; ETFs</button>
+          </div>
         </header>
-        <div class="tiles inset" id="wv-kpis"></div>
-        <figure class="fig">
+        <div class="tiles inset" id="pf-zeit" aria-label="Ergebnis nach Zeitraum"></div>
+        <figure class="fig" id="pf-fig">
           <figcaption>
-            <h3>Portfoliowert und Einzahlung, in Euro</h3>
-            <div class="legend">
-              <span><i class="ln"></i>Wert</span>
-              <span><i class="ln ref"></i>Eingezahlt</span>
-            </div>
-            <div class="wahl" id="wv-spanne" role="group" aria-label="Zeitraum des Diagramms">
-              <button type="button" data-spanne="3m">3 Monate</button>
-              <button type="button" data-spanne="1j">1 Jahr</button>
-              <button type="button" data-spanne="alle">Alles</button>
+            <h3>Wert und Einzahlung, in Euro</h3>
+            <ul class="ok-legende" id="pf-legende"></ul>
+            <div class="wahl" id="pf-spanne" role="group" aria-label="Zeitraum des Diagramms">
+              <button type="button" data-pf-spanne="90">3 Monate</button>
+              <button type="button" data-pf-spanne="365">1 Jahr</button>
+              <button type="button" data-pf-spanne="0">Alles</button>
             </div>
           </figcaption>
-          <p class="note callout" id="wv-leer" hidden></p>
-          <div class="chart" id="wv-chart"></div>
-          <details class="tw" id="wv-details"><summary>Als Tabelle</summary><div class="scroll"><table id="wv-tabelle"></table></div></details>
+          <p class="ok-zahl" id="pf-zahl"></p>
+          <div class="chart ok-chart" id="pf-chart"></div>
+          <label class="check pf-vgl"><input type="checkbox" id="pf-vergleich"> <span>Vergleich mit MSCI World und Bitcoin im Diagramm zeigen</span></label>
+          <p class="cap" id="pf-cap"></p>
         </figure>
-        <figure class="fig" id="ergebnis">
-          <figcaption>
-            <h3>Ergebnis je Coin</h3>
-            <p class="cap" id="wv-coin-cap"></p>
-          </figcaption>
-          <div class="scroll"><table id="wv-coins"></table></div>
-          <p class="cap nur-handy" id="wv-coin-handy" hidden>Stück, Einstand und Realisiert siehst du am Computer oder quer gehaltenen Handy.</p>
-        </figure>
-      </section>
-      <section class="sheet" id="verhalten" aria-labelledby="h-vh" hidden>
-        <header>
-          <h2 id="h-vh">Dein Anlegerprofil</h2>
-          <p>Drei Blicke auf deine Käufe, Verkäufe und deinen Bestand. Ein Rückblick, keine Bewertung.</p>
-        </header>
-        <p class="note callout" id="ap-fazit"></p>
-        <div class="ap-grid">
-          <figure class="ap" id="ap-kauf"></figure>
-          <figure class="ap" id="ap-halt"></figure>
-          <figure class="ap" id="ap-mix"></figure>
+        <div class="pf-rendite" id="pf-rendite" hidden>
+          <h3>Rendite und Vergleich</h3>
+          <div class="tiles inset three" id="pf-rendite-kacheln"></div>
+          <p class="cap" id="pf-rendite-cap"></p>
         </div>
+        <details class="tw" id="pf-mehr" hidden><summary>Einzahlung, Verkäufe und Gebühren bei Krypto</summary>
+          <div class="tiles inset" id="wv-kpis"></div>
+        </details>
+        <!-- Alte Krypto-Grafik: zeichnet das Hauptskript weiter mit, bleibt aber verborgen (die neue Grafik oben deckt alle Arten ab) -->
+        <div hidden>
+          <figure class="fig" id="wv-fig">
+            <p class="note callout" id="wv-leer" hidden></p>
+            <div class="chart" id="wv-chart"></div>
+            <details class="tw" id="wv-details"><summary>Als Tabelle</summary><div class="scroll"><table id="wv-tabelle"></table></div></details>
+          </figure>
+          <figure class="fig" id="ergebnis">
+            <p class="cap" id="wv-coin-cap"></p>
+            <div class="scroll"><table id="wv-coins"></table></div>
+            <p class="cap nur-handy" id="wv-coin-handy" hidden></p>
+          </figure>
+          <span id="wv-spanne"><button type="button" data-spanne="3m">3 Monate</button><button type="button" data-spanne="1j">1 Jahr</button><button type="button" data-spanne="alle">Alles</button></span>
+        </div>
+      </section>
+      <section class="sheet" id="positionen" aria-labelledby="h-pos" hidden>
+        <header>
+          <h2 id="h-pos">Alle Positionen</h2>
+          <p>Krypto, Aktien, ETFs und Wallets in einer Liste. Antippen zeigt Kursverlauf, Käufe und Kennzahlen.</p>
+        </header>
+        <div class="pf-leiste">
+          <div class="wahl" id="pf-filter" role="group" aria-label="Nach Art filtern"></div>
+          <label class="pf-sort"><span>Sortieren</span>
+            <select id="pf-sort">
+              <option value="wert">Wert</option>
+              <option value="erg">Ergebnis in Euro</option>
+              <option value="pct">Ergebnis in %</option>
+              <option value="heute">Heute</option>
+              <option value="name">Name</option>
+            </select>
+          </label>
+        </div>
+        <div class="scroll pf-tab-box"><table id="pf-tabelle" class="pf-tabelle"></table></div>
+        <ul class="pf-karten" id="pf-karten"></ul>
+        <p class="cap" id="pf-pos-cap"></p>
       </section>
       <section class="sheet" id="dividenden" aria-labelledby="h-div" hidden>
         <header>
@@ -1101,9 +1206,23 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
         </figure>
         <p class="cap" id="div-cap"></p>
       </section>
+      <section class="sheet" id="verhalten" aria-labelledby="h-vh" hidden>
+        <header>
+          <h2 id="h-vh">Dein Anlegerprofil</h2>
+          <p>Drei Blicke auf deine Krypto-Käufe, Verkäufe und deinen Bestand. Ein Rückblick, keine Bewertung. Deinen Anlegertyp über alle Käufe zeigt die Übersicht.</p>
+        </header>
+        <p class="note callout" id="ap-fazit"></p>
+        <details class="tw ap-mehr"><summary>Die drei Diagramme ansehen</summary>
+          <div class="ap-grid">
+            <figure class="ap" id="ap-kauf"></figure>
+            <figure class="ap" id="ap-halt"></figure>
+            <figure class="ap" id="ap-mix"></figure>
+          </div>
+        </details>
+      </section>
       </div>
 
-      <div class="view" data-view="import" hidden>
+<div class="view" data-view="import" hidden>
         <nav class="subnav" data-fuer="import" aria-label="Abschnitte"></nav>
       <section class="sheet" id="import" aria-labelledby="h-import">
         <header>
@@ -2972,7 +3091,11 @@ const TREFFER = (function () {
     return {
       label: function (sym) { return posLabel(sym); },
       // Wertverlauf: days = Tage seit 1970 (UTC), W = Wert inkl. Cash
-      verlauf: function () { try { const s = wertSeries(); return { days: s.days.slice(), W: s.W.slice() }; } catch (e) { return null; } },
+      // I = eingezahlt netto (nur mit Import), ok = Euro-Guthaben ist enthalten
+      verlauf: function () { try { const s = wertSeries(); return { days: s.days.slice(), W: s.W.slice(), I: s.tx && s.I ? s.I.slice() : null, ok: !!s.ok }; } catch (e) { return null; } },
+      // Realisiertes Ergebnis je Coin aus Verkäufen (nach Gebühr)
+      realisiert: function () { const r = {}; if (LED) LED.sales.forEach(function (x) { r[x.sym] = (r[x.sym] || 0) + x.gain; }); return r; },
+      gebuehren: function () { return LED ? LED.fees : 0; },
       // Alle Käufe aus Dateien und von Hand: [Datum ISO, 'buy', Coin, Menge, Euro, Gebühr]
       kaeufe: function () {
         const hand = (state.hand || []).map(function (x) { return Object.assign({}, x, { direkt: false }); });
@@ -2999,7 +3122,7 @@ const TREFFER = (function () {
     // Die alte Coin-Aufteilung und „Deine Coins heute“ zeichnet jetzt vermoegen.js über alle Vermögensarten.
     window.KRYPTO_STAND = Object.assign(kryptoApi(), {
       coins: c.coins, cash: state.cash, total: c.total, daten: state.tx.length > 0 || state.pos.some(function (p) { return p.stueck > 0; }),
-      positionen: SYMS.map(function (sym, i) { return { sym: sym, name: NAME[sym] || sym, v: c.values[i], x: seit(sym, 1), stueck: state.pos[i].stueck, einstand: state.pos[i].einstand }; }).filter(function (x) { return x.v > 0; })
+      positionen: SYMS.map(function (sym, i) { return { sym: sym, name: NAME[sym] || sym, v: c.values[i], x: seit(sym, 1), stueck: state.pos[i].stueck, einstand: state.pos[i].einstand, kosten: c.costTax[i], kurs: COIN[sym] ? COIN[sym].kurse[COIN[sym].kurse.length - 1] : null }; }).filter(function (x) { return x.v > 0; })
     });
     document.dispatchEvent(new Event('vermoegen'));
     fill('kacheln', [
@@ -4025,7 +4148,7 @@ const TREFFER = (function () {
   // Immer genau eine Ansicht ist sichtbar. Die Annahmen-Karte zieht in die Ansicht um, in der sie wirkt.
   const ANSICHTEN = { uebersicht: 'Übersicht', portfolio: 'Portfolio', import: 'Import', risiko: 'Risiko', planung: 'Planung', markt: 'Markt', steuer: 'Steuer', methode: 'Methode und Grenzen' };
   const ABSCHNITTE = {
-    portfolio: [['wertverlauf', 'Wertverlauf'], ['ergebnis', 'Ergebnis je Coin'], ['verhalten', 'Anlegerprofil'], ['dividenden', 'Dividenden']],
+    portfolio: [['wertverlauf', 'Wertverlauf'], ['positionen', 'Positionen'], ['dividenden', 'Dividenden'], ['verhalten', 'Anlegerprofil']],
     steuer: [['steuerjahr', 'Krypto'], ['steuer-wp', 'Aktien & ETFs']],
     import: [['import', 'CSV-Dateien'], ['nachkauf', 'Nachkauf'], ['wertpapiere', 'Wertpapiere'], ['wallets', 'Wallets'], ['sicherung', 'Sicherung']],
     risiko: [['check', 'Portfolio-Check'], ['bandbreite', 'Bandbreite'], ['risiko', 'Risiko'], ['stresstest', 'Stresstest'], ['treffer', 'Trefferquote']],
@@ -6027,7 +6150,10 @@ const TREFFER = (function () {
     positionen: function () {
       return daten.liste.filter(function (p) { return p.stueck > 0; }).map(function (p) {
         var w = wertVon(p), vor = w.wert - w.heute;
-        return { name: p.name, kurz: p.kuerzel ? p.kuerzel.replace(/\.DEX$/, '') : (p.isin || ''), v: w.wert, x: w.ok && w.heute && vor > 0 ? w.heute / vor : null, ohneKurs: !w.ok };
+        return { name: p.name, kurz: p.kuerzel ? p.kuerzel.replace(/\.DEX$/, '') : (p.isin || ''), v: w.wert, x: w.ok && w.heute && vor > 0 ? w.heute / vor : null, ohneKurs: !w.ok,
+          // für den Portfolio-Bereich (portfolio.js)
+          id: posId(p), isin: p.isin || '', kuerzel: p.kuerzel || '', klasse: p.klasse || '', bank: p.bank || '', stueck: p.stueck, einstand: p.einstand || 0,
+          kurs: w.ok ? w.kurs : null, kursZeit: w.tag || '', realisiert: p.realisiert || 0, dividenden: p.dividenden || 0 };
       }).filter(function (p) { return p.v > 0; });
     }
   };
@@ -7133,7 +7259,9 @@ const TREFFER = (function () {
     positionen: function () {
       return daten.liste.filter(function (w) { return !w.fremd; }).map(function (w) {
         var b = bewerte(w);
-        return { name: w.name || NETZNAME[w.netz], kurz: NETZNAME[w.netz], v: b.summe, x: null, coins: b.zeilen.slice(0, 4).map(function (z) { return z.p.sym; }) };
+        return { name: w.name || NETZNAME[w.netz], kurz: NETZNAME[w.netz], v: b.summe, x: null, coins: b.zeilen.slice(0, 4).map(function (z) { return z.p.sym; }),
+          adresse: w.adresse, einstand: w.einstand > 0 ? w.einstand : 0,
+          bestand: b.zeilen.filter(function (z) { return z.wert >= 1; }).map(function (z) { return { sym: z.p.sym, menge: z.p.menge, v: z.wert }; }) };
       }).filter(function (p) { return p.v > 0; });
     }
   };
@@ -7692,6 +7820,9 @@ const TREFFER = (function () {
     return c.kurse.map(function (v, i) { return [t0 + i, v]; });
   }
 
+  // Für den Portfolio-Bereich (portfolio.js): Diagramm und Kursreihen wiederverwenden
+  window.KARTEN = { chart: chart, wpReihe: wpReihe, kryptoReihe: kryptoReihe, kursBis: kursBis, istETF: istETF };
+
   // ---------- 1. Verlauf des Gesamtvermögens ----------
   var gvTage = +opt.gv || 365, gvLauf = 0;
   function zeichneGV() {
@@ -8145,6 +8276,635 @@ const TREFFER = (function () {
   // Beim Sichtbarwerden der Übersicht (Breite war 0) und bei Größenänderung neu zeichnen
   var breite = 0, ov = document.querySelector('.ov');
   if (window.ResizeObserver && ov) new ResizeObserver(function () { var b = ov.clientWidth; if (b && Math.abs(b - breite) > 8) { breite = b; bald(); } }).observe(ov);
+  bald();
+})();
+</script>
+<script>
+/* Portfolio-Bereich (Freundes-Fassung):
+   - Wertverlauf mit Umschalter Gesamt / Krypto / Aktien & ETFs, Zeitraum-Kacheln (Heute, 1 Monat, seit 1.1., gesamt)
+   - Rendite geldgewichtet (interner Zinsfuß) und Vergleich: dasselbe Geld zu denselben Tagen im MSCI World bzw. in Bitcoin
+   - „Alle Positionen“: Krypto, Cash, Aktien/ETFs und Wallets in einer Liste, Filter nach Art, sortierbar, Anteil als Balken,
+     Antippen öffnet Details (Kursverlauf mit Käufen, Einstandslinie, Kennzahlen); am Handy als Karten statt Tabelle
+   Datenquellen: window.KRYPTO_STAND (Hauptskript), window.WP (wertpapiere.js), window.WALLET (wallets.js),
+   Diagramm und Kursreihen aus window.KARTEN (karten.js). */
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  if (!$('pf-tabelle') || !window.KARTEN) return;
+  var K = window.KARTEN;
+  var nf2 = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var nf0 = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 });
+  var nfp = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  var nfq = new Intl.NumberFormat('de-DE', { maximumSignificantDigits: 6 });
+  var nfk = new Intl.NumberFormat('de-DE', { maximumSignificantDigits: 4 });
+  var minus = function (t) { return t.replace('-', '−'); };
+  var eur = function (x) { return minus(nf2.format(x)) + ' €'; };
+  var eur0 = function (x) { return minus(nf0.format(x)) + ' €'; };
+  var eurK = function (x) { return Math.abs(x) >= 10000 ? eur0(x) : eur(x); };
+  var eurS = function (x) { return (x > 0.005 ? '+' : '') + eurK(x); };
+  var eurAx = function (x) { return Math.abs(x) >= 100 ? eur0(x) : eur(x); };
+  var kursF = function (x) { return (x >= 1000 ? nf0.format(x) : x >= 1 ? nf2.format(x) : nfk.format(x)) + ' €'; };
+  var pctS = function (x) { return (x > 0.0005 ? '+' : x < -0.0005 ? '−' : '±') + nfp.format(Math.abs(x) * 100) + ' %'; };
+  var pct = function (x) { return nfp.format(x * 100) + ' %'; };
+  var ton = function (x) { return x == null ? '' : x > 0.004 ? 'up' : x < -0.004 ? 'down' : ''; };
+  var dVoll = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', timeZone: 'UTC' });
+  var dMon = new Intl.DateTimeFormat('de-DE', { month: 'short', year: '2-digit', timeZone: 'UTC' });
+  var dTag = new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  var HEUTE = Math.floor(Date.now() / 864e5);
+  var tagNr = function (iso) { return Math.round(Date.parse(String(iso).slice(0, 10) + 'T00:00:00Z') / 864e5); };
+  var datumVon = function (t) { return new Date(t * 864e5); };
+  var JAHR1 = Math.round(Date.UTC(new Date().getUTCFullYear(), 0, 1) / 864e5);
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function dauer(t) {
+    return t < 60 ? nf0.format(t) + (t === 1 ? ' Tag' : ' Tage') : t < 730 ? nf0.format(Math.round(t / 30.44)) + ' Monate' : nfp.format(t / 365.25) + ' Jahre';
+  }
+  var KS = function () { return window.KRYPTO_STAND || null; };
+  var WPok = function () { return !!(window.WP && window.WP.positionen); };
+
+  // Einstellungen je Gerät
+  var KEY = 'krypto-freunde-portfolio';
+  var opt = { modus: '', spanne: 365, vergleich: false, filter: 'alle', sort: 'wert', dir: -1 };
+  try { var g = JSON.parse(localStorage.getItem(KEY) || 'null'); if (g && typeof g === 'object') opt = Object.assign(opt, g); } catch (e) { /* egal */ }
+  function merke() { try { localStorage.setItem(KEY, JSON.stringify(opt)); } catch (e) { /* egal */ } }
+
+  var ARTEN = { k: { name: 'Krypto', cls: 'gv-k', bar: '' }, c: { name: 'Cash', cls: 'gv-c', bar: 'c' }, w: { name: 'Aktien & ETFs', cls: 'gv-w', bar: 'w' }, l: { name: 'Wallets', cls: 'gv-l', bar: 'l' } };
+
+  // ---------- Positionen sammeln ----------
+  function sammle() {
+    var ks = KS(), pos = [], verkauft = 0;
+    if (ks && ks.daten) {
+      var real = ks.realisiert ? ks.realisiert() : {}, da = {};
+      (ks.positionen || []).forEach(function (p) {
+        da[p.sym] = 1;
+        var kosten = p.kosten != null ? p.kosten : p.einstand;
+        pos.push({ id: 'k:' + p.sym, art: 'k', sym: p.sym, name: p.name || p.sym, unter: p.sym, v: p.v, x: p.x, stueck: p.stueck, kosten: kosten > 0 ? kosten : null, real: real[p.sym] || 0 });
+      });
+      Object.keys(real).forEach(function (s) { if (!da[s]) verkauft += real[s]; });
+      if (ks.cash > 0.5) pos.push({ id: 'c', art: 'c', name: 'Cash', unter: 'Guthaben bei den Börsen', v: ks.cash, x: null, kosten: null, real: 0 });
+    }
+    if (WPok()) window.WP.positionen().forEach(function (p) {
+      var etf = K.istETF(p.klasse, p.name);
+      pos.push({ id: 'w:' + p.id, art: 'w', name: p.name, unter: [etf ? 'ETF' : 'Aktie', p.kurz, p.bank].filter(Boolean).join(' · '), v: p.v, x: p.x,
+        stueck: p.stueck, kosten: p.einstand > 0 && !p.ohneKurs ? p.einstand : null, real: p.realisiert || 0, div: p.dividenden || 0, ohneKurs: p.ohneKurs, wp: p });
+    });
+    if (window.WALLET && window.WALLET.positionen) window.WALLET.positionen().forEach(function (p) {
+      pos.push({ id: 'l:' + (p.adresse || p.name), art: 'l', name: p.name, unter: p.kurz + (p.coins && p.coins.length ? ' · ' + p.coins.join(', ') : ''), v: p.v, x: null,
+        kosten: p.einstand > 0 ? p.einstand : null, real: 0, wal: p });
+    });
+    pos = pos.filter(function (p) { return p.v > 0.5; });
+    var summe = pos.reduce(function (s, p) { return s + p.v; }, 0);
+    pos.forEach(function (p) {
+      p.anteil = summe > 0 ? p.v / summe : 0;
+      p.erg = p.kosten != null ? p.v - p.kosten : null;
+      p.pct = p.kosten ? p.erg / p.kosten : null;
+      p.heute = p.x != null && isFinite(p.x) && p.x > -1 ? p.v - p.v / (1 + p.x) : null;
+    });
+    var hatW = WPok() && (window.WP.positionen().length > 0 || window.WP.verlaufDaten().some(function (p) { return p.ev.length; }));
+    return { pos: pos, summe: summe, verkauft: verkauft, hatK: !!(ks && ks.daten), hatW: hatW, hatL: pos.some(function (p) { return p.art === 'l'; }) };
+  }
+
+  // ---------- Sichtbarkeit der Abschnitte ----------
+  function verfuegbar(d) {
+    var m = [];
+    if (d.hatK && d.hatW) m.push('alle');
+    if (d.hatK) m.push('k');
+    if (d.hatW) m.push('w');
+    return m;
+  }
+  function sichtbarkeit(d) {
+    var etwas = d.pos.length > 0 || d.hatW;
+    var view = document.querySelector('.view[data-view="portfolio"]');
+    view.querySelectorAll('.leer-karte[data-leer]').forEach(function (e) { e.hidden = etwas || (KS() && KS().daten); });
+    var m = verfuegbar(d);
+    $('wertverlauf').hidden = !m.length;
+    $('positionen').hidden = !d.pos.length;
+    if (m.indexOf(opt.modus) < 0) opt.modus = m[0] || 'k';
+    $('pf-modus').hidden = m.length < 2;
+    document.querySelectorAll('[data-pf-modus]').forEach(function (b) {
+      var x = b.getAttribute('data-pf-modus');
+      b.hidden = m.indexOf(x) < 0;
+      b.setAttribute('aria-pressed', String(x === opt.modus));
+    });
+    // Unterleiste: Knöpfe zu verborgenen Abschnitten ausblenden (das Hauptskript kennt Wertpapiere und Wallets nicht)
+    document.querySelectorAll('.subnav[data-fuer="portfolio"] button').forEach(function (k) {
+      var z = $(k.getAttribute('data-ziel'));
+      k.hidden = !z || z.hidden;
+    });
+  }
+
+  // ---------- Reihen für den Wertverlauf ----------
+  function serieK() {
+    var ks = KS(), v = ks && ks.daten && ks.verlauf ? ks.verlauf() : null;
+    if (!v || v.days.length < 1) return null;
+    return { days: v.days, W: v.W, I: v.I, Kw: v.W, Ww: null, ok: v.ok };
+  }
+  function serieW() {
+    if (!WPok()) return Promise.resolve(null);
+    var wps = window.WP.verlaufDaten().filter(function (p) { return p.stueck > 0 || p.ev.length; });
+    if (!wps.length) return Promise.resolve(null);
+    var start = HEUTE - 365, ohneKauf = 0;
+    var erste = Infinity;
+    wps.forEach(function (p) { p.ev.forEach(function (e) { erste = Math.min(erste, tagNr(e[0])); }); if (!p.ev.length && p.stueck > 0) ohneKauf++; });
+    if (isFinite(erste)) start = Math.min(erste, HEUTE - 1);
+    var lang = start < HEUTE - 360;
+    return Promise.all(wps.map(function (p) { return K.wpReihe(p, lang); })).then(function (reihen) {
+      var days = [];
+      for (var t = start; t <= HEUTE; t++) days.push(t);
+      var W = days.map(function () { return 0; }), I = days.map(function () { return 0; });
+      wps.forEach(function (p, j) {
+        var r = reihen[j], ev = p.ev.map(function (e) { return [tagNr(e[0]), e[1]]; });
+        var jetzt = p.stueck > 0 ? p.wert / p.stueck : 0;
+        days.forEach(function (t, i) {
+          var q = p.stueck;
+          ev.forEach(function (e) { if (e[0] > t) q -= e[1]; });
+          if (q <= 1e-9) return;
+          var k = r && r.length && (t < HEUTE || !jetzt) ? (K.kursBis(r, t) || r[0][1]) : jetzt;
+          W[i] += q * k;
+        });
+        // Ohne Kaufdaten: Einstand zählt ab dem ersten Tag als eingezahlt
+        if (!ev.length && p.stueck > 0 && p.einstand > 0) I.forEach(function (x, i) { I[i] += p.einstand; });
+      });
+      // Einzahlungen aus den Buchungen: Kauf samt Gebühr hinein, Verkaufserlös nach Gebühr heraus
+      var fluss = {}, ids = {};
+      var dazu = function (d, a) { var t = Math.max(start, tagNr(d)); if (isFinite(t)) fluss[t] = (fluss[t] || 0) + a; };
+      (window.WP.ereignisse ? window.WP.ereignisse() : []).forEach(function (e) {
+        ids[e.id] = 1;
+        var b = +e.betrag || 0, f = +e.gebuehr || 0;
+        if (e.art === 'kauf') dazu(e.d, b + f);
+        else if (e.art === 'verkauf') dazu(e.d, -(b - f));
+        else if (e.art === 'zugang' && b > 0) dazu(e.d, b);
+        else if (e.art === 'abgang' && b > 0) dazu(e.d, -b);
+      });
+      (window.WP.handListe ? window.WP.handListe() : []).forEach(function (k) { if (!ids[k.id] && k.betrag > 0) dazu(k.d, k.betrag + (k.gebuehr || 0)); });
+      var kum = 0;
+      days.forEach(function (t, i) { kum += fluss[t] || 0; I[i] += kum; });
+      return { days: days, W: W, I: I, Kw: null, Ww: W, ohneKauf: ohneKauf };
+    });
+  }
+  function serieAlle() {
+    var k = serieK();
+    return serieW().then(function (w) {
+      if (!k) return w; if (!w) return k;
+      var start = Math.min(k.days[0], w.days[0]), days = [];
+      for (var t = start; t <= HEUTE; t++) days.push(t);
+      var ki = {}; k.days.forEach(function (t, i) { ki[t] = i; });
+      var wi = {}; w.days.forEach(function (t, i) { wi[t] = i; });
+      var lastK = -1, lastW = -1;
+      var Kw = [], Ww = [], W = [], I = [], mitI = !!k.I;
+      days.forEach(function (t) {
+        if (ki[t] != null) lastK = ki[t];
+        if (wi[t] != null) lastW = wi[t];
+        var kv = lastK >= 0 ? k.W[lastK] : 0, wv = lastW >= 0 ? w.W[lastW] : 0;
+        Kw.push(kv); Ww.push(wv); W.push(kv + wv);
+        if (mitI) I.push((lastK >= 0 ? k.I[lastK] : 0) + (lastW >= 0 ? w.I[lastW] : 0));
+      });
+      return { days: days, W: W, I: mitI ? I : null, Kw: Kw, Ww: Ww, ok: k.ok, ohneKauf: w.ohneKauf };
+    });
+  }
+  function serie(modus) { return modus === 'k' ? Promise.resolve(serieK()) : modus === 'w' ? serieW() : serieAlle(); }
+
+  // ---------- Kennzahlen ----------
+  // Ergebnis zwischen dem Tagesende vor „ab“ und heute, Einzahlungen herausgerechnet
+  function zeitraum(s, ab) {
+    var n = s.days.length - 1, b = -1;
+    for (var i = 0; i <= n; i++) if (s.days[i] < ab) b = i;
+    var Wb = b >= 0 ? s.W[b] : 0, Ib = b >= 0 && s.I ? s.I[b] : 0;
+    if (!s.I && b < 0) { Wb = s.W[0]; }
+    var zu = s.I ? s.I[n] - Ib : 0;
+    var gew = s.W[n] - Wb - zu, basis = Wb + Math.max(0, zu);
+    return { g: gew, p: basis > 0.5 ? gew / basis : null };
+  }
+  // Geldgewichtete Rendite (interner Zinsfuß): Startwert und jede Einzahlung als Ausgabe, heutiger Wert als Einnahme
+  function fluesse(s) {
+    if (!s.I) return null;
+    var n = s.days.length - 1, f = -1;
+    for (var i = 0; i <= n; i++) if (s.W[i] > 1) { f = i; break; }
+    if (f < 0 || s.days[n] - s.days[f] < 30) return null;
+    var fl = [{ t: s.days[f], a: -s.W[f] }];
+    for (var j = f + 1; j <= n; j++) { var d = s.I[j] - s.I[j - 1]; if (Math.abs(d) > 0.005) fl.push({ t: s.days[j], a: -d }); }
+    fl.push({ t: s.days[n], a: s.W[n] });
+    return { f: f, fl: fl };
+  }
+  function xirr(fl) {
+    var t0 = fl[0].t;
+    var npv = function (r) { return fl.reduce(function (s, x) { return s + x.a / Math.pow(1 + r, (x.t - t0) / 365); }, 0); };
+    var lo = -0.99, hi = 10, flo = npv(lo), fhi = npv(hi);
+    if (!isFinite(flo) || !isFinite(fhi) || flo * fhi > 0) return null;
+    for (var k = 0; k < 120; k++) {
+      var m = (lo + hi) / 2, fm = npv(m);
+      if (flo * fm <= 0) { hi = m; } else { lo = m; flo = fm; }
+    }
+    return (lo + hi) / 2;
+  }
+  // Dasselbe Geld zu denselben Tagen in einen Vergleichswert: Stückzahl wächst mit jeder Einzahlung
+  function simuliere(s, f, reihe) {
+    if (!reihe || reihe.length < 2 || s.days[f] < reihe[0][0] - 5) return null;
+    var preis = function (t) { return K.kursBis(reihe, t) || reihe[0][1]; };
+    var stueck = 0, werte = [];
+    for (var i = 0; i < s.days.length; i++) {
+      if (i < f) { werte.push(0); continue; }
+      var p = preis(s.days[i]);
+      stueck += (i === f ? s.W[f] : s.I[i] - s.I[i - 1]) / p;
+      werte.push(Math.max(0, stueck * p));
+    }
+    return werte;
+  }
+  var MSCI = { isin: 'IE00B4L5Y983', kuerzel: 'EUNL.DEX', name: 'iShares Core MSCI World UCITS ETF' };
+
+  // ---------- Wertverlauf zeichnen ----------
+  var lauf = 0, letzteSerie = null;
+  function tile(k, v, s, cls) {
+    var t = el('div', 'tile');
+    t.append(el('div', 'k', k), el('div', 'v' + (cls ? ' ' + cls : ''), v), el('div', 's' + (cls ? ' ' + cls : ''), s));
+    return t;
+  }
+  function zeichneVerlauf(d) {
+    if ($('wertverlauf').hidden) return;
+    var modus = opt.modus, nr = ++lauf, host = $('pf-chart');
+    var ks = KS();
+    $('pf-mehr').hidden = !(ks && ks.daten && modus !== 'w');
+    $('pf-intro').textContent = modus === 'alle' ? 'Krypto und Aktien & ETFs zusammen: Wert am Ende jedes Tages und was du netto eingezahlt hast. Wallets haben keinen Verlauf und fehlen hier.'
+      : modus === 'w' ? 'Deine Aktien und ETFs: Bestand am Ende jedes Tages mal Schlusskurs (onvista), dazu was du netto hineingesteckt hast.'
+      : (ks && ks.verlauf && (ks.verlauf() || {}).I ? 'Dein Krypto-Verlauf aus dem Import: Bestand am Ende jedes Tages mal Tageskurs' + ((ks.verlauf() || {}).ok ? ', dazu dein Euro-Guthaben.' : '.')
+        : 'Die Seite merkt sich an jedem Tag, an dem du sie öffnest, deinen Krypto-Wert. Mit dem Import siehst du den ganzen Verlauf und die Einzahlungen.');
+    serie(modus).then(function (s) {
+      if (nr !== lauf) return;
+      letzteSerie = s;
+      var zeit = $('pf-zeit'); zeit.textContent = '';
+      if (!s || s.days.length < 2) {
+        K.chart(host, { x: [0], ebenen: [] }); host.textContent = '';
+        host.append(el('div', 'ok-leer', 'Für eine Linie braucht es mindestens zwei Tage.'));
+        $('pf-zahl').textContent = ''; $('pf-legende').textContent = ''; $('pf-rendite').hidden = true; $('pf-cap').textContent = '';
+        return;
+      }
+      var n = s.days.length - 1;
+      // Zeitraum-Kacheln
+      var heute = zeitraum(s, s.days[n]), monat = zeitraum(s, s.days[n] - 30), jahr = zeitraum(s, JAHR1), ges = zeitraum(s, -Infinity);
+      var kach = function (k, z, unter) { return tile(k, eurS(z.g), (z.p != null ? pctS(z.p) : '') + (unter ? (z.p != null ? ' · ' : '') + unter : ''), ton(z.g)); };
+      zeit.append(kach('Heute', heute, 'seit gestern'), kach('1 Monat', monat, ''), kach('Seit 1. Januar', jahr, ''),
+        kach('Gesamt', ges, s.I ? 'auf ' + eur0(s.I[n]) + ' eingezahlt' : 'seit ' + dVoll.format(datumVon(s.days[0]))));
+      // Rendite und Vergleich (über den ganzen Verlauf)
+      var fx = fluesse(s), rb = $('pf-rendite');
+      rb.hidden = !fx;
+      var vgl = { msci: null, btc: null };
+      var weiter = function () {
+        if (nr !== lauf) return;
+        if (fx) rendite(s, fx, vgl);
+        diagramm(s, fx, vgl);
+      };
+      if (!fx) { weiter(); return; }
+      var span = s.days[n] - s.days[fx.f];
+      var btc = K.kryptoReihe('BTC');
+      vgl.btc = simuliere(s, fx.f, btc);
+      K.wpReihe(MSCI, span > 360).then(function (r) {
+        if (r && r.length && r[r.length - 1][0] < HEUTE && s.days[n] >= HEUTE) r = r.concat([[HEUTE, r[r.length - 1][1]]]);
+        vgl.msci = simuliere(s, fx.f, r);
+        weiter();
+      }, weiter);
+    });
+  }
+  function rendite(s, fx, vgl) {
+    var n = s.days.length - 1, r = xirr(fx.fl), span = s.days[n] - s.days[fx.f];
+    var box = $('pf-rendite-kacheln'); box.textContent = '';
+    var ich = s.W[n];
+    var rt = r == null ? '–' : span >= 365 ? pctS(r) : pctS(Math.pow(1 + r, span / 365) - 1);
+    box.append(tile('Deine Rendite', rt, r == null ? 'nicht berechenbar' : span >= 365 ? 'pro Jahr, geldgewichtet seit ' + dVoll.format(datumVon(s.days[fx.f])) : 'in ' + dauer(span) + ', geldgewichtet', ton(r)));
+    [['msci', 'Gleiches Geld im MSCI World'], ['btc', 'Gleiches Geld in Bitcoin']].forEach(function (b) {
+      var w = vgl[b[0]];
+      if (!w) { box.append(tile(b[1], '–', 'Kursdaten reichen nicht so weit zurück')); return; }
+      var diff = ich - w[n];
+      box.append(tile(b[1], eurK(w[n]), (Math.abs(diff) < 0.5 ? 'genau wie du' : (diff > 0 ? 'du liegst ' + eurK(diff) + ' vorn' : 'du liegst ' + eurK(-diff) + ' zurück')), ''));
+    });
+    $('pf-rendite-cap').textContent = 'Die geldgewichtete Rendite berücksichtigt, wann du wie viel eingezahlt hast (interner Zinsfuß). Der Vergleich legt dein Startkapital und jede spätere Ein- oder Auszahlung am selben Tag in den iShares Core MSCI World (Xetra) bzw. in Bitcoin an, ohne Gebühren und Steuern.'
+      + (opt.modus !== 'k' ? ' Dividenden sind ausgezahlt und nicht im Wert enthalten.' : '');
+  }
+  function diagramm(s, fx, vgl) {
+    var host = $('pf-chart');
+    if (!host.clientWidth) return;
+    var n = s.days.length - 1, von = opt.spanne > 0 ? s.days[n] - opt.spanne : -Infinity;
+    var a = 0; while (a < n - 1 && s.days[a] < von) a++;
+    var cut = function (arr) { return arr ? arr.slice(a) : null; };
+    var x = cut(s.days), W = cut(s.W), I = cut(s.I);
+    var ebenen = [];
+    if (opt.modus === 'alle') { ebenen.push({ y: cut(s.Kw), cls: 'ok-k' }, { y: cut(s.Ww), cls: 'ok-w' }); }
+    else ebenen.push({ y: W, cls: opt.modus === 'w' ? 'ok-w' : 'ok-k' });
+    var linien = [];
+    if (I) linien.push({ y: I, cls: 'ok-ein' });
+    var zeigeVgl = opt.vergleich && fx;
+    var m = zeigeVgl && vgl.msci ? cut(vgl.msci) : null, b = zeigeVgl && vgl.btc ? cut(vgl.btc) : null;
+    if (m) linien.push({ y: m, cls: 'pf-b1' });
+    if (b) linien.push({ y: b, cls: 'pf-b2' });
+    var spanTage = x[x.length - 1] - x[0];
+    var zeige = function (i) {
+      var z = $('pf-zahl'); z.textContent = '';
+      var j = i == null ? x.length - 1 : i, teile = [];
+      z.append(document.createTextNode(eur(W[j])));
+      if (I) { var e = W[j] - I[j]; z.append(el('span', ton(e), eurS(e))); teile.push('eingezahlt ' + eurK(I[j])); }
+      if (opt.modus === 'alle') teile.push('Krypto ' + eurK(s.Kw[a + j]), 'Aktien & ETFs ' + eurK(s.Ww[a + j]));
+      if (m) teile.push('MSCI World ' + eurK(m[j]));
+      if (b) teile.push('Bitcoin ' + eurK(b[j]));
+      z.append(el('small', null, dVoll.format(datumVon(x[j])) + (teile.length ? ': ' + teile.join(', ') : '')));
+    };
+    K.chart(host, { x: x, ebenen: ebenen, linien: linien, null: true, h: 200, yFmt: eurAx,
+      xFmt: function (t) { return (spanTage > 120 ? dMon : dTag).format(datumVon(t)); }, hover: zeige, label: 'Wertverlauf' });
+    zeige(null);
+    var lg = $('pf-legende'); lg.textContent = '';
+    var li = function (cls, text) { var l = el('li'); l.append(el('i', cls), document.createTextNode(text)); lg.append(l); };
+    if (opt.modus === 'alle') { li('gv-k', 'Krypto & Cash'); li('gv-w', 'Aktien & ETFs'); }
+    else li(opt.modus === 'w' ? 'gv-w' : 'gv-k', opt.modus === 'w' ? 'Aktien & ETFs' : 'Krypto' + (s.ok ? ' & Cash' : ''));
+    if (I) li('lin', 'Eingezahlt');
+    if (m) li('b1', 'MSCI World'); if (b) li('b2', 'Bitcoin');
+    $('pf-vergleich').checked = !!opt.vergleich;
+    $('pf-vergleich').closest('label').style.setProperty('display', fx ? '' : 'none', fx ? '' : 'important');
+    var cap = [];
+    if (opt.modus !== 'k') cap.push('Aktien und ETFs mit Tagesschlusskursen von onvista, heute mit dem aktuellen Kurs.');
+    if (s.ohneKauf) cap.push(s.ohneKauf + (s.ohneKauf === 1 ? ' Wertpapier ist' : ' Wertpapiere sind') + ' ohne Kaufdaten eingetragen und ' + (s.ohneKauf === 1 ? 'zählt' : 'zählen') + ' über den ganzen Zeitraum mit heutigem Bestand und Einstand.');
+    if (!I) cap.push('Ohne Import kennt die Seite deine Einzahlungen nicht: Die Kacheln zeigen dann nur die Wertänderung.');
+    $('pf-cap').textContent = cap.join(' ');
+    document.querySelectorAll('[data-pf-spanne]').forEach(function (k) { k.setAttribute('aria-pressed', String(+k.getAttribute('data-pf-spanne') === +opt.spanne)); });
+  }
+
+  // ---------- Alle Positionen ----------
+  var offen = null, letzte = null;
+  var SPALTEN = [['name', 'Position'], ['anteil', 'Anteil'], ['wert', 'Wert'], ['heute', 'Heute'], ['erg', 'Ergebnis'], ['pct', 'in %'], [null, 'Realisiert']];
+  function wert(p, k) { return k === 'name' ? p.name.toLowerCase() : k === 'anteil' ? p.v : k === 'wert' ? p.v : p[k]; }
+  function sortiere(liste) {
+    var k = opt.sort === 'anteil' ? 'wert' : opt.sort, dir = opt.dir || -1;
+    return liste.slice().sort(function (a, b) {
+      if (a.art === 'c' && b.art !== 'c') return 1; if (b.art === 'c' && a.art !== 'c') return -1;   // Cash immer unten
+      var x = wert(a, k), y = wert(b, k);
+      if (x == null && y == null) return b.v - a.v; if (x == null) return 1; if (y == null) return -1;
+      var c = k === 'name' ? (x < y ? -1 : x > y ? 1 : 0) : x - y;
+      return dir * c || b.v - a.v;
+    });
+  }
+  function nameZelle(p) {
+    var s = el('span', 'pf-name'), ks = KS();
+    var badge = null;
+    if (p.art === 'k' && ks && ks.label) { try { badge = ks.label(p.sym).firstChild; } catch (e) { badge = null; } }
+    s.append(badge || el('i', 'pf-art ' + ARTEN[p.art].cls));
+    var t = el('span'); t.append(el('b', null, p.name), el('small', null, p.unter || ARTEN[p.art].name));
+    s.append(t); s.title = p.name;
+    return s;
+  }
+  function balken(p) {
+    var b = el('div', 'bar'), i = el('i', ARTEN[p.art].bar);
+    i.style.width = Math.max(1, Math.min(100, p.anteil * 100)).toFixed(1) + '%';
+    b.append(i); return b;
+  }
+  function filterKnoepfe(d) {
+    var box = $('pf-filter'), arten = ['alle'];
+    if (d.pos.some(function (p) { return p.art === 'k' || p.art === 'c'; })) arten.push('k');
+    if (d.pos.some(function (p) { return p.art === 'w'; })) arten.push('w');
+    if (d.pos.some(function (p) { return p.art === 'l'; })) arten.push('l');
+    if (arten.indexOf(opt.filter) < 0) opt.filter = 'alle';
+    box.hidden = arten.length < 3;
+    box.textContent = '';
+    arten.forEach(function (a) {
+      var b = el('button', null, a === 'alle' ? 'Alle' : ARTEN[a].name); b.type = 'button';
+      b.setAttribute('aria-pressed', String(a === opt.filter));
+      b.addEventListener('click', function () { opt.filter = a; merke(); zeichnePositionen(true); });
+      box.append(b);
+    });
+  }
+  function zeichnePositionen(erzwingen) {
+    var d = sammle();
+    var abdruck = JSON.stringify(d.pos.map(function (p) { return [p.id, Math.round(p.v * 100), p.erg != null ? Math.round(p.erg * 100) : null, p.x != null ? Math.round(p.x * 1e4) : null]; })) + d.verkauft.toFixed(2) + opt.filter + opt.sort + opt.dir + (window.innerWidth <= 620 ? 'h' : 'p');
+    sichtbarkeit(d);
+    if (!erzwingen && abdruck === letzte) return d;
+    letzte = abdruck;
+    filterKnoepfe(d);
+    $('pf-sort').value = opt.sort === 'anteil' ? 'wert' : opt.sort;
+    var liste = sortiere(d.pos.filter(function (p) { return opt.filter === 'alle' || p.art === opt.filter || (opt.filter === 'k' && p.art === 'c'); }));
+    var mitReal = d.pos.some(function (p) { return Math.abs(p.real) > 0.004; }) || Math.abs(d.verkauft) > 0.004;
+    var zeigeVerkauft = Math.abs(d.verkauft) > 0.004 && (opt.filter === 'alle' || opt.filter === 'k');
+    // Tabelle (PC)
+    var t = $('pf-tabelle'); t.textContent = '';
+    var kopf = el('thead'), kr = el('tr');
+    SPALTEN.forEach(function (sp) {
+      if (sp[1] === 'Realisiert' && !mitReal) return;
+      var th = el('th');
+      if (sp[0] !== 'name') th.className = 'num' + (sp[0] === 'pct' || !sp[0] ? ' pf-breit' : '');
+      if (sp[0]) {
+        var b = el('button', null, sp[1]); b.type = 'button';
+        if (opt.sort === sp[0]) th.setAttribute('aria-sort', opt.dir > 0 ? 'ascending' : 'descending');
+        b.addEventListener('click', function () {
+          if (opt.sort === sp[0]) opt.dir = -(opt.dir || -1); else { opt.sort = sp[0]; opt.dir = sp[0] === 'name' ? 1 : -1; }
+          merke(); zeichnePositionen(true);
+        });
+        th.append(b);
+      } else th.textContent = sp[1];
+      kr.append(th);
+    });
+    kopf.append(kr); t.append(kopf);
+    var tb = el('tbody'), ul = $('pf-karten'); ul.textContent = '';
+    var spalten = mitReal ? 7 : 6;
+    var sum = { v: 0, heute: 0, hatHeute: false, erg: 0, kosten: 0, real: 0 };
+    liste.forEach(function (p) {
+      sum.v += p.v; if (p.heute != null) { sum.heute += p.heute; sum.hatHeute = true; }
+      if (p.erg != null) { sum.erg += p.erg; sum.kosten += p.kosten; }
+      sum.real += p.real || 0;
+      var tr = el('tr', 'pf-z');
+      var td = function (inhalt, cls) { var c = el('td', cls || 'num'); if (typeof inhalt === 'string') c.textContent = inhalt; else c.append(inhalt); tr.append(c); return c; };
+      td(nameZelle(p), '');
+      var az = el('div', 'pf-ant-z'); az.append(balken(p), el('span', null, pct(p.anteil))); td(az, 'pf-ant');
+      td(eur(p.v));
+      td(p.heute != null ? eurS(p.heute) : '–', 'num ' + ton(p.heute));
+      var ez = td(p.erg != null ? eurS(p.erg) : p.ohneKurs ? 'kein Kurs' : '–', 'num ' + ton(p.erg));
+      if (p.pct != null) ez.append(el('small', 'pf-nur-schmal', pctS(p.pct)));
+      td(p.pct != null ? pctS(p.pct) : '–', 'num pf-breit ' + ton(p.pct));
+      if (mitReal) td(Math.abs(p.real) > 0.004 ? eurS(p.real) : '–', 'num pf-breit ' + ton(p.real));
+      var klickbar = p.art !== 'c';
+      if (klickbar) {
+        tr.tabIndex = 0; tr.setAttribute('role', 'button');
+        tr.setAttribute('aria-expanded', String(offen === p.id));
+        var umschalten = function () { offen = offen === p.id ? null : p.id; zeichnePositionen(true); };
+        tr.addEventListener('click', umschalten);
+        tr.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); umschalten(); } });
+      } else tr.classList.remove('pf-z');
+      tb.append(tr);
+      if (offen === p.id && klickbar) {
+        var dr = el('tr', 'pf-detail'), dc = el('td'); dc.colSpan = spalten;
+        dr.append(dc); tb.append(dr);
+        detail(p, dc, d);
+      }
+      // Karte (Handy)
+      var li = el('li', 'pf-k'), bt = el('button');
+      bt.type = 'button';
+      var w = el('div', 'pf-w', eurK(p.v));
+      bt.append(nameZelle(p), w, balken(p));
+      var unten = el('div', 'pf-unten');
+      unten.append(el('span', ton(p.erg), p.erg != null ? 'Ergebnis ' + eurS(p.erg) + (p.pct != null ? ' (' + pctS(p.pct) + ')' : '') : pct(p.anteil) + ' vom Vermögen'),
+        el('span', ton(p.heute), p.heute != null ? 'heute ' + pctS(p.x) : p.erg != null ? pct(p.anteil) : ''));
+      bt.append(unten);
+      li.append(bt);
+      if (klickbar) {
+        bt.setAttribute('aria-expanded', String(offen === p.id));
+        bt.addEventListener('click', function () { offen = offen === p.id ? null : p.id; zeichnePositionen(true); });
+        if (offen === p.id) { var db = el('div'); li.append(db); detail(p, db, d); }
+      } else bt.disabled = true;
+      ul.append(li);
+    });
+    if (zeigeVerkauft) {
+      sum.real += d.verkauft;
+      var vr = el('tr'), leer = function () { vr.append(el('td', 'num', '')); };
+      var nz = el('td'); nz.append(el('span', 'pf-name', 'Verkaufte Coins')); vr.append(nz);
+      for (var i = 0; i < 5; i++) leer();
+      var rz = el('td', 'num pf-breit ' + ton(d.verkauft), eurS(d.verkauft)); vr.append(rz);
+      vr.children[5].className = 'num pf-breit';
+      vr.children[4].append(el('small', 'pf-nur-schmal ' + ton(d.verkauft), 'realisiert ' + eurS(d.verkauft)));
+      tb.append(vr);
+    }
+    t.append(tb);
+    // Summe
+    var fuss = el('tfoot'), fr = el('tr');
+    var sp = sum.kosten > 0 ? sum.erg / sum.kosten : null;
+    [[opt.filter === 'alle' ? 'Gesamt' : 'Summe ' + ARTEN[opt.filter === 'k' ? 'k' : opt.filter].name, ''], [d.summe > 0 ? pct(sum.v / d.summe) : '', 'num'], [eur(sum.v), 'num'],
+      [sum.hatHeute ? eurS(sum.heute) : '–', 'num ' + ton(sum.heute)], [sum.kosten > 0 ? eurS(sum.erg) : '–', 'num ' + ton(sum.erg)], [sp != null ? pctS(sp) : '–', 'num pf-breit ' + ton(sp)]]
+      .concat(mitReal ? [[eurS(sum.real), 'num pf-breit ' + ton(sum.real)]] : []).forEach(function (z) { fr.append(el('th', z[1], z[0])); });
+    fuss.append(fr); t.append(fuss);
+    var sk = el('li', 'pf-k summe'), sb = el('button'); sb.type = 'button'; sb.disabled = true;
+    var sn = el('span', 'pf-name'); sn.append(el('b', null, opt.filter === 'alle' ? 'Gesamt' : 'Summe'));
+    var su = el('div', 'pf-unten');
+    su.append(el('span', ton(sum.erg), sum.kosten > 0 ? 'Ergebnis ' + eurS(sum.erg) + (sp != null ? ' (' + pctS(sp) + ')' : '') : ''), el('span', ton(sum.heute), sum.hatHeute ? 'heute ' + eurS(sum.heute) : ''));
+    sb.append(sn, el('div', 'pf-w', eurK(sum.v)), su);
+    if (mitReal && Math.abs(sum.real) > 0.004) { var sr = el('div', 'pf-unten'); sr.append(el('span', ton(sum.real), 'Realisiert aus Verkäufen ' + eurS(sum.real))); sb.append(sr); }
+    sk.append(sb); ul.append(sk);
+    var cap = ['Anteil = am gesamten Vermögen. Ergebnis = Wert heute minus Einstand samt Kaufgebühren.'];
+    if (mitReal) cap.push('Realisiert ist, was Verkäufe nach Gebühr gebracht haben.');
+    if (d.pos.some(function (p) { return p.art === 'l' && p.kosten == null; })) cap.push('Wallets ohne eingetragenen Einstand haben kein Ergebnis.');
+    if (d.pos.some(function (p) { return p.ohneKurs; })) cap.push('„kein Kurs“: Für dieses Wertpapier gibt es gerade keinen Kurs, es zählt mit seinem Einstand.');
+    if (d.pos.some(function (p) { return p.art === 'w'; })) cap.push('Ganz verkaufte Wertpapiere stehen in der Steuer-Ansicht.');
+    $('pf-pos-cap').textContent = cap.join(' ');
+    return d;
+  }
+
+  // ---------- Details je Position ----------
+  function kaeufeVon(p) {
+    var out = [];
+    if (p.art === 'k') {
+      var ks = KS();
+      (ks && ks.kaeufe ? ks.kaeufe() : []).forEach(function (t) { if (t[2] === p.sym && t[3] > 0) out.push({ t: tagNr(t[0]), kurs: t[4] / t[3], betrag: t[4] + (t[5] || 0) }); });
+    } else if (p.art === 'w' && window.WP) {
+      var w = p.wp, ids = {};
+      var passt = function (e) { return w.isin ? e.isin === w.isin : e.name === w.name; };
+      (window.WP.ereignisse ? window.WP.ereignisse() : []).forEach(function (e) {
+        ids[e.id] = 1;
+        if (e.art === 'kauf' && e.stueck > 0 && passt(e)) out.push({ t: tagNr(e.d), kurs: e.betrag / e.stueck, betrag: e.betrag + (e.gebuehr || 0) });
+      });
+      (window.WP.handListe ? window.WP.handListe() : []).forEach(function (k) {
+        if (!ids[k.id] && k.stueck > 0 && (k.isin ? k.isin === w.isin : k.name === w.name)) out.push({ t: tagNr(k.d), kurs: k.betrag / k.stueck, betrag: k.betrag + (k.gebuehr || 0) });
+      });
+    }
+    return out.filter(function (k) { return isFinite(k.t) && isFinite(k.kurs); }).sort(function (a, b) { return a.t - b.t; });
+  }
+  var detailLauf = 0;
+  function detail(p, host, d) {
+    var box = el('div', 'pf-d'), nr = ++detailLauf;
+    host.append(box);
+    var dl = el('dl');
+    var fakt = function (k, v, cls) { dl.append(el('dt', null, k), el('dd', cls || '', v)); };
+    if (p.art === 'l') {
+      var w = p.wal, ul = el('ul', 'pf-wal');
+      (w.bestand || []).forEach(function (z) { var li = el('li'); li.append(el('span', null, (z.menge != null ? nfq.format(z.menge) + ' ' : '') + z.sym), el('b', null, eurK(z.v))); ul.append(li); });
+      if (!ul.children.length) ul.append(el('li', 'note', 'Keine bewerteten Coins.'));
+      box.append(ul);
+      fakt('Netz', w.kurz || '–');
+      if (w.adresse) fakt('Adresse', w.adresse.length > 16 ? w.adresse.slice(0, 8) + '…' + w.adresse.slice(-6) : w.adresse);
+      fakt('Wert', eur(p.v));
+      fakt('Einstand', p.kosten ? eur(p.kosten) : 'nicht eingetragen');
+      if (p.erg != null) fakt('Ergebnis', eurS(p.erg) + (p.pct != null ? ' (' + pctS(p.pct) + ')' : ''), ton(p.erg));
+      fakt('Anteil am Vermögen', pct(p.anteil));
+      box.append(dl);
+      box.append(el('p', 'cap', 'Wallets zeigen den Stand laut Blockchain; einen Kursverlauf gibt es dafür nicht. Einstand trägst du unter Import → Wallets ein.'));
+      return;
+    }
+    var chartBox = el('div'), zahl = el('p', 'ok-zahl'), ch = el('div', 'ok-chart');
+    chartBox.append(zahl, ch);
+    box.append(chartBox, dl);
+    var cap = el('p', 'cap'); box.append(cap);
+    var k = kaeufeVon(p);
+    var kursHeute = p.stueck > 0 ? p.v / p.stueck : null, schnitt = p.kosten && p.stueck > 0 ? p.kosten / p.stueck : null;
+    fakt('Stück', nfq.format(p.stueck));
+    if (kursHeute) fakt('Kurs heute', kursF(kursHeute));
+    if (schnitt) fakt('Ø Kaufkurs (mit Gebühr)', kursF(schnitt));
+    if (schnitt && kursHeute) {
+      if (kursHeute < schnitt) fakt('Bis zum Einstand fehlen', pctS(schnitt / kursHeute - 1), 'down');
+      else fakt('Über dem Einstand', pctS(kursHeute / schnitt - 1), 'up');
+    }
+    if (p.erg != null) fakt('Ergebnis', eurS(p.erg), ton(p.erg));
+    if (p.heute != null) fakt('Heute', eurS(p.heute) + ' (' + pctS(p.x) + ')', ton(p.heute));
+    if (k.length) {
+      fakt('Erster Kauf', dVoll.format(datumVon(k[0].t)) + ' · ' + dauer(HEUTE - k[0].t));
+      fakt(k.length === 1 ? 'Kauf' : 'Käufe', k.length + '× · ' + eurK(k.reduce(function (s, x) { return s + x.betrag; }, 0)));
+    }
+    if (Math.abs(p.real) > 0.004) fakt('Realisiert', eurS(p.real), ton(p.real));
+    if (p.div > 0) fakt('Dividenden bisher', eur(p.div));
+    if (p.wp && p.wp.isin) fakt('ISIN', p.wp.isin);
+    fakt('Anteil am Vermögen', pct(p.anteil));
+    // Kursverlauf ab etwas vor dem ersten Kauf, mindestens 3 Monate
+    var start = k.length ? Math.min(k[0].t - 14, HEUTE - 90) : HEUTE - 365;
+    var quelle = p.art === 'k' ? Promise.resolve(K.kryptoReihe(p.sym))
+      : K.wpReihe(p.wp, start < HEUTE - 360).then(function (r) {
+        if (r && r.length && kursHeute && r[r.length - 1][0] < HEUTE) r = r.concat([[HEUTE, kursHeute]]);
+        return r;
+      });
+    ch.append(el('div', 'ok-leer', 'Lade Kurse …'));
+    quelle.then(function (r) {
+      if (!host.isConnected) return;
+      r = (r || []).filter(function (q) { return q[0] >= start; });
+      if (r.length < 2) { ch.textContent = ''; ch.append(el('div', 'ok-leer', 'Für ' + p.name + ' gibt es gerade keinen Kursverlauf.')); return; }
+      var x = r.map(function (q) { return q[0]; }), y = r.map(function (q) { return q[1]; }), n = y.length - 1;
+      var punkte = k.filter(function (q) { return q.t >= x[0]; }).map(function (q) { return { x: q.t, v: q.kurs, t: dVoll.format(datumVon(q.t)) + ': ' + eur(q.betrag) }; });
+      var lo = Math.min.apply(null, y), hi = Math.max.apply(null, y);
+      var linien = schnitt && schnitt > lo * 0.4 && schnitt < hi * 2 ? [{ y: schnitt, cls: 'ok-ein' }] : [];
+      var span = x[n] - x[0];
+      var zeige = function (i) {
+        zahl.textContent = '';
+        var j = i == null ? n : i;
+        zahl.append(document.createTextNode(kursF(y[j])));
+        if (i == null) { var c = y[n] / y[0] - 1; zahl.append(el('span', ton(c), pctS(c))); }
+        zahl.append(el('small', null, i == null ? 'seit ' + dVoll.format(datumVon(x[0])) : dVoll.format(datumVon(x[j]))));
+      };
+      K.chart(ch, { x: x, ebenen: [{ y: y, cls: p.art === 'w' ? 'ok-w' : 'ok-k' }], linien: linien, punkte: punkte, h: 180, yFmt: kursF,
+        xFmt: function (t) { return (span > 120 ? dMon : dTag).format(datumVon(t)); }, hover: zeige, label: 'Kursverlauf ' + p.name });
+      zeige(null);
+      cap.textContent = (punkte.length ? 'Punkte: deine Käufe. ' : '') + (linien.length ? 'Gestrichelt: dein Ø Kaufkurs. ' : '') + (p.art === 'w' ? 'Kurse: onvista, Tagesschluss in Euro.' : 'Kurse: Tagesschluss.');
+    });
+  }
+
+  // ---------- Bedienung ----------
+  document.querySelectorAll('[data-pf-modus]').forEach(function (b) {
+    b.addEventListener('click', function () { opt.modus = b.getAttribute('data-pf-modus'); merke(); sichtbarkeit(sammle()); zeichneVerlauf(); });
+  });
+  document.querySelectorAll('[data-pf-spanne]').forEach(function (b) {
+    b.addEventListener('click', function () { opt.spanne = +b.getAttribute('data-pf-spanne'); merke(); zeichneVerlauf(); });
+  });
+  $('pf-vergleich').addEventListener('change', function () { opt.vergleich = this.checked; merke(); zeichneVerlauf(); });
+  $('pf-sort').addEventListener('change', function () { opt.sort = this.value; opt.dir = this.value === 'name' ? 1 : -1; merke(); zeichnePositionen(true); });
+
+  // ---------- Zeichnen, gebündelt ----------
+  var geplant = 0, verlaufAbdruck = '';
+  function alles() {
+    geplant = 0;
+    var d;
+    try { d = zeichnePositionen(false); } catch (e) { console.error(e); }
+    try {
+      if ($('pf-chart').clientWidth > 0 && d) {
+        // Verlauf nur neu, wenn sich Bestand oder Werte geändert haben (der Portfoliowert zählt beim Start hoch)
+        var a = opt.modus + '|' + Math.round(d.summe) + '|' + d.pos.length + '|' + $('pf-chart').clientWidth;
+        if (a !== verlaufAbdruck || !$('pf-chart').firstChild) { verlaufAbdruck = a; zeichneVerlauf(); }
+      }
+    } catch (e) { console.error(e); }
+  }
+  function bald() { if (!geplant) geplant = setTimeout(alles, 250); }
+  ['vermoegen', 'kurse-bereit', 'wertpapiere', 'krypto-hand'].forEach(function (n) { document.addEventListener(n, bald); });
+  var breite = 0, sek = $('wertverlauf');
+  var beobachte = function () { var b = sek.clientWidth; if (b && Math.abs(b - breite) > 8) { breite = b; verlaufAbdruck = ''; bald(); } };
+  if (window.ResizeObserver) new ResizeObserver(beobachte).observe(sek);
+  window.addEventListener('resize', beobachte);
+  // Beim Wechsel in die Portfolio-Ansicht (vorher Breite 0) neu messen
+  document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('[data-go="portfolio"]')) setTimeout(function () { verlaufAbdruck = ''; bald(); }, 30); });
   bald();
 })();
 </script>
