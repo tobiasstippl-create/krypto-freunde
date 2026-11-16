@@ -3696,9 +3696,32 @@ const TREFFER = (function () {
   const RESSORTS = ['Aktien & Börse', 'Krypto', 'Zinsen & Konjunktur'];
   let NEWS = null;
   try { NEWS = JSON.parse($('newsdaten').textContent); } catch (e) { NEWS = null; }
-  const MELD = (NEWS && Array.isArray(NEWS.meldungen) ? NEWS.meldungen : []).filter(function (m) {
-    return m && typeof m.t === 'string' && m.t && typeof m.u === 'string' && /^https:\/\//.test(m.u) && typeof m.d === 'string' && !isNaN(Date.parse(m.d));
-  });
+  // Frische Ausgaben legt eine GitHub-Action alle 3 Stunden als news.json ins Repo (github/news.yml);
+  // die zuletzt geladene merkt sich das Gerät, damit sie auch ohne Netz beim nächsten Start da ist.
+  const NEWS_URL = 'https://raw.githubusercontent.com/tobiasstippl-create/krypto-freunde/main/news.json', NEWS_KEY = 'krypto-freunde-news';
+  const newsZeit = function (n) { return n && typeof n.abruf === 'string' ? Date.parse(n.abruf) || 0 : 0; };
+  const newsOk = function (n) { return !!(n && typeof n === 'object' && Array.isArray(n.meldungen) && newsZeit(n) > 0); };
+  try { const g = JSON.parse(localStorage.getItem(NEWS_KEY) || 'null'); if (newsOk(g) && newsZeit(g) > newsZeit(NEWS)) NEWS = g; } catch (e) { /* egal */ }
+  const meldungenAus = function (n) {
+    return (n && Array.isArray(n.meldungen) ? n.meldungen : []).filter(function (m) {
+      return m && typeof m.t === 'string' && m.t && typeof m.u === 'string' && /^https:\/\//.test(m.u) && typeof m.d === 'string' && !isNaN(Date.parse(m.d));
+    });
+  };
+  let MELD = meldungenAus(NEWS);
+  function holeNews() {
+    const c = window.AbortController ? new AbortController() : null;
+    const t = setTimeout(function () { if (c) c.abort(); }, 8000);
+    fetch(NEWS_URL + '?t=' + Math.floor(Date.now() / 3e5), Object.assign({ cache: 'no-store' }, c ? { signal: c.signal } : {}))
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (n) {
+        clearTimeout(t);
+        if (!newsOk(n) || newsZeit(n) <= newsZeit(NEWS)) return;
+        NEWS = n; MELD = meldungenAus(n); mkAlle = false;
+        try { localStorage.setItem(NEWS_KEY, JSON.stringify(n)); } catch (e) { /* Speicher voll oder gesperrt */ }
+        renderMeldungen();
+      })
+      .catch(function () { clearTimeout(t); /* bleibt bei der eingebauten oder gemerkten Ausgabe */ });
+  }
   let mkAlle = false;
   const dtag = new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' });
   const dzeit = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
@@ -4497,7 +4520,7 @@ const TREFFER = (function () {
   $('pos-cash').addEventListener('input', function (e) { const v = parseFloat(e.target.value); state.cash = isFinite(v) && v >= 0 ? v : 0; schedule(); });
   $('vorlagen').addEventListener('click', function (e) { const b = e.target.closest('button[data-vorlage]'); if (b) preset(b.getAttribute('data-vorlage')); });
 
-  buildSub(); renderMakro(); renderCoins();
+  buildSub(); renderMakro(); renderCoins(); holeNews();
   $('kat-suche').addEventListener('input', function (e) { katText = e.target.value; renderCoins(); });
   $('kat-alle').addEventListener('click', function () { katAlle = true; renderCoins(); });
   $('mk-mehr').addEventListener('click', function () { mkAlle = true; renderMeldungen(); });
@@ -4777,7 +4800,7 @@ const TREFFER = (function () {
   // Kurse lassen sich neu holen; der eigene Kursschlüssel wandert mit, damit man ihn nur einmal einträgt
   var STAND = 'krypto-freunde-sicherung-stand';
   var PRAEFIX = 'krypto-freunde-', OHNE = { 'krypto-freunde-kurse': 1, 'krypto-freunde-ohne-kurs': 1, 'krypto-freunde-cg-ids': 1, 'krypto-freunde-wp-kurse': 1, 'krypto-freunde-wp-notzaehler': 1, 'krypto-freunde-wal-stand': 1,
-    'krypto-freunde-app-hinweis': 1, 'krypto-freunde-sicherung-stand': 1 };
+    'krypto-freunde-app-hinweis': 1, 'krypto-freunde-sicherung-stand': 1, 'krypto-freunde-wp-onvista': 1, 'krypto-freunde-news': 1 };
   var $ = function (id) { return document.getElementById(id); };
   var status = $('sich-status');
   if (!status) return;
