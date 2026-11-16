@@ -496,6 +496,13 @@ small.nur-handy{display:block;font-size:11.5px;opacity:.85}
   #swp-hand-tabelle tr>:nth-child(3),#swp-hand-tabelle tr>:nth-child(4),
   #div-tabelle tr>:nth-child(2),#div-tabelle tr>:nth-child(5),#div-tabelle tr>:nth-child(6),
   #nk-plaene tr>:nth-child(3),#nk-plaene tr>:nth-child(4),#nk-plaene tr>:nth-child(5),#nk-liste tr>:nth-child(3),#nk-liste tr>:nth-child(5){display:none}
+  #wp-tabelle tr>:nth-child(2),#wp-tabelle tr>:nth-child(3),#wp-tabelle tr>:nth-child(4),
+  #wal-tabelle tr>:nth-child(2),#wal-tabelle tr>:nth-child(4){display:none}
+  #wp-tabelle td,#wp-tabelle th,#wal-tabelle td,#wal-tabelle th,#swp-banken td,#swp-banken th{white-space:normal;padding-left:5px;padding-right:5px;font-size:13px}
+  #wp-tabelle td:last-child button{display:block;width:100%;margin:0 0 6px!important;padding:6px 4px;font-size:11.5px;min-height:0}
+  #wp-tabelle{table-layout:fixed;width:100%}
+  #wp-tabelle tr>:nth-child(5){width:72px}#wp-tabelle tr>:nth-child(6){width:76px}#wp-tabelle tr>:last-child{width:80px}
+  #wp-tabelle td:first-child,#wp-tabelle td:first-child *{overflow-wrap:anywhere}
   #nk-plaene td,#nk-liste td{white-space:normal}
   #nk-plaene td:nth-child(2){white-space:nowrap}
   #nk-plaene td:last-child span{display:flex!important;flex-direction:column;gap:6px;white-space:nowrap}
@@ -1276,6 +1283,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
         </figure>
         <form class="fig" id="nk-form" hidden autocomplete="off">
           <h3 id="nk-form-titel">Kauf eintragen</h3>
+          <p class="note">Dein Cash bleibt dabei unverändert: Die App nimmt an, dass du das Geld für diesen Kauf neu eingezahlt hast. Im Wertverlauf zählt der Betrag deshalb als Einzahlung.</p>
           <div class="field">
             <label for="nk-art">Was</label>
             <select id="nk-art"><option value="krypto">Krypto</option><option value="wp">Aktie oder ETF</option></select>
@@ -1476,6 +1484,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
 
       <div class="view" data-view="risiko" hidden>
         <nav class="subnav" data-fuer="risiko" aria-label="Abschnitte"></nav>
+        <p class="note callout" id="risiko-umfang" hidden></p>
         <div class="zwei">
           <div class="slot">
     <aside class="sheet controls" id="annahmen" aria-labelledby="h-annahmen">
@@ -2900,7 +2909,14 @@ const TREFFER = (function () {
   function allTx(base, hand) {
     base = base || state.tx; hand = (hand || state.hand).filter(function (x) { return !x.direkt; });
     if (!hand.length) return base;
-    return LEDGER.merge([base, hand.map(function (x) { return [x.d, 'buy', x.sym, x.qty, x.eur, x.fee]; })]);
+    // Ein Kauf von Hand gilt als mit frischem Geld bezahlt: Die Einzahlung in gleicher Höhe läuft mit,
+    // damit das Guthaben gleich bleibt und der Wertverlauf den Betrag als Einzahlung zählt, nicht als Verlust.
+    const zeilen = [];
+    hand.forEach(function (x) {
+      zeilen.push([x.d, 'ein', 'EUR', (+x.eur || 0) + (+x.fee || 0), 0, 0]);
+      zeilen.push([x.d, 'buy', x.sym, x.qty, x.eur, x.fee]);
+    });
+    return LEDGER.merge([base, zeilen]);
   }
   // Freundes-Fassung: Coins, deren Kurse erst nach dem Import nachgeladen wurden, in den Bestand übernehmen
   if (state.imp && state.tx.length) {
@@ -6154,8 +6170,16 @@ const TREFFER = (function () {
     summe: function () { return daten.liste.length ? letzteSumme : 0; },
     // Für Aufteilung und Kachel-Grafik der Übersicht: Wert und Veränderung seit dem Vortag je Wertpapier
     positionen: function () {
+      // Realisiertes Ergebnis und Dividenden stehen nicht an der Position, sondern kommen aus den Einzelbuchungen der Bank
+      var aus = {};
+      Object.keys(daten.ereignisse || {}).forEach(function (b) {
+        var r = abrechnen(daten.ereignisse[b] || []).pos;
+        Object.keys(r).forEach(function (k) { aus[b + '|' + k] = r[k]; });
+      });
       return daten.liste.filter(function (p) { return p.stueck > 0; }).map(function (p) {
         var w = wertVon(p), vor = w.wert - w.heute;
+        var a = aus[(p.bank || '') + '|' + wpKey(p)];
+        if (a) p = Object.assign({}, p, { realisiert: a.realisiert, dividenden: a.dividenden });
         return { name: p.name, kurz: p.kuerzel ? p.kuerzel.replace(/\.DEX$/, '') : (p.isin || ''), v: w.wert, x: w.ok && w.heute && vor > 0 ? w.heute / vor : null, ohneKurs: !w.ok,
           // für den Portfolio-Bereich (portfolio.js)
           id: posId(p), isin: p.isin || '', kuerzel: p.kuerzel || '', klasse: p.klasse || '', bank: p.bank || '', stueck: p.stueck, einstand: p.einstand || 0,
@@ -7670,6 +7694,18 @@ const TREFFER = (function () {
     geplant = 0;
     var d = sammle();
     gesamt(d); aufteilung(d); karte(d);
+    risikoUmfang();
+  }
+  // Der Bereich „Risiko“ kennt nur Krypto und Cash: sagen, was fehlt, sobald es Aktien oder Wallets gibt
+  function risikoUmfang() {
+    var h = $('risiko-umfang'); if (!h) return;
+    var wp = window.WP && window.WP.summe ? window.WP.summe() : 0, wal = window.WALLET && window.WALLET.summe ? window.WALLET.summe() : 0;
+    var fehlt = [];
+    if (wp > 0.5) fehlt.push('deine Aktien & ETFs (' + eurK(wp) + ')');
+    if (wal > 0.5) fehlt.push('deine Wallets (' + eurK(wal) + ')');
+    h.hidden = !fehlt.length;
+    if (fehlt.length) h.textContent = 'Dieser Bereich rechnet nur mit Krypto und Cash. Nicht enthalten: ' + fehlt.join(' und ')
+      + '. Das Cash zählt dagegen ganz mit, auch das Guthaben bei einem Aktien-Broker; „Portfolio“ meint hier also nicht dein Gesamtvermögen.';
   }
   function bald() { if (!geplant) geplant = setTimeout(alles, 120); }
   document.addEventListener('vermoegen', bald);
@@ -8449,14 +8485,15 @@ const TREFFER = (function () {
         // Ohne Kaufdaten: Einstand zählt ab dem ersten Tag als eingezahlt
         if (!ev.length && p.stueck > 0 && p.einstand > 0) I.forEach(function (x, i) { I[i] += p.einstand; });
       });
-      // Einzahlungen aus den Buchungen: Kauf samt Gebühr hinein, Verkaufserlös nach Gebühr heraus
+      // Einzahlungen aus den Buchungen: Kauf samt Gebühr hinein, Verkaufserlös nach Gebühr und abgezogener KESt heraus
+      // (die Steuer ist kein entnommenes Geld, sondern schmälert das Ergebnis)
       var fluss = {}, ids = {};
       var dazu = function (d, a) { var t = Math.max(start, tagNr(d)); if (isFinite(t)) fluss[t] = (fluss[t] || 0) + a; };
       (window.WP.ereignisse ? window.WP.ereignisse() : []).forEach(function (e) {
         ids[e.id] = 1;
         var b = +e.betrag || 0, f = +e.gebuehr || 0;
         if (e.art === 'kauf') dazu(e.d, b + f);
-        else if (e.art === 'verkauf') dazu(e.d, -(b - f));
+        else if (e.art === 'verkauf') dazu(e.d, -(b - f - (+e.kest || 0)));
         else if (e.art === 'zugang' && b > 0) dazu(e.d, b);
         else if (e.art === 'abgang' && b > 0) dazu(e.d, -b);
       });
