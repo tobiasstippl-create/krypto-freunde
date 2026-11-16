@@ -2075,7 +2075,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
             <li><b>Steuer, vereinfacht.</b> 27,5 % auf den Gewinn, wenn du gegen Euro verkaufst. Kauf- und Verkaufsgebühren mindern den Gewinn. Beim Umschichten und in der Bandbreite werden Gewinne und Verluste nur innerhalb desselben Verkaufs verrechnet, die Steuerübersicht verrechnet sie über das ganze Jahr. Ein Verlustvortrag ins nächste Jahr ist nicht möglich. Alle Coins gelten als nach Februar 2021 gekauft. Bitvavo führt die Steuer nach aktuellem Stand nicht automatisch ab, realisierte Gewinne gehören dann in deine Steuererklärung.</li>
             <li><b>Stresstest.</b> Die Reaktion jedes Coins auf Bitcoin ist ein Durchschnitt aus Wochenrenditen. In einem echten Absturz kann ein einzelner Coin deutlich stärker fallen.</li>
             <li><b>Trend ableiten.</b> Grundlage sind die Monatsschlusskurse von Bitcoin in US-Dollar seit 2012 von Bitstamp. „Langfristig, vorsichtig“ ist die gleichmäßige Jahresrendite seit Anfang 2018. „Saisonal“ reiht die mittleren Renditen der kommenden Kalendermonate (seit 2015) aneinander und rechnet sie aufs Jahr um. „Zyklus-Muster“ nimmt die Rendite im gleichen Abstand zu den früheren Halvings. Alle drei sind Rückblicke; die Karten runden auf die 5-%-Schritte des Reglers und bleiben in seinem Bereich von −50 % bis +100 %. Der Regler setzt den Durchschnitt aller Läufe, die Karten beschreiben einen typischen Verlauf. Beides ist nur der Größenordnung nach vergleichbar.</li>
-            <li><b>Marktzeitung.</b> Die Schlagzeilen werden alle drei Stunden neu gesammelt und beim Öffnen der App geladen, aus öffentlichen Feeds von tagesschau, Handelsblatt, n-tv, MarketWatch, CNBC, BTC-Echo, Cointelegraph, Fed und EZB. Sie behält nur Meldungen, deren Titel zu Aktien, Krypto, Zinsen oder Konjunktur passt. Nach oben kommt, was nach starker Bewegung klingt: Wörter wie Crash oder Rekordhoch, Prozentangaben ab 5 % und große Namen. Das ist eine Stichwortsuche und kann danebenliegen. Ein Browser darf diese Feeds nicht selbst abrufen; das Sammeln übernimmt deshalb ein kleines Programm bei GitHub, das die Ausgabe neben der App ablegt. Ohne Internet zeigt die App die zuletzt geladene Ausgabe. Die Meldungen fließen nicht in die Rechnung ein.</li>
+            <li><b>Marktzeitung.</b> Die Schlagzeilen werden alle drei Stunden neu gesammelt und beim Öffnen der App geladen, aus öffentlichen Feeds von tagesschau, Handelsblatt, n-tv, MarketWatch, CNBC, BTC-Echo, Cointelegraph, Fed und EZB. Sie behält nur Meldungen, deren Titel zu Aktien, Krypto, Zinsen oder Konjunktur passt. Nach oben kommt, was nach starker Bewegung klingt: Wörter wie Crash oder Rekordhoch, Prozentangaben ab 5 % und große Namen. Das ist eine Stichwortsuche und kann danebenliegen. Ein Browser darf diese Feeds nicht selbst abrufen; das Sammeln übernimmt deshalb jede Stunde ein kleines Programm bei Cloudflare, ersatzweise eines bei GitHub. Ohne Internet zeigt die App die zuletzt geladene Ausgabe. Die Meldungen fließen nicht in die Rechnung ein.</li>
             <li><b>Grenzen.</b> Knapp zwei Jahre Daten decken nur eine Marktphase ab. Das Modell kennt keine Nachrichten, keine Regulierung, keinen Börsenausfall und keinen Totalverlust eines Coins. Je länger der Zeitraum, desto unsicherer das Ergebnis.</li>
           </ul>
           <p>Das Modell ist ein Rechenwerkzeug und keine Anlage- oder Steuerberatung. Quellen: <a href="https://bitvavo.com/en/fees" target="_blank" rel="noopener">Gebührenübersicht von Bitvavo</a> und <a href="https://www.bmf.gv.at/themen/steuern/sparen-veranlagen/steuerliche-behandlung-von-kryptowaehrungen.html" target="_blank" rel="noopener">Bundesministerium für Finanzen zur Besteuerung von Kryptowährungen</a>.</p>
@@ -4461,9 +4461,11 @@ const TREFFER = (function () {
   const RESSORTS = ['Aktien & Börse', 'Krypto', 'Zinsen & Konjunktur'];
   let NEWS = null;
   try { NEWS = JSON.parse($('newsdaten').textContent); } catch (e) { NEWS = null; }
-  // Frische Ausgaben legt eine GitHub-Action alle 3 Stunden als news.json ins Repo (github/news.yml);
-  // die zuletzt geladene merkt sich das Gerät, damit sie auch ohne Netz beim nächsten Start da ist.
-  const NEWS_URL = 'https://raw.githubusercontent.com/tobiasstippl-create/krypto-freunde/main/news.json', NEWS_KEY = 'krypto-freunde-news';
+  // Frische Ausgaben holt der Cloudflare-Worker jede Stunde (sync-worker/src/news.js); als Reserve legt eine
+  // GitHub-Action news.json ins Repo (github/news.yml). Die neuere gewinnt. Die zuletzt geladene merkt sich
+  // das Gerät, damit sie auch ohne Netz beim nächsten Start da ist.
+  const NEWS_QUELLEN = ['https://wealthlens-sync.tobias-stippl.workers.dev/v1/news', 'https://raw.githubusercontent.com/tobiasstippl-create/krypto-freunde/main/news.json'];
+  const NEWS_KEY = 'krypto-freunde-news';
   const newsZeit = function (n) { return n && typeof n.abruf === 'string' ? Date.parse(n.abruf) || 0 : 0; };
   const newsOk = function (n) { return !!(n && typeof n === 'object' && Array.isArray(n.meldungen) && newsZeit(n) > 0); };
   try { const g = JSON.parse(localStorage.getItem(NEWS_KEY) || 'null'); if (newsOk(g) && newsZeit(g) > newsZeit(NEWS)) NEWS = g; } catch (e) { /* egal */ }
@@ -4473,10 +4475,11 @@ const TREFFER = (function () {
     });
   };
   let MELD = meldungenAus(NEWS);
-  function holeNews() {
+  function holeNews() { NEWS_QUELLEN.forEach(holeNewsVon); }
+  function holeNewsVon(url) {
     const c = window.AbortController ? new AbortController() : null;
     const t = setTimeout(function () { if (c) c.abort(); }, 8000);
-    fetch(NEWS_URL + '?t=' + Math.floor(Date.now() / 3e5), Object.assign({ cache: 'no-store' }, c ? { signal: c.signal } : {}))
+    fetch(url + '?t=' + Math.floor(Date.now() / 3e5), Object.assign({ cache: 'no-store' }, c ? { signal: c.signal } : {}))
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (n) {
         clearTimeout(t);
