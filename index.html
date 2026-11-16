@@ -409,6 +409,8 @@ button:disabled{opacity:.5;cursor:default}
 details>summary{cursor:pointer;font-weight:500;font-size:14px}
 details[open]>summary{margin-bottom:10px}
 /* Aufgeklappte Liste: Windows zeichnet sie sonst weiß, die Einträge erben aber die helle Schrift → unlesbar */
+.sync-code{display:inline-block;font-family:ui-monospace,Consolas,monospace;font-size:clamp(11px,3.4vw,15px);letter-spacing:.02em;padding:6px 10px;border-radius:8px;background:var(--bg);white-space:nowrap;max-width:100%;overflow-x:auto;user-select:all}
+#sync-loeschen{color:var(--neg,#c0392b)}
 select option,select optgroup{background-color:var(--bg);color:var(--ink)}
 select option:disabled{color:var(--muted)}
 select{font:inherit;color:var(--ink);background:var(--sunken);border:1px solid var(--rand);border-radius:8px;padding:6px 8px;max-width:160px}
@@ -1530,6 +1532,45 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
         <details class="tw">
           <summary>Woher die Daten kommen</summary>
           <p class="cap">Bitcoin: mempool.space. Ethereum, Arbitrum, Base, Optimism, Polygon: Blockscout (Bestand, Tokens samt Dollarkurs und Spam-Einstufung). Solana: öffentlicher Knoten von publicnode, nur SOL selbst; Solana-Tokens lassen sich ohne Zugangsschlüssel nicht abfragen. Diese Dienste sehen die Adresse, die du abfragst, sonst nichts. Bewertet wird mit den Bitvavo-Kursen dieser App, für andere Tokens mit dem Dollarkurs von Blockscout. Tokens ohne Kurs, mit Spam-Einstufung oder unter 1 € Wert werden nicht angezeigt. Bei Bitcoin zählt nur genau diese eine Adresse; viele Wallets verteilen Bitcoin auf mehrere Adressen.</p>
+        </details>
+      </section>
+      <section class="sheet" id="sync" aria-labelledby="h-sync">
+        <header>
+          <h2 id="h-sync">Sync</h2>
+          <p>Halte Handy, Laptop und PC automatisch auf demselben Stand. Deine Daten werden auf dem Gerät verschlüsselt, bevor sie hochgeladen werden. Der Server sieht nur Zeichensalat, lesen kann sie nur, wer deinen Sync-Code hat.</p>
+        </header>
+        <p class="note callout" id="sync-status">Noch kein Sync auf diesem Gerät.</p>
+        <p class="note callout" id="sync-geholt" hidden>Neue Daten von deinem anderen Gerät übernommen.</p>
+        <div id="sync-aus">
+          <div class="btns">
+            <button type="button" class="primary" id="sync-neu">Sync einrichten</button>
+          </div>
+          <form class="fig" id="sync-form" autocomplete="off">
+            <h3>Schon auf einem anderen Gerät eingerichtet?</h3>
+            <div class="field">
+              <label for="sync-eingabe">Sync-Code von dort</label>
+              <input type="text" id="sync-eingabe" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXX" spellcheck="false" autocapitalize="characters" autocomplete="off">
+              <small id="sync-eingabe-hinweis" hidden></small>
+            </div>
+            <div class="btns"><button type="submit">Verbinden</button></div>
+          </form>
+        </div>
+        <div id="sync-an" hidden>
+          <details class="tw" id="sync-teilen-box">
+            <summary>Weiteres Gerät verbinden</summary>
+            <p class="cap">Öffne auf dem anderen Gerät diesen Link oder tippe dort unter Import → Sync den Code ein. Der Code ist der Schlüssel zu deinen Daten: schick ihn nur an dich selbst, nicht an andere.</p>
+            <p><code id="sync-code" class="sync-code"></code></p>
+            <div class="btns"><button type="button" id="sync-kopieren">Link kopieren</button></div>
+          </details>
+          <div class="btns">
+            <button type="button" id="sync-jetzt">Jetzt abgleichen</button>
+            <button type="button" id="sync-trennen">Auf diesem Gerät beenden</button>
+            <button type="button" id="sync-loeschen">Online löschen</button>
+          </div>
+        </div>
+        <details class="tw">
+          <summary>Wie der Sync funktioniert</summary>
+          <p class="cap">Abgeglichen werden Buchungen, Bestände, Aktien &amp; ETFs, Wallets, Sparpläne, Ziele und dein Kursschlüssel. Ansicht, Farbschema und ähnliche Einstellungen bleiben je Gerät. Beim Öffnen holt die App den neuesten Stand, Änderungen lädt sie automatisch hoch. Wurde dasselbe auf zwei Geräten geändert, bevor sie sich abgleichen konnten, fragt sie, welcher Stand gilt. Die Daten liegen verschlüsselt (AES-256) auf einem Server von Cloudflare. Ohne den Sync-Code kann sie niemand lesen, auch nicht der Betreiber. Geht der Code verloren, sind die Daten online nicht mehr zu öffnen, die auf deinen Geräten bleiben aber erhalten. Die Sicherungsdatei funktioniert weiter unabhängig vom Sync.</p>
         </details>
       </section>
       <section class="sheet" id="sicherung" aria-labelledby="h-sicherung">
@@ -4316,7 +4357,7 @@ const TREFFER = (function () {
     // Im November und Dezember steht „Jahresende“ vorne, sonst hinten
     steuer: new Date().getMonth() >= 10 ? [['steuer-ende', 'Jahresende'], ['steuerjahr', 'Krypto'], ['steuer-wp', 'Aktien & ETFs']]
       : [['steuerjahr', 'Krypto'], ['steuer-wp', 'Aktien & ETFs'], ['steuer-ende', 'Jahresende']],
-    import: [['import', 'CSV-Dateien'], ['nachkauf', 'Nachkauf'], ['wertpapiere', 'Wertpapiere'], ['wallets', 'Wallets'], ['sicherung', 'Sicherung']],
+    import: [['import', 'CSV-Dateien'], ['nachkauf', 'Nachkauf'], ['wertpapiere', 'Wertpapiere'], ['wallets', 'Wallets'], ['sync', 'Sync'], ['sicherung', 'Sicherung']],
     risiko: [['check', 'Portfolio-Check'], ['bandbreite', 'Bandbreite'], ['risiko', 'Risiko'], ['stresstest', 'Stresstest'], ['treffer', 'Trefferquote']],
     planung: [['ziele', 'Ziele'], ['umschichten', 'Umschichten'], ['trendhilfe', 'Trend ableiten'], ['coins', 'Coins']]
   };
@@ -5533,7 +5574,7 @@ const TREFFER = (function () {
   // Kurse lassen sich neu holen; der eigene Kursschlüssel wandert mit, damit man ihn nur einmal einträgt
   var STAND = 'krypto-freunde-sicherung-stand';
   var PRAEFIX = 'krypto-freunde-', OHNE = { 'krypto-freunde-kurse': 1, 'krypto-freunde-ohne-kurs': 1, 'krypto-freunde-cg-ids': 1, 'krypto-freunde-wp-kurse': 1, 'krypto-freunde-wp-notzaehler': 1, 'krypto-freunde-wal-stand': 1,
-    'krypto-freunde-app-hinweis': 1, 'krypto-freunde-sicherung-stand': 1, 'krypto-freunde-wp-onvista': 1, 'krypto-freunde-news': 1 };
+    'krypto-freunde-app-hinweis': 1, 'krypto-freunde-sicherung-stand': 1, 'krypto-freunde-wp-onvista': 1, 'krypto-freunde-news': 1, 'krypto-freunde-sync': 1 };
   var $ = function (id) { return document.getElementById(id); };
   var status = $('sich-status');
   if (!status) return;
@@ -10160,6 +10201,358 @@ const TREFFER = (function () {
     hinweis.textContent = t;
     hinweis.hidden = !t;
   }
+})();
+</script>
+<script>
+/* Sync: gleicht die eigenen Daten verschlüsselt zwischen den eigenen Geräten ab (Worker auf Cloudflare).
+   Aus dem Sync-Code entstehen Kennung, Schreibschlüssel und AES-Schlüssel; der Worker sieht nur verschlüsselte Pakete.
+   Abgleich je Speicherschlüssel gegen den Stand des letzten Abgleichs (basis): nur hier geändert → hochladen,
+   nur dort geändert → übernehmen, auf beiden geändert → fragen. Tageswerte und Logbuch werden zusammengeführt. */
+(function () {
+  'use strict';
+  var DIENST = 'https://wealthlens-sync.tobias-stippl.workers.dev';
+  // Nur zum Testen auf dem eigenen Rechner: lokaler Worker (npx wrangler dev)
+  try { if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && sessionStorage.getItem('sync-test-dienst')) DIENST = sessionStorage.getItem('sync-test-dienst'); } catch (e) { /* egal */ }
+  var ZUSTAND = 'krypto-freunde-sync';
+  var MODELL = 'krypto-freunde-modell-2';
+  // Nur Daten wandern mit; Ansicht, Reiter, Farbschema usw. bleiben je Gerät
+  var SCHLUESSEL = [MODELL, 'krypto-freunde-wertpapiere', 'krypto-freunde-wallets', 'krypto-freunde-sparplaene',
+    'krypto-freunde-ziele', 'krypto-freunde-sparrechner', 'krypto-freunde-wp-schluessel'];
+  var NAMEN = {}; NAMEN[MODELL] = 'Krypto (Buchungen, Bestände, Einstellungen)';
+  NAMEN['krypto-freunde-wertpapiere'] = 'Aktien & ETFs'; NAMEN['krypto-freunde-wallets'] = 'Wallets';
+  NAMEN['krypto-freunde-sparplaene'] = 'Sparpläne'; NAMEN['krypto-freunde-ziele'] = 'Ziele';
+  NAMEN['krypto-freunde-sparrechner'] = 'Sparrechner'; NAMEN['krypto-freunde-wp-schluessel'] = 'Kursschlüssel';
+  var PAUSE_HOCH = 120000; // höchstens alle 2 Minuten hochladen, solange die App offen ist
+  var $ = function (id) { return document.getElementById(id); };
+  if (!$('sync')) return;
+
+  var enc = new TextEncoder(), dec = new TextDecoder();
+  var ALPHA = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'; // Crockford-Base32: ohne I, L, O, U
+
+  // ---------- Zustand (nur auf diesem Gerät, nicht in der Sicherungsdatei) ----------
+  function zustand() { try { return JSON.parse(localStorage.getItem(ZUSTAND) || 'null') || {}; } catch (e) { return {}; } }
+  function merke(z) { try { localStorage.setItem(ZUSTAND, JSON.stringify(z)); } catch (e) { /* gesperrt */ } }
+
+  // ---------- Sync-Code ----------
+  function pruefzeichen(werte) { var s = 0; werte.forEach(function (w, i) { s = (s + w * (i + 1)) % 32; }); return ALPHA[s]; }
+  function neuerCode() {
+    var b = crypto.getRandomValues(new Uint8Array(16)), bits = '', werte = [];
+    b.forEach(function (x) { bits += x.toString(2).padStart(8, '0'); });
+    bits += '00';
+    for (var i = 0; i < bits.length; i += 5) werte.push(parseInt(bits.slice(i, i + 5), 2));
+    var s = werte.map(function (w) { return ALPHA[w]; }).join('') + pruefzeichen(werte);
+    return s.match(/.{1,4}/g).join('-');
+  }
+  // Liefert die 16 Byte oder null (Tippfehler)
+  function leseCode(text) {
+    var s = String(text || '').toUpperCase().replace(/[^0-9A-Z]/g, '').replace(/[IL]/g, '1').replace(/O/g, '0');
+    if (s.length !== 27) return null;
+    var werte = [];
+    for (var i = 0; i < 26; i++) { var w = ALPHA.indexOf(s[i]); if (w < 0) return null; werte.push(w); }
+    if (pruefzeichen(werte) !== s[26] || (werte[25] & 3)) return null;
+    var bits = werte.map(function (w) { return w.toString(2).padStart(5, '0'); }).join(''), b = new Uint8Array(16);
+    for (var j = 0; j < 16; j++) b[j] = parseInt(bits.slice(j * 8, j * 8 + 8), 2);
+    return b;
+  }
+  function schoen(text) { var b = leseCode(text); return b ? String(text).toUpperCase().replace(/[^0-9A-Z]/g, '').match(/.{1,4}/g).join('-') : null; }
+
+  var hex = function (buf) { return Array.prototype.map.call(new Uint8Array(buf), function (x) { return x.toString(16).padStart(2, '0'); }).join(''); };
+  var abgeleitet = {};
+  async function schluessel(code) {
+    if (abgeleitet[code]) return abgeleitet[code];
+    var roh = leseCode(code);
+    if (!roh) throw new Error('code');
+    var basis = await crypto.subtle.importKey('raw', roh, 'HKDF', false, ['deriveBits', 'deriveKey']);
+    var salz = enc.encode('wealthlens-sync-v1');
+    var par = function (info) { return { name: 'HKDF', hash: 'SHA-256', salt: salz, info: enc.encode(info) }; };
+    var k = {
+      id: hex(await crypto.subtle.deriveBits(par('id'), basis, 256)),
+      token: hex(await crypto.subtle.deriveBits(par('token'), basis, 256)),
+      key: await crypto.subtle.deriveKey(par('key'), basis, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt'])
+    };
+    abgeleitet[code] = k;
+    return k;
+  }
+
+  // ---------- Verpacken ----------
+  function b64(u8) { var s = ''; for (var i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+  function unb64(s) { var t = atob(s), u = new Uint8Array(t.length); for (var i = 0; i < t.length; i++) u[i] = t.charCodeAt(i); return u; }
+  async function strom(u8, art) { return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(art)).arrayBuffer()); }
+  async function verschluesseln(k, obj) {
+    var roh = enc.encode(JSON.stringify(obj)), art = 0;
+    if (window.CompressionStream) { roh = await strom(roh, new CompressionStream('gzip')); art = 1; }
+    var klar = new Uint8Array(roh.length + 1); klar[0] = art; klar.set(roh, 1);
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    var ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv, additionalData: enc.encode(k.id) }, k.key, klar));
+    var alles = new Uint8Array(12 + ct.length); alles.set(iv); alles.set(ct, 12);
+    return 'v1.' + b64(alles);
+  }
+  async function entschluesseln(k, text) {
+    if (typeof text !== 'string' || text.indexOf('v1.') !== 0) throw new Error('format');
+    var alles = unb64(text.slice(3));
+    var klar = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: alles.subarray(0, 12), additionalData: enc.encode(k.id) }, k.key, alles.subarray(12)));
+    var roh = klar.subarray(1);
+    if (klar[0] === 1) {
+      if (!window.DecompressionStream) throw new Error('entpacken');
+      roh = await strom(roh, new DecompressionStream('gzip'));
+    }
+    var obj = JSON.parse(dec.decode(roh));
+    if (!obj || obj.app !== 'krypto-freunde' || !obj.daten || typeof obj.daten !== 'object') throw new Error('format');
+    return obj;
+  }
+
+  // ---------- Dienst ----------
+  async function anfrage(pfad, opt) {
+    var ctrl = new AbortController(), t = setTimeout(function () { ctrl.abort(); }, 20000);
+    try {
+      opt = opt || {}; opt.signal = ctrl.signal; opt.cache = 'no-store';
+      return await fetch(DIENST + pfad, opt);
+    } finally { clearTimeout(t); }
+  }
+  async function holen(k) {
+    var r = await anfrage('/v1/s/' + k.id);
+    if (r.status === 404) return null;
+    if (!r.ok) throw new Error('http ' + r.status);
+    var j = await r.json();
+    return j && j.leer ? null : j;
+  }
+  async function senden(k, basisV, daten) {
+    var paket = await verschluesseln(k, { app: 'krypto-freunde', v: 1, zeit: new Date().toISOString(), geraet: geraet(), daten: daten });
+    var r = await anfrage('/v1/s/' + k.id, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Token': k.token }, body: JSON.stringify({ basis: basisV, daten: paket }) });
+    if (r.status === 409) return { konflikt: true };
+    if (r.status === 403) throw new Error('fremd');
+    if (r.status === 413) throw new Error('gross');
+    if (!r.ok) throw new Error('http ' + r.status);
+    return r.json();
+  }
+  function geraet() {
+    var u = navigator.userAgent;
+    return /iPhone/.test(u) ? 'iPhone' : /iPad/.test(u) ? 'iPad' : /Android/.test(u) ? 'Android' : /Mac/.test(u) ? 'Mac' : /Windows/.test(u) ? 'Windows-PC' : 'Gerät';
+  }
+
+  // ---------- Vergleichen und Zusammenführen ----------
+  function sammle() {
+    var d = {};
+    SCHLUESSEL.forEach(function (k) { var v = localStorage.getItem(k); if (v != null) d[k] = v; });
+    return d;
+  }
+  // Tageswerte (snaps) und Logbuch (prog) schreibt jedes Gerät von selbst; sie zählen nicht als Änderung
+  function norm(k, v) {
+    if (v == null) return null;
+    if (k !== MODELL) return v;
+    try { var o = JSON.parse(v); delete o.snaps; delete o.prog; return JSON.stringify(o); } catch (e) { return v; }
+  }
+  function h(s) {
+    if (s == null) return '-';
+    var x = 5381, y = 52711;
+    for (var i = 0; i < s.length; i++) { var c = s.charCodeAt(i); x = ((x * 33) ^ c) >>> 0; y = ((y * 31) + c) >>> 0; }
+    return x.toString(36) + y.toString(36) + '.' + s.length;
+  }
+  function abdruecke(d) { var r = {}; SCHLUESSEL.forEach(function (k) { r[k] = h(norm(k, d[k])); }); return r; }
+  function vereinige(a, b, schl) {
+    var m = {};
+    (a || []).concat(b || []).forEach(function (x) { if (Array.isArray(x)) m[schl(x)] = m[schl(x)] || x; });
+    return Object.keys(m).sort().map(function (s) { return m[s]; });
+  }
+  // Nimmt das Modell von hier und ergänzt Tageswerte/Logbuch vom anderen Gerät
+  function mische(hier, dort) {
+    try {
+      var a = JSON.parse(hier), b = JSON.parse(dort);
+      a.snaps = vereinige(a.snaps, b.snaps, function (x) { return String(x[0]); }).slice(-2000);
+      a.prog = vereinige(a.prog, b.prog, function (x) { return x[0] + '|' + x[1]; }).slice(-400);
+      return JSON.stringify(a);
+    } catch (e) { return hier; }
+  }
+  function echteDaten(d) {
+    function j(k) { try { return JSON.parse(d[k] || 'null'); } catch (e) { return null; } }
+    var m = j(MODELL) || {}, wp = j('krypto-freunde-wertpapiere') || {}, wal = j('krypto-freunde-wallets') || {};
+    return (m.tx && m.tx.length > 0) || (m.cash > 0) || (m.extra && m.extra.length > 0) || (m.hand && m.hand.length > 0)
+      || (m.pos || []).some(function (p) { return p && (p.stueck > 0 || p.einstand > 0); })
+      || (wp.liste && wp.liste.length > 0) || (wal.liste && wal.liste.length > 0);
+  }
+
+  // ---------- Abgleich ----------
+  var laeuft = false, nochmal = false, letzterHoch = 0;
+  async function abgleich(anlass) {
+    var z = zustand();
+    if (!z.code) return;
+    if (laeuft) { nochmal = true; return; }
+    laeuft = true;
+    zeige('arbeit');
+    try {
+      await runde(anlass, 0);
+    } catch (e) {
+      var m = e && e.message;
+      var z2 = zustand(); z2.fehler = m === 'fremd' ? 'fremd' : m === 'gross' ? 'gross' : m === 'format' ? 'format' : 'netz'; merke(z2);
+    } finally {
+      laeuft = false;
+      zeige();
+      if (nochmal) { nochmal = false; setTimeout(function () { abgleich('nochmal'); }, 500); }
+    }
+  }
+
+  async function runde(anlass, versuch) {
+    var z = zustand(), k = await schluessel(z.code);
+    var r = await holen(k);
+    var lokal = sammle(), lh = abdruecke(lokal), basis = z.basis || null;
+    var neu = {}, fern = null, fh = null;
+    SCHLUESSEL.forEach(function (s) { if (lokal[s] != null) neu[s] = lokal[s]; });
+
+    if (!r && z.v > 0) {
+      // Online gelöscht (vom anderen Gerät aus): hier aufhören, Daten bleiben
+      merke({ getrennt: 'geloescht' });
+      return;
+    }
+    if (r && r.v < (z.v || 0)) return; // veraltete Antwort aus einem Zwischenspeicher, später nochmal
+
+    if (r && (r.v > (z.v || 0) || !basis)) {
+      var paket = await entschluesseln(k, r.daten);
+      fern = {}; SCHLUESSEL.forEach(function (s) { if (typeof paket.daten[s] === 'string') fern[s] = paket.daten[s]; });
+      fh = abdruecke(fern);
+      if (!basis) {
+        // Erstes Verbinden dieses Geräts
+        var nimmFern = true;
+        if (echteDaten(lokal) && echteDaten(fern)) {
+          var gleich = SCHLUESSEL.every(function (s) { return lh[s] === fh[s]; });
+          nimmFern = gleich || window.confirm('Auf diesem Gerät und im Sync liegen schon Daten.\n\nOK: die Daten aus dem Sync übernehmen (die hier werden ersetzt).\nAbbrechen: die Daten von diesem Gerät behalten und in den Sync laden (die anderen Geräte bekommen sie dann).');
+        } else if (echteDaten(lokal) && !echteDaten(fern)) nimmFern = false;
+        if (nimmFern) { neu = {}; SCHLUESSEL.forEach(function (s) { if (fern[s] != null) neu[s] = fern[s]; }); }
+      } else {
+        var streit = [];
+        SCHLUESSEL.forEach(function (s) {
+          var hierNeu = lh[s] !== basis[s], dortNeu = fh[s] !== basis[s];
+          if (dortNeu && !hierNeu) { if (fern[s] == null) delete neu[s]; else neu[s] = fern[s]; }
+          else if (dortNeu && hierNeu && lh[s] !== fh[s]) streit.push(s);
+        });
+        if (streit.length) {
+          var dort = window.confirm('Auf zwei Geräten wurde seit dem letzten Abgleich dasselbe geändert: '
+            + streit.map(function (s) { return NAMEN[s] || s; }).join(', ') + '.\n\nOK: den Stand vom anderen Gerät ('
+            + (paket.geraet || 'Gerät') + ', ' + zeit(paket.zeit) + ') übernehmen.\nAbbrechen: den Stand von diesem Gerät behalten.');
+          if (dort) streit.forEach(function (s) { if (fern[s] == null) delete neu[s]; else neu[s] = fern[s]; });
+        }
+      }
+      if (neu[MODELL] && fern[MODELL] && neu[MODELL] !== fern[MODELL]) neu[MODELL] = mische(neu[MODELL], fern[MODELL]);
+    }
+
+    // Übernehmen, was sich hier ändert
+    var geaendert = false;
+    SCHLUESSEL.forEach(function (s) {
+      if (neu[s] === lokal[s]) return;
+      geaendert = true;
+      if (neu[s] == null) localStorage.removeItem(s); else localStorage.setItem(s, neu[s]);
+    });
+
+    // Hochladen, wenn sich das Ergebnis vom Online-Stand unterscheidet
+    var nh = abdruecke(neu), onlineH = fh || basis, vNeu = r ? r.v : 0, zeitNeu = r ? r.zeit : null;
+    var anders = !r || !onlineH || SCHLUESSEL.some(function (s) { return nh[s] !== onlineH[s]; });
+    var darf = anlass !== 'takt' || Date.now() - letzterHoch > PAUSE_HOCH;
+    if (anders && darf && (r || echteDaten(neu))) {
+      var a = await senden(k, vNeu, neu);
+      if (a.konflikt) {
+        if (versuch < 2) return runde(anlass, versuch + 1);
+        throw new Error('netz');
+      }
+      vNeu = a.v; zeitNeu = a.zeit; letzterHoch = Date.now();
+    } else if (anders) {
+      // Später hochladen; Basis bleibt beim Online-Stand
+      nh = onlineH;
+    }
+    var z2 = zustand();
+    if (z2.code !== z.code) return; // inzwischen getrennt
+    z2.v = vNeu; z2.basis = nh; z2.zuletzt = new Date().toISOString(); z2.online = zeitNeu; delete z2.fehler;
+    merke(z2);
+    if (geaendert) {
+      sessionStorage.setItem('krypto-freunde-sync-neu', '1');
+      location.reload();
+    }
+  }
+
+  // ---------- Anzeige ----------
+  function zeit(iso) { var d = new Date(iso); return isNaN(d) ? '?' : d.toLocaleString('de-DE', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' Uhr'; }
+  function link(code) { return location.origin + location.pathname + '#sync=' + code.replace(/-/g, ''); }
+  function zeige(art) {
+    var z = zustand(), an = !!z.code;
+    $('sync-aus').hidden = an; $('sync-an').hidden = !an;
+    var st = $('sync-status');
+    if (z.getrennt === 'geloescht') {
+      st.textContent = 'Der Sync wurde auf einem anderen Gerät gelöscht. Deine Daten auf diesem Gerät sind noch da. Du kannst einen neuen Sync einrichten.';
+      st.className = 'note callout warn';
+      return;
+    }
+    if (!an) { st.textContent = 'Noch kein Sync auf diesem Gerät.'; st.className = 'note callout'; return; }
+    $('sync-code').textContent = z.code;
+    if (art === 'arbeit') { st.textContent = 'Gleiche ab …'; st.className = 'note callout'; return; }
+    var f = { netz: 'Der Sync-Dienst war gerade nicht erreichbar. Deine Daten sind hier sicher, der Abgleich holt das beim nächsten Öffnen nach.',
+      fremd: 'Der Dienst lehnt den Schlüssel ab. Prüfe den Sync-Code oder richte den Sync neu ein.',
+      gross: 'Deine Daten sind für den Sync zu groß (über 5 MB). Nutze die Sicherungsdatei.',
+      format: 'Die Daten im Sync ließen sich nicht entschlüsseln. Stimmt der Sync-Code?' }[z.fehler];
+    if (f) { st.textContent = f; st.className = 'note callout warn'; return; }
+    st.textContent = z.zuletzt ? 'Abgeglichen am ' + zeit(z.zuletzt) + '. Änderungen gehen automatisch an deine anderen Geräte.' : 'Verbunden, noch nicht abgeglichen.';
+    st.className = 'note callout';
+  }
+
+  function verbinde(code) {
+    merke({ code: code });
+    zeige();
+    abgleich('verbinden');
+  }
+
+  $('sync-neu').addEventListener('click', function () {
+    if (!window.crypto || !crypto.subtle) { window.alert('Dieser Browser kann nicht verschlüsseln. Öffne Wealthlens über den Link (https).'); return; }
+    verbinde(neuerCode(), true);
+    $('sync-teilen-box').open = true;
+  });
+  $('sync-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var c = schoen($('sync-eingabe').value);
+    if (!c) { $('sync-eingabe-hinweis').textContent = 'Der Code stimmt nicht. Er hat 27 Zeichen, z. B. AB12-CD34-…; vertippt?'; $('sync-eingabe-hinweis').hidden = false; return; }
+    $('sync-eingabe-hinweis').hidden = true; $('sync-eingabe').value = '';
+    verbinde(c, false);
+  });
+  $('sync-jetzt').addEventListener('click', function () { abgleich('knopf'); });
+  $('sync-kopieren').addEventListener('click', function () {
+    var z = zustand(); if (!z.code) return;
+    var t = link(z.code), knopf = this;
+    if (navigator.share && /Android|iPhone|iPad/.test(navigator.userAgent)) { navigator.share({ title: 'Wealthlens-Sync', url: t }).catch(function () {}); return; }
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () {
+      knopf.textContent = 'Link kopiert'; setTimeout(function () { knopf.textContent = 'Link kopieren'; }, 2500);
+    }).catch(function () { window.prompt('Link zum Kopieren:', t); });
+  });
+  $('sync-trennen').addEventListener('click', function () {
+    if (!window.confirm('Sync auf diesem Gerät beenden? Deine Daten bleiben hier, sie werden nur nicht mehr abgeglichen. Die anderen Geräte syncen weiter.')) return;
+    merke({}); zeige();
+  });
+  $('sync-loeschen').addEventListener('click', function () {
+    var z = zustand(); if (!z.code) return;
+    if (!window.confirm('Die Daten online löschen? Danach syncen ALLE Geräte nicht mehr. Die Daten auf den Geräten selbst bleiben erhalten.')) return;
+    schluessel(z.code).then(function (k) {
+      return anfrage('/v1/s/' + k.id, { method: 'DELETE', headers: { 'X-Token': k.token } });
+    }).then(function (r) {
+      if (!r.ok) throw new Error();
+      merke({}); zeige();
+    }).catch(function () { window.alert('Löschen hat nicht geklappt (keine Verbindung?). Versuch es später nochmal.'); });
+  });
+
+  // Link mit #sync=… : Code übernehmen und aus der Adresse entfernen
+  var m = location.hash.match(/^#sync=([0-9A-Za-z-]+)$/);
+  if (m) {
+    history.replaceState(null, '', location.pathname + location.search);
+    var c = schoen(m[1]), z0 = zustand();
+    if (c && z0.code !== c && window.confirm('Dieses Gerät mit deinem Wealthlens-Sync verbinden? Deine Daten werden dann zwischen deinen Geräten abgeglichen.')) verbinde(c, false);
+  }
+
+  if (sessionStorage.getItem('krypto-freunde-sync-neu')) {
+    sessionStorage.removeItem('krypto-freunde-sync-neu');
+    var hinweis = $('sync-geholt');
+    if (hinweis) { hinweis.hidden = false; setTimeout(function () { hinweis.hidden = true; }, 6000); }
+  }
+
+  zeige();
+  // Erst abgleichen, wenn die App ihre Daten geschrieben hat
+  setTimeout(function () { abgleich('start'); }, 2500);
+  document.addEventListener('visibilitychange', function () { abgleich(document.visibilityState === 'visible' ? 'zurueck' : 'weg'); });
+  setInterval(function () { if (document.visibilityState === 'visible') abgleich('takt'); }, 60000);
+  window.SYNC = { abgleich: abgleich, zustand: zustand };
 })();
 </script>
 <script>
