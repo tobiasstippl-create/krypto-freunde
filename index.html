@@ -406,6 +406,9 @@ button:disabled{opacity:.5;cursor:default}
 .btns{display:flex;flex-wrap:wrap;gap:8px}
 details>summary{cursor:pointer;font-weight:500;font-size:14px}
 details[open]>summary{margin-bottom:10px}
+/* Aufgeklappte Liste: Windows zeichnet sie sonst weiß, die Einträge erben aber die helle Schrift → unlesbar */
+select option,select optgroup{background-color:var(--bg);color:var(--ink)}
+select option:disabled{color:var(--muted)}
 select{font:inherit;color:var(--ink);background:var(--sunken);border:1px solid var(--rand);border-radius:8px;padding:6px 8px;max-width:160px}
 .linkknopf{align-self:flex-start;font-size:13px;padding:5px 10px}
 
@@ -765,6 +768,8 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
 .ov-wahl-liste .check small{display:block;color:var(--muted);font-size:12px}
 .ov-wahl-liste .fest{opacity:.75}
 .ov .ov-aus{display:none!important}
+/* Nach dem Verteilen auf die Spalten nicht jedes Mal neu einblenden */
+.ov.verteilt .stapel>*{animation:none}
 /* Neue Übersichtskarten */
 .sheet>header.reihe .wahl{flex:none}
 .sheet>header.reihe .wahl button{padding:4px 10px;font-size:12.5px}
@@ -899,12 +904,12 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
         </section>
         <div class="ov">
           <div class="stapel">
-            <section class="sheet leer-karte" id="leer-hinweis" hidden>
+            <section class="sheet leer-karte" id="leer-hinweis" data-karte="leer" hidden>
               <h2>Noch kein Portfolio</h2>
               <p>Lies deinen Transaktionsverlauf von Bitvavo, Bitpanda oder Trade Republic ein. Aktien, ETFs und Wallets trägst du ebenfalls im Bereich Import ein. Aus den Dateien rechnet die App deine Stückzahlen und den Einstand und füllt Wertverlauf, Bandbreite, Risiko und Steuerübersicht.</p>
               <div class="btns"><button type="button" class="primary" data-go="import" data-ziel="import">Zum Import</button></div>
             </section>
-            <section class="sheet gv" id="ov-gesamt" aria-labelledby="h-ov-gesamt" hidden>
+            <section class="sheet gv" id="ov-gesamt" data-karte="gesamt" aria-labelledby="h-ov-gesamt" hidden>
               <p class="k" id="h-ov-gesamt">Gesamtvermögen</p>
               <p class="hero-v" id="ov-gesamt-wert">–</p>
               <div class="gv-balken" id="ov-gesamt-balken" aria-hidden="true"></div>
@@ -971,7 +976,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
             </section>
           </div>
           <div class="stapel">
-            <section class="sheet" aria-labelledby="h-ov-news">
+            <section class="sheet" data-karte="news" aria-labelledby="h-ov-news">
               <header class="reihe"><h2 id="h-ov-news">Schlagzeile</h2><button type="button" data-go="markt">Zur Marktzeitung</button></header>
               <div id="ov-news"></div>
             </section>
@@ -1013,7 +1018,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
               <header><h2 id="h-ov-zins">Nächste Zinsentscheide</h2></header>
               <div class="zinsen" id="ov-zins"></div>
             </section>
-            <section class="sheet" hidden aria-labelledby="h-ov-import">
+            <section class="sheet" data-karte="import" hidden aria-labelledby="h-ov-import">
               <header class="reihe"><h2 id="h-ov-import">Import</h2><button type="button" data-go="import" data-ziel="import">Zum Import</button></header>
               <p class="cap" id="ov-import"></p>
             </section>
@@ -1662,7 +1667,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
           <h2 id="h-sj">Krypto</h2>
           <p>Realisierte Gewinne und Verluste eines Jahres aus deinen Verkäufen, gerechnet mit dem gleitenden Durchschnittspreis.</p>
         </header>
-        <p class="note callout" id="sj-leer">Dafür braucht die App deine Transaktionen. Lies in der Ansicht „Portfolio“ deinen Transaktionsverlauf ein.</p>
+        <p class="note callout" id="sj-leer">Dafür braucht die App deine Transaktionen. Lies im Bereich „Import“ deinen Transaktionsverlauf ein.</p>
         <div class="fig" id="sj-inhalt" hidden>
           <div class="field wide noprint">
             <label for="sj-jahr">Jahr</label>
@@ -1688,7 +1693,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
           <h2 id="h-swp">Aktien &amp; ETFs</h2>
           <p>Kursgewinne, Verluste und Dividenden eines Jahres mit 27,5 % Kapitalertragsteuer (Österreich): je Bank, über alle Banken und zusammen mit Krypto.</p>
         </header>
-        <p class="note callout" id="swp-leer">Dafür braucht die App Wertpapier-Buchungen. Lies im Bereich Import deine Datei von Trade Republic oder Bitpanda ein. Für Banken ohne Datei (z. B. flatex) trägst du unten die Jahreswerte aus deiner Steuerbescheinigung ein.</p>
+        <div class="note callout" id="swp-leer"><p>Dafür braucht die App Wertpapier-Buchungen. Lies im Bereich Import deine Datei von Trade Republic oder Bitpanda ein. Für Banken ohne Datei (z. B. flatex) trägst du unten die Jahreswerte aus deiner Steuerbescheinigung ein.</p></div>
         <div class="fig" id="swp-inhalt" hidden>
           <div class="field wide noprint">
             <label for="swp-jahr">Jahr</label>
@@ -6162,11 +6167,39 @@ const TREFFER = (function () {
     return Object.keys(j).map(Number).sort(function (a, b) { return b - a; });
   }
 
+  // Leere Steuer-Ansicht: genau sagen, woran es liegt (alte Datei-Fassung, nur Käufe, Bank von Hand)
+  function leerGrund() {
+    var box = $('swp-leer'), teile = [];
+    var alt = window.WP.ohneBuchungen ? window.WP.ohneBuchungen() : [];
+    var ev = window.WP.ereignisse(), kaeufe = {};
+    ev.forEach(function (e) { if (e.art === 'kauf' || e.art === 'zugang') kaeufe[e.bank] = (kaeufe[e.bank] || 0) + 1; });
+    var ziele = window.WP.ziele ? window.WP.ziele() : [];
+    var hand = [];
+    ziele.forEach(function (z) { if (!z.ausDatei && alt.indexOf(z.bank) < 0) { var b = z.bank || 'ohne Bank'; if (hand.indexOf(b) < 0) hand.push(b); } });
+    if (alt.length) teile.push({ t: alt.join(', ') + ': Die Datei wurde mit einer älteren Fassung der App eingelesen, darin fehlen die einzelnen Käufe, Verkäufe und Dividenden. Lies dieselbe Datei im Bereich Import einfach noch einmal ein. Doppelte Buchungen zählen dabei nur einmal.', knopf: 'Zum Import' });
+    var mitKauf = Object.keys(kaeufe);
+    if (mitKauf.length) teile.push({ t: mitKauf.map(function (b) { return b + ': ' + kaeufe[b] + (kaeufe[b] === 1 ? ' Kauf' : ' Käufe'); }).join(', ') + ' eingelesen, aber noch keine Verkäufe und keine Dividenden. KESt fällt erst beim Verkauf mit Gewinn und bei Ausschüttungen an, bisher gibt es hier also nichts zu versteuern. Bei thesaurierenden ETFs ziehen Trade Republic und Bitpanda die jährlichen ausschüttungsgleichen Erträge selbst ab.' });
+    if (hand.length) teile.push({ t: hand.join(', ') + ': Diese Wertpapiere hast du von Hand eingetragen. Daraus kennt die App keine Verkäufe oder Dividenden. Trag dafür unten die Jahreswerte aus der Steuerbescheinigung deiner Bank ein, sobald es welche gibt.', hand: true });
+    if (!teile.length) teile.push({ t: 'Dafür braucht die App Wertpapier-Buchungen. Lies im Bereich Import deine Datei von Trade Republic oder Bitpanda ein. Für Banken ohne Datei (z. B. flatex) trägst du unten die Jahreswerte aus deiner Steuerbescheinigung ein.', knopf: 'Zum Import' });
+    box.textContent = '';
+    teile.forEach(function (x, i) {
+      var p = el('p', { text: x.t });
+      if (i) p.style.marginTop = '8px';
+      box.append(p);
+      if (x.knopf) {
+        var b = el('button', { type: 'button', text: x.knopf });
+        b.setAttribute('data-go', 'import'); b.setAttribute('data-ziel', 'import');
+        box.append(el('div', { class: 'btns' }, [b]));
+      }
+    });
+    if (teile.some(function (x) { return x.hand; })) $('swp-hand').open = true;
+  }
+
   function zeichneSteuer() {
     var js = jahre(), hat = js.length > 0;
     $('swp-leer').hidden = hat; $('swp-inhalt').hidden = !hat;
     zeichneHand();
-    if (!hat) return;
+    if (!hat) { leerGrund(); return; }
     if (jahr === null || js.indexOf(jahr) < 0) jahr = js[0];
     var sel = $('swp-jahr');
     if (sel.options.length !== js.length || +sel.options[0].value !== js[0]) {
@@ -8161,9 +8194,79 @@ const TREFFER = (function () {
         el.classList.toggle('ov-aus', !an);
       }
     });
-    // Karten, die erst sichtbar werden, zeichnen sich neu (Breite war 0)
-    document.dispatchEvent(new Event('uebersicht-karten'));
+    if (typeof oeffneFenster === 'function') oeffneFenster();
+    verteileBald(0);
   }
+
+  // ---------- Karten auf zwei Spalten verteilen ----------
+  // Feste Reihenfolge nach Wichtigkeit; Gesamtvermögen und Krypto & Cash bleiben links (breite Spalte),
+  // die Schlagzeile rechts, alles andere kommt jeweils in die gerade kürzere Spalte.
+  // Bei einer Spalte (schmales Fenster, Handy) stehen alle Karten in dieser Reihenfolge untereinander.
+  var REIHE = ['leer', 'gesamt', 'news', 'krypto', 'wp', 'wal', 'gverlauf', 'gewinner', 'kverlauf', 'anlegertyp',
+    'kacheln', 'alloc', 'check', 'sparrechner', 'zins', 'import'];
+  var FEST = { leer: 'L', gesamt: 'L', krypto: 'L', news: 'R' };
+  var ov = document.querySelector('.ov');
+  var spalten = ov ? ov.querySelectorAll(':scope > .stapel') : [];
+  var LUECKE = 20;
+  function verteile() {
+    if (!ov || spalten.length < 2 || !ov.clientWidth) return;
+    var L = spalten[0], R = spalten[1];
+    var karten = REIHE.map(function (k) { return ov.querySelector('[data-karte="' + k + '"]'); }).filter(Boolean);
+    var zwei = getComputedStyle(ov).gridTemplateColumns.trim().split(/\s+/).length > 1;
+    // Höhen dort messen, wo die Karten gerade stehen; in der anderen Spalte sind sie etwas höher oder flacher,
+    // das genügt für die Aufteilung. Die rechte Spalte ist schmaler, ihre Karten also etwas höher: leicht gewichten.
+    var faktorR = R.clientWidth && L.clientWidth ? L.clientWidth / R.clientWidth : 1;
+    var hoehe = function (c, ziel) {
+      if (!c.offsetHeight) return 0;
+      var h = c.offsetHeight, inL = c.parentNode === L;
+      if (ziel === 'R' && inL) h *= Math.min(1.4, faktorR); else if (ziel === 'L' && !inL) h /= Math.min(1.4, faktorR);
+      return h + LUECKE;
+    };
+    var hl = 0, hr = 0, links = [], rechts = [];
+    karten.forEach(function (c) {
+      var k = c.getAttribute('data-karte');
+      var ziel = !zwei ? 'L' : FEST[k] || (hl <= hr ? 'L' : 'R');
+      if (ziel === 'L') { links.push(c); hl += hoehe(c, 'L'); } else { rechts.push(c); hr += hoehe(c, 'R'); }
+    });
+    // Nur bewegen, was nicht schon an seinem Platz steht (ein verschobenes Video würde sonst anhalten)
+    var bewegt = false;
+    [[L, links], [R, rechts]].forEach(function (p) {
+      p[1].forEach(function (c, i) {
+        if (p[0].children[i] !== c) { p[0].insertBefore(c, p[0].children[i] || null); bewegt = true; }
+      });
+    });
+    ov.classList.add('verteilt');
+    if (bewegt) {
+      // In der neuen Spaltenbreite neu zeichnen; das Video der Krypto-Karte läuft ggf. weiter
+      document.dispatchEvent(new Event('uebersicht-karten'));
+      var film = document.getElementById('hero-film');
+      var art = document.getElementById('hero-art');
+      if (film && film.paused && art && art.classList.contains('film')) { var p = film.play(); if (p && p.catch) p.catch(function () { /* egal */ }); }
+    }
+  }
+  var vUhr = 0;
+  function verteileBald(ms) { clearTimeout(vUhr); vUhr = setTimeout(verteile, ms == null ? 250 : ms); }
+  // Karten erscheinen und verschwinden mit den Daten (hidden): dann neu verteilen
+  if (ov && window.MutationObserver) {
+    new MutationObserver(function (liste) {
+      if (liste.some(function (m) { return m.target.hasAttribute && m.target.hasAttribute('data-karte') && m.oldValue !== m.target.getAttribute('hidden'); })) verteileBald();
+    }).observe(ov, { attributes: true, attributeFilter: ['hidden'], attributeOldValue: true, subtree: true });
+  }
+  // Karten füllen sich nach und nach (Diagramme, Kurse aus dem Netz). Kurz nach dem Laden oder nach einer Änderung
+  // ziehen wir die Aufteilung nach, wenn Karten ihre Höhe ändern; danach bleibt alles ruhig stehen.
+  var fenster = Date.now();
+  function oeffneFenster() { fenster = Date.now(); }
+  var ro = window.ResizeObserver ? new ResizeObserver(function () { if (Date.now() - fenster < 6000) verteileBald(450); }) : null;
+  if (ro && ov) ov.querySelectorAll('[data-karte]').forEach(function (c) { ro.observe(c); });
+  ['vermoegen', 'kurse-bereit', 'wertpapiere'].forEach(function (n) {
+    document.addEventListener(n, function () { if (Date.now() - fenster < 6000) verteileBald(400); });
+  });
+  var breite = 0;
+  function breiteGeaendert() {
+    var b = ov && ov.clientWidth; if (b && Math.abs(b - breite) > 8) { breite = b; oeffneFenster(); verteileBald(); }
+  }
+  if (window.ResizeObserver && ov) new ResizeObserver(breiteGeaendert).observe(ov);
+  window.addEventListener('resize', breiteGeaendert);
 
   function zeichneListe() {
     var h = '<li><label class="check fest"><input type="checkbox" checked disabled><span>Gesamtvermögen<small>Immer oben, mit Anteilen in Prozent</small></span></label></li>' +
