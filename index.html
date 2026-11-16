@@ -988,7 +988,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
       <section class="sheet" id="wertpapiere" aria-labelledby="h-wertpapiere">
         <header>
           <h2 id="h-wertpapiere">Wertpapiere</h2>
-          <p>Aktien und ETFs von Trade Republic kommen automatisch mit dem Import der Transaktionsdatei. Von flatex und anderen Banken trägst du sie hier von Hand ein: Stückzahl und Einstandswert stehen in deiner Depotübersicht. Der Kurs kommt einmal am Tag über Alpha Vantage (Xetra in Euro). Wertpapiere laufen getrennt vom Krypto-Modell; Bandbreite, Risiko und Steuer rechnen nur mit Krypto.</p>
+          <p>Aktien und ETFs von Trade Republic kommen automatisch mit dem Import der Transaktionsdatei. Von flatex und anderen Banken trägst du sie hier von Hand ein: Stückzahl und Einstandswert stehen in deiner Depotübersicht. Die Kurse kommen bei jedem Öffnen von onvista (Xetra in Euro, vor 9 Uhr Tradegate oder L&amp;S), ohne Schlüssel und ohne Limit. Wertpapiere laufen getrennt vom Krypto-Modell; Bandbreite, Risiko und Steuer rechnen nur mit Krypto.</p>
         </header>
         <p class="note callout" id="wp-status"></p>
         <div class="scroll"><table id="wp-tabelle"></table></div>
@@ -1002,21 +1002,22 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
             <label for="wp-suche">Name, Kürzel oder ISIN</label>
             <input type="text" id="wp-suche" placeholder="z. B. iShares Core S&amp;P 500 oder SXR8" enterkeyhint="search">
             <div class="btns"><button type="button" id="wp-suchen">Suchen</button></div>
-            <small id="wp-treffer-info">Die Suche findet das Börsenkürzel. Am besten nimmst du den Treffer mit „XETRA“ und Euro.</small>
+            <small id="wp-treffer-info">Die Suche findet Aktien und ETFs samt ISIN. Am einfachsten suchst du gleich mit der ISIN aus deiner Depotübersicht.</small>
             <ul class="kurz" id="wp-treffer"></ul>
-          </div>
-          <div class="field">
-            <label for="wp-kuerzel">Börsenkürzel</label>
-            <input type="text" id="wp-kuerzel" placeholder="z. B. SXR8.DEX" required autocapitalize="characters" spellcheck="false">
-            <small>Xetra-Kürzel enden auf „.DEX“. Ohne passendes Kürzel rechnet die App mit deinem Einstandskurs.</small>
           </div>
           <div class="field">
             <label for="wp-name">Name</label>
             <input type="text" id="wp-name" placeholder="z. B. iShares Core S&amp;P 500" required>
           </div>
           <div class="field">
-            <label for="wp-isin">ISIN (optional)</label>
+            <label for="wp-isin">ISIN</label>
             <input type="text" id="wp-isin" placeholder="z. B. IE00B5BMR087" autocapitalize="characters" spellcheck="false">
+            <small>Über die ISIN holt die App den Kurs in Euro von onvista. Ohne ISIN und Kürzel rechnet sie mit deinem Einstandskurs.</small>
+          </div>
+          <div class="field">
+            <label for="wp-kuerzel">Börsenkürzel (optional)</label>
+            <input type="text" id="wp-kuerzel" placeholder="z. B. SXR8.DEX" autocapitalize="characters" spellcheck="false">
+            <small>Nur für die Ersatzquelle Alpha Vantage, falls onvista das Wertpapier nicht kennt. Xetra-Kürzel enden auf „.DEX“.</small>
           </div>
           <div class="field">
             <label for="wp-stueck">Stück</label>
@@ -1039,7 +1040,7 @@ input[type=number]:focus,select:focus,.kat-kopf input[type=search]:focus{outline
           </div>
         </form>
         <details class="tw" id="wp-eigen">
-          <summary>Eigener Kursschlüssel (kostenlos, empfohlen)</summary>
+          <summary>Ersatzquelle: eigener Kursschlüssel (optional)</summary>
           <p class="cap" id="wp-schluessel-info"></p>
           <p class="cap">So geht’s, dauert eine Minute: <b>1.</b> <a href="https://www.alphavantage.co/support/#api-key" target="_blank" rel="noopener noreferrer">alphavantage.co/support/#api-key</a> öffnen. <b>2.</b> „Student“ oder „Investor“ wählen, Namen und E-Mail eintragen, „Get free API key“ tippen. <b>3.</b> Den angezeigten Schlüssel (Buchstaben und Ziffern) kopieren, unten einfügen und „Übernehmen“ tippen. Der Schlüssel bleibt auf deinem Gerät und wandert mit der Sicherung auf dein anderes Gerät.</p>
           <div class="field">
@@ -4993,17 +4994,116 @@ const TREFFER = (function () {
     });
   }
 
+  // ---------- onvista (Hauptquelle) ----------
+  // Ohne Schlüssel und ohne Tageslimit, Suche per ISIN, Kurse in Euro (Xetra, sonst Tradegate/L&S/gettex).
+  // Keine offizielle Schnittstelle: Fällt sie aus, springt Alpha Vantage ein.
+  var OVK = 'krypto-freunde-wp-onvista', OVURL = 'https://api.onvista.de/api/v1/instruments/';
+  var FRISCH = 15 * 60000, GUELTIG = 36 * 3600000;
+  var ov = lies(OVK, null);
+  if (!ov || typeof ov !== 'object' || !ov.ids || !ov.kurse) ov = { ids: {}, kurse: {} };
+  var basis = function (k) { return String(k || '').toUpperCase().replace(/\.[A-Z]+$/, ''); };
+  function ovKey(p) { return p.isin ? p.isin : p.kuerzel ? 'S:' + basis(p.kuerzel) : ''; }
+  function ovJson(u) {
+    var c = window.AbortController ? new AbortController() : null, t = setTimeout(function () { if (c) c.abort(); }, 10000);
+    return fetch(u, c ? { signal: c.signal } : {}).then(function (r) {
+      clearTimeout(t);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }, function (e) { clearTimeout(t); throw e; });
+  }
+  function ovSuche(q) {
+    return ovJson(OVURL + 'search/facet?searchValue=' + encodeURIComponent(q)).then(function (j) {
+      return (j && j.facets || []).reduce(function (a, f) { return a.concat(f.results || []); }, [])
+        .filter(function (r) { return r && r.entityType && r.entityValue && r.name; });
+    });
+  }
+  function ovFinde(p, key) {
+    if (ov.ids[key]) return Promise.resolve(ov.ids[key]);
+    var q = p.isin || basis(p.kuerzel);
+    return ovSuche(q).then(function (rs) {
+      var r = p.isin ? rs.filter(function (x) { return x.isin === p.isin; })[0]
+        : rs.filter(function (x) { return String(x.symbol || '').toUpperCase() === q || x.isin === q; })[0];
+      if (!r) throw new Error('unbekannt');
+      ov.ids[key] = { t: r.entityType, v: r.entityValue };
+      return ov.ids[key];
+    });
+  }
+  // Euro-Kurs wählen: Xetra, außer ein anderer deutscher Handelsplatz ist über 30 Minuten aktueller (z. B. vor 9 Uhr)
+  function waehleQuote(j) {
+    var zeit = function (q) { return Date.parse(q.datetimeLast || '') || 0; };
+    var l = ((j && j.quoteList && j.quoteList.list) || []).filter(function (q) { return q && q.isoCurrency === 'EUR' && q.last > 0; });
+    if (!l.length && j && j.quote && j.quote.isoCurrency === 'EUR' && j.quote.last > 0) l = [j.quote];
+    if (!l.length) return null;
+    var de = l.filter(function (q) { return /^(Xetra|Tradegate|LS Exchange|Lang|gettex)/i.test((q.market && q.market.name) || ''); });
+    var pool = de.length ? de : l;
+    var x = pool.filter(function (q) { return q.market && q.market.name === 'Xetra'; })[0];
+    var neu = pool.slice().sort(function (a, b) { return zeit(b) - zeit(a); })[0];
+    if (!x || zeit(neu) - zeit(x) > 30 * 60000) x = neu;
+    return x;
+  }
+  function holeOnvista(p) {
+    var key = ovKey(p);
+    return ovFinde(p, key).then(function (id) {
+      return ovJson(OVURL + encodeURIComponent(id.t) + '/' + encodeURIComponent(id.v) + '/snapshot');
+    }).then(function (j) {
+      var q = waehleQuote(j);
+      if (!q) throw new Error('kein Euro-Kurs');
+      ov.kurse[key] = { kurs: q.last, vortag: q.previousLast > 0 ? q.previousLast : null, zeit: q.datetimeLast || '', markt: (q.market && q.market.name) || '', abruf: Date.now() };
+      schreib(OVK, ov);
+    });
+  }
+  function ovStand(p, frisch) {
+    var o = ov.kurse[ovKey(p)];
+    return o && o.kurs > 0 && (!frisch || Date.now() - o.abruf < GUELTIG) ? o : null;
+  }
+  // Mehrere Abrufe gleichzeitig, aber höchstens n auf einmal
+  function gebuendelt(items, n, fn) {
+    var i = 0;
+    function lauf() { if (i >= items.length) return Promise.resolve(); var x = items[i++]; return fn(x).then(lauf, lauf); }
+    var l = [];
+    for (var k = 0; k < Math.min(n, items.length); k++) l.push(lauf());
+    return Promise.all(l);
+  }
+
   var laeuft = false;
   function holeAlle(zwingend) {
     if (laeuft) return;
-    var syms = [];
+    var gesehen = {}, faellig = [];
     daten.liste.forEach(function (p) {
-      if (p.kuerzel && syms.indexOf(p.kuerzel) < 0 && (zwingend || !kurse[p.kuerzel] || kurse[p.kuerzel].abruf !== heute())) syms.push(p.kuerzel);
+      var key = ovKey(p);
+      if (!key || gesehen[key]) return;
+      gesehen[key] = 1;
+      var o = ov.kurse[key];
+      if (zwingend || !o || Date.now() - o.abruf > FRISCH) faellig.push(p);
     });
-    if (!syms.length) { if (zwingend) status('Die Kurse sind von heute.'); return; }
-    if (!schluessel()) { status('Es ist kein Kursschlüssel eingetragen. Die App rechnet mit deinen Einstandskursen.', true); return; }
+    if (!faellig.length) { if (zwingend) status('Die Kurse sind aktuell.'); return ersatz(zwingend); }
     laeuft = true;
     status('Kurse werden geholt …');
+    gebuendelt(faellig, 4, function (p) { return holeOnvista(p).catch(function () { /* Ersatzquelle */ }); }).then(function () {
+      laeuft = false;
+      zeichne();
+      ersatz(zwingend);
+    });
+  }
+
+  // ---------- Alpha Vantage (Ersatz) für alles, was onvista nicht liefert ----------
+  function ohneOnvista() { return daten.liste.filter(function (p) { return !ovStand(p, true); }); }
+  function ersatz(zwingend) {
+    var offen = ohneOnvista();
+    if (!offen.length) return;
+    ordneZu(offen, zwingend);
+  }
+  var laeuftAv = false;
+  function avAlle(zwingend) {
+    if (laeuftAv) return;
+    var syms = [];
+    ohneOnvista().forEach(function (p) {
+      if (p.kuerzel && syms.indexOf(p.kuerzel) < 0 && (zwingend || !kurse[p.kuerzel] || kurse[p.kuerzel].abruf !== heute())) syms.push(p.kuerzel);
+    });
+    if (!syms.length) return;
+    if (!schluessel()) { status('Für einen Teil der Wertpapiere gab es keinen Kurs. Dort zählt der Einstandswert.', true); return; }
+    laeuftAv = true;
+    status('Ersatzkurse werden geholt …');
     var fehler = [], limit = null;
     // nacheinander, damit die 5 Abrufe pro Minute nicht überschritten werden
     syms.reduce(function (kette, sym) {
@@ -5012,10 +5112,10 @@ const TREFFER = (function () {
         return holeKurs(sym).catch(function (e) { if (e && e.limit) limit = e; else fehler.push(sym); });
       });
     }, Promise.resolve()).then(function () {
-      laeuft = false;
+      laeuftAv = false;
       zeichne();
-      if (limit) { status(limitText(limit, 'Es gelten die zuletzt geholten Kurse.'), true); zeigeEigen(true); }
-      else if (fehler.length) status('Für ' + fehler.join(', ') + ' gab es keinen Kurs. Prüfe das Kürzel (Xetra: Endung .DEX).', true);
+      if (limit) { status('onvista liefert nicht alle Kurse, und die Ersatzquelle ist am Limit. ' + limitText(limit, 'Es gelten die zuletzt geholten Kurse.'), true); zeigeEigen(true); }
+      else if (fehler.length) status('Für ' + fehler.join(', ') + ' gab es keinen Kurs. Prüfe die ISIN oder das Kürzel (Xetra: Endung .DEX).', true);
     });
   }
 
@@ -5026,18 +5126,27 @@ const TREFFER = (function () {
   }
   // Hinweis im Schlüssel-Bereich; ohne eigenen Schlüssel wird er bei Wertpapieren aufgeklappt
   function zeigeEigen(aufklappen) {
-    $('wp-schluessel-info').textContent = eigener()
-      ? 'Du nutzt deinen eigenen Schlüssel (25 Abrufe am Tag nur für dich).'
-      : 'Du nutzt gerade die gemeinsame Notreserve, die sich alle Nutzer dieser App teilen (höchstens ' + NOT + ' Abrufe am Tag pro Gerät). Mit einem eigenen kostenlosen Schlüssel hast du 25 Abrufe am Tag für dich.';
+    $('wp-schluessel-info').textContent = 'Die Kurse kommen normalerweise von onvista, ohne Schlüssel und ohne Limit. Alpha Vantage springt nur ein, wenn onvista ein Wertpapier nicht findet oder nicht antwortet. '
+      + (eigener()
+        ? 'Dafür nutzt du deinen eigenen Schlüssel (25 Abrufe am Tag nur für dich).'
+        : 'Dafür gibt es eine gemeinsame Notreserve (höchstens ' + NOT + ' Abrufe am Tag pro Gerät). Mit einem eigenen kostenlosen Schlüssel hast du 25 Abrufe am Tag für dich.');
     if (aufklappen && !eigener()) $('wp-eigen').open = true;
   }
 
+  var zeitFmt = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  // Reihenfolge: frischer onvista-Kurs, Alpha Vantage, älterer onvista-Kurs, sonst der Einstandskurs
   function wertVon(p) {
-    var k = p.kuerzel && kurse[p.kuerzel], kurs = k ? inEuro(k.kurs, p.kuerzel) : NaN;
-    var vortag = k && k.vortag ? inEuro(k.vortag, p.kuerzel) : NaN;
+    var o = ovStand(p, true), k = p.kuerzel && kurse[p.kuerzel], kurs = NaN, vortag = NaN, tag = '';
+    if (!o && k) { kurs = inEuro(k.kurs, p.kuerzel); vortag = k.vortag ? inEuro(k.vortag, p.kuerzel) : NaN; tag = datum(k.tag); }
+    if (!(kurs > 0)) o = o || ovStand(p, false);
+    if (!(kurs > 0) && o) {
+      kurs = o.kurs; vortag = o.vortag || NaN;
+      var d = new Date(o.zeit);
+      tag = (o.markt ? o.markt + ' ' : '') + (isNaN(d) ? '' : zeitFmt.format(d).replace(',', ''));
+    }
     var ok = isFinite(kurs) && kurs > 0;
     var w = ok ? p.stueck * kurs : p.einstand;
-    return { ok: ok, kurs: ok ? kurs : (p.stueck > 0 ? p.einstand / p.stueck : 0), wert: w, tag: k ? k.tag : '', heute: ok && isFinite(vortag) ? p.stueck * (kurs - vortag) : 0 };
+    return { ok: ok, kurs: ok ? kurs : (p.stueck > 0 ? p.einstand / p.stueck : 0), wert: w, tag: ok ? tag : '', heute: ok && isFinite(vortag) ? p.stueck * (kurs - vortag) : 0 };
   }
 
   function td(text, cls) { var c = document.createElement('td'); c.textContent = text; if (cls) c.className = cls; return c; }
@@ -5056,10 +5165,10 @@ const TREFFER = (function () {
         summe += w.wert; einst += p.einstand; tag += w.heute; if (!w.ok) ohneKurs++;
         var n = td(''); n.innerHTML = ''; var b = document.createElement('b'); b.textContent = p.name; n.append(b);
         var s = document.createElement('small'); s.style.display = 'block';
-        s.textContent = [p.kuerzel ? p.kuerzel + (p.auto ? ' (automatisch)' : '') : 'ohne Kürzel', p.isin, p.bank, p.quelle === 'import' ? 'aus Datei' : ''].filter(Boolean).join(' · ');
+        s.textContent = [p.isin, p.kuerzel ? p.kuerzel + (p.auto ? ' (automatisch)' : '') : (p.isin ? '' : 'ohne ISIN'), p.bank, p.quelle === 'import' ? 'aus Datei' : ''].filter(Boolean).join(' · ');
         n.append(s);
         r.append(n, td(nfq.format(p.stueck)), td(eur(p.einstand)),
-          td(w.ok ? eur(w.kurs) + (w.tag ? ' (' + datum(w.tag) + ')' : '') : 'kein Kurs'), td(eur(w.wert)),
+          td(w.ok ? eur(w.kurs) + (w.tag ? ' (' + w.tag + ')' : '') : 'kein Kurs'), td(eur(w.wert)),
           td(eurS(g) + (p.einstand > 0 ? ' · ' + pct(g / p.einstand) : ''), ton(g)));
         var bc = document.createElement('td'), k = document.createElement('button');
         k.type = 'button'; k.textContent = 'Bearbeiten'; k.addEventListener('click', function () { oeffne(i); });
@@ -5072,7 +5181,7 @@ const TREFFER = (function () {
       }
       t.append(body);
     }
-    if (!laeuft) {
+    if (!laeuft && !laeuftAv) {
       if (!daten.liste.length) status('Noch keine Wertpapiere eingetragen.');
       else status(daten.liste.length + (daten.liste.length === 1 ? ' Wertpapier' : ' Wertpapiere') + ', zusammen ' + eur(summe) + '.'
         + (ohneKurs ? ' ' + ohneKurs + ' ohne aktuellen Kurs, dort zählt der Einstandswert.' : '')
@@ -5110,7 +5219,7 @@ const TREFFER = (function () {
     var wal = window.WALLET ? window.WALLET.summe() : 0, teile = [];
     if (isFinite(k) && k > 0) teile.push('Krypto'); else k = 0;
     if (wal > 0) teile.push('Wallets');
-    $('ov-wp-gesamt').textContent = teile.length ? 'Zusammen mit ' + teile.join(' und ') + ': ' + eur(k + letzteSumme + wal) : 'Wert in Euro, Kurse von Alpha Vantage.';
+    $('ov-wp-gesamt').textContent = teile.length ? 'Zusammen mit ' + teile.join(' und ') + ': ' + eur(k + letzteSumme + wal) : 'Wert in Euro, Kurse von onvista.';
   }
   if (window.MutationObserver) new MutationObserver(function () { if (daten.liste.length) gesamt(); }).observe($('ov-wert'), { childList: true, characterData: true, subtree: true });
   document.addEventListener('vermoegen', function () { if (daten.liste.length) gesamt(); });
@@ -5145,13 +5254,14 @@ const TREFFER = (function () {
       : isin && !/^[A-Z]{2}[A-Z0-9]{9}\d$/.test(isin) ? 'Die ISIN hat 12 Zeichen, z. B. IE00B5BMR087.' : kuerzel && !/^[A-Z0-9.\-]{1,20}$/.test(kuerzel) ? 'Das Kürzel sieht nicht richtig aus.' : '';
     if (fehler) { $('wp-fehler').textContent = fehler; $('wp-fehler').hidden = false; return; }
     var p = { name: name.slice(0, 80), kuerzel: kuerzel, isin: isin, bank: $('wp-bank').value.trim().slice(0, 40), stueck: stueck, einstand: einstand, geaendert: heute() };
-    var neuesKuerzel = aktiv < 0 || daten.liste[aktiv].kuerzel !== kuerzel;
+    var alt = aktiv >= 0 ? daten.liste[aktiv] : null;
+    var neu = !alt || alt.kuerzel !== kuerzel || ovKey(alt) !== ovKey(p);
     if (aktiv >= 0) daten.liste[aktiv] = p; else daten.liste.push(p);
     schreib(KEY, daten); schliesse(); zeichne();
-    if (kuerzel && neuesKuerzel) holeAlle(false);
+    if ((isin || kuerzel) && neu) holeAlle(false);
   });
 
-  // Suche über Alpha Vantage (SYMBOL_SEARCH); eine ISIN findet sie oft nicht, Name oder Kürzel klappen besser
+  // Suche über onvista (Name, ISIN, WKN oder Kürzel); klappt das nicht, über Alpha Vantage
   $('wp-suchen').addEventListener('click', suche);
   $('wp-suche').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); suche(); } });
   function suche() {
@@ -5159,6 +5269,28 @@ const TREFFER = (function () {
     if (q.length < 2) return;
     ul.textContent = '';
     $('wp-treffer-info').textContent = 'Suche läuft …';
+    ovSuche(q).then(function (rs) {
+      rs = rs.filter(function (r) { return /^(STOCK|FUND)$/.test(r.entityType) && r.isin; }).slice(0, 8);
+      if (!rs.length) throw new Error('leer');
+      $('wp-treffer-info').textContent = 'Tippe auf den passenden Treffer:';
+      rs.forEach(function (x) {
+        var li = document.createElement('li'), b = document.createElement('button');
+        b.type = 'button'; b.className = 'textlink';
+        b.textContent = x.name + ' – ' + x.isin + (x.symbol ? ' · ' + x.symbol : '') + ' (' + (x.displayType || x.entityType) + ')';
+        b.addEventListener('click', function () {
+          feld('wp-isin', x.isin);
+          if (!$('wp-name').value.trim()) feld('wp-name', x.name);
+          if (BEKANNT[x.isin] && !$('wp-kuerzel').value.trim()) feld('wp-kuerzel', BEKANNT[x.isin]);
+          ov.ids[x.isin] = { t: x.entityType, v: x.entityValue }; schreib(OVK, ov);
+          ul.textContent = ''; $('wp-treffer-info').textContent = 'Übernommen: ' + x.name + ' (' + x.isin + ')';
+          $('wp-stueck').focus();
+        });
+        li.append(b); ul.append(li);
+      });
+    }).catch(sucheAv);
+  }
+  function sucheAv() {
+    var q = $('wp-suche').value.trim(), ul = $('wp-treffer');
     av({ 'function': 'SYMBOL_SEARCH', keywords: q }).then(function (j) {
       var m = (j.bestMatches || []).slice(0, 8);
       m.sort(function (a, b) { return (b['8. currency'] === 'EUR') - (a['8. currency'] === 'EUR'); });
@@ -5215,7 +5347,7 @@ const TREFFER = (function () {
     daten.importe[bank] = summe;
     schreib(KEY, daten);
     zeichne();
-    ordneZu();
+    holeAlle(false);
   }
   window.WP = {
     uebernehmen: uebernehmen,
@@ -5244,14 +5376,15 @@ const TREFFER = (function () {
     IE00BK5BQT80: 'VWCE.DEX', IE00B3RBWM25: 'VGWL.DEX', IE00BKM4GZ66: 'IS3N.DEX', IE00BFY0GT14: 'SPPW.DEX',
     IE00BJ0KDQ92: 'XDWD.DEX', IE00B53SZB19: 'SXRV.DEX', IE00B3XXRP09: 'VUSA.DEX', IE00BTJRMP35: 'XMME.DEX'
   };
+  // Nur für Wertpapiere, die onvista nicht liefert (Alpha Vantage braucht das Börsenkürzel)
   var ordnet = false;
-  function ordneZu() {
+  function ordneZu(kandidaten, zwingend) {
     var geaendert = false;
-    daten.liste.forEach(function (p) { if (!p.kuerzel && p.isin && BEKANNT[p.isin]) { p.kuerzel = BEKANNT[p.isin]; p.auto = true; geaendert = true; } });
+    kandidaten.forEach(function (p) { if (!p.kuerzel && p.isin && BEKANNT[p.isin]) { p.kuerzel = BEKANNT[p.isin]; p.auto = true; geaendert = true; } });
     if (geaendert) { schreib(KEY, daten); zeichne(); }
-    if (ordnet || !schluessel()) return holeAlle(false);
-    var offen = daten.liste.filter(function (p) { return p.quelle === 'import' && !p.kuerzel && p.versucht !== heute(); }).slice(0, 6);
-    if (!offen.length) return holeAlle(false);
+    if (ordnet || !schluessel()) return avAlle(zwingend);
+    var offen = kandidaten.filter(function (p) { return p.quelle === 'import' && !p.kuerzel && p.versucht !== heute(); }).slice(0, 6);
+    if (!offen.length) return avAlle(zwingend);
     ordnet = true;
     status('Börsenkürzel werden gesucht …');
     var limit = false;
@@ -5270,13 +5403,13 @@ const TREFFER = (function () {
       schreib(KEY, daten);
       zeichne();
       if (limit) { status(limitText(limit, 'Ein Teil der Börsenkürzel fehlt noch, die App sucht später weiter; bis dahin zählt der Einstandswert.'), true); zeigeEigen(true); }
-      else holeAlle(false);
+      else avAlle(zwingend);
     });
   }
 
   zeichne();
-  zeigeEigen(daten.liste.length > 0);
-  ordneZu();
+  zeigeEigen(false);
+  holeAlle(false);
 })();
 </script>
 <script>
