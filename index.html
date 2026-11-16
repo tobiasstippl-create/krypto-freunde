@@ -3101,6 +3101,10 @@ const TREFFER = (function () {
         const hand = (state.hand || []).map(function (x) { return Object.assign({}, x, { direkt: false }); });
         return allTx(state.tx, hand).filter(function (t) { return t[1] === 'buy'; }).map(function (t) { return t.slice(0, 6); });
       },
+      // Euro vom Guthaben in Aktien/ETFs/Metalle (eab) und zurück (ezu): [Datum ISO, 'eab'|'ezu', Euro]
+      umbuchungen: function () {
+        return (state.tx || []).filter(function (t) { return t[1] === 'eab' || t[1] === 'ezu'; }).map(function (t) { return [t[0], t[1], +t[3] || 0]; });
+      },
       kurse: function (sym) { const c = COIN[sym]; return c ? { sym: sym, name: NAME[sym] || sym, start: c.start, kurse: c.kurse.slice() } : null; },
       seit: function (sym, tage) { return COIN[sym] ? seit(sym, tage) : null; },
       rang: function (sym) { return FC && FC[sym] && FC[sym].r || null; }
@@ -8396,7 +8400,26 @@ const TREFFER = (function () {
   function serieK() {
     var ks = KS(), v = ks && ks.daten && ks.verlauf ? ks.verlauf() : null;
     if (!v || v.days.length < 1) return null;
-    return { days: v.days, W: v.W, I: v.I, Kw: v.W, Ww: null, ok: v.ok };
+    var I = v.I;
+    // Euro vom Börsen-Guthaben, der in Aktien/ETFs ging (Trade Republic, Bitpanda), ist kein Krypto-Verlust,
+    // sondern eine Umbuchung: Für den Krypto-Verlauf zählt er wie eine Auszahlung, Verkaufserlöse wie eine
+    // Einzahlung. Erkannt über denselben Zeitpunkt wie ein Wertpapier-Kauf oder -Verkauf; Dividenden bleiben Ertrag.
+    if (I && ks.umbuchungen && WPok() && window.WP.ereignisse) {
+      var zeit = {};
+      window.WP.ereignisse().forEach(function (e) { if (/^(kauf|verkauf)$/.test(e.art) && !e.hand) zeit[String(e.d).slice(0, 19)] = 1; });
+      var fluss = {};
+      ks.umbuchungen().forEach(function (u) {
+        if (!zeit[String(u[0]).slice(0, 19)]) return;
+        var t = tagNr(u[0]); if (!isFinite(t)) return;
+        fluss[t] = (fluss[t] || 0) + (u[1] === 'eab' ? -u[2] : u[2]);
+      });
+      if (Object.keys(fluss).length) {
+        var kum = 0, t0 = v.days[0];
+        Object.keys(fluss).forEach(function (t) { if (+t < t0) kum += fluss[t]; });
+        I = v.days.map(function (t, i) { kum += (fluss[t] || 0); return v.I[i] + kum; });
+      }
+    }
+    return { days: v.days, W: v.W, I: I, Kw: v.W, Ww: null, ok: v.ok };
   }
   function serieW() {
     if (!WPok()) return Promise.resolve(null);
