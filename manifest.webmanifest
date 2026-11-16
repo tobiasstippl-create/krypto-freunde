@@ -19,5 +19,38 @@
    "type": "image/png",
    "purpose": "any maskable"
   }
- ]
+ ],
+ "share_target": {
+  "action": "./teilen",
+  "method": "POST",
+  "enctype": "multipart/form-data",
+  "params": {
+   "files": [
+    {
+     "name": "dateien",
+     "accept": [
+      "text/csv",
+      ".csv",
+      "text/comma-separated-values",
+      "text/plain",
+      "application/vnd.ms-excel",
+      "application/octet-stream"
+     ]
+    }
+   ]
+  }
+ },
+ "file_handlers": [
+  {
+   "action": "./",
+   "accept": {
+    "text/csv": [
+     ".csv"
+    ]
+   }
+  }
+ ],
+ "launch_handler": {
+  "client_mode": "focus-existing"
+ }
 }

@@ -2,7 +2,7 @@
    App-Seite: erst Netz (damit Updates sofort ankommen), ohne Netz die gemerkte Fassung.
    Bilder, Video, Schriften, Symbole: einmal laden, danach vom Gerät.
    Abrufe zu anderen Seiten (Kurse, Wallets, Meldungen) laufen unverändert durch. */
-var VERSION = '2b9c1863ece8';
+var VERSION = '31fc31b40362';
 var CACHE = 'wealthlens-' + VERSION;
 var DATEIEN = ["./", "medien/band.mp4", "medien/band.webp", "medien/hintergrund-dunkel.webp", "medien/hintergrund-hell.webp", "medien/leer.webp", "medien/logo.webp", "schriften/Inter-latin-2.woff2", "schriften/Inter-latin-ext-1.woff2", "schriften/JetBrainsMono-latin-2.woff2", "schriften/JetBrainsMono-latin-ext-1.woff2", "schriften/Sora-latin-2.woff2", "schriften/Sora-latin-ext-1.woff2", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
 var SEITE = new URL('./', self.registration.scope).href;
@@ -73,8 +73,27 @@ function dateiHolen(req) {
   });
 }
 
+// Teilen-Menü (Android, installierte App): Die geteilten CSV-Dateien kommen als POST an ./teilen.
+// Sie werden kurz im Speicher abgelegt; die App holt sie nach der Weiterleitung ab (teilen.js) und löscht sie.
+// Eigener Name ohne „wealthlens-“, damit ein Update den Zwischenspeicher nicht vorher wegräumt.
+var GETEILT = 'geteilt-wealthlens';
+function teilenAnnehmen(req) {
+  return req.formData().then(function (fd) {
+    var dateien = fd.getAll('dateien').filter(function (f) { return f && typeof f === 'object' && f.size > 0; });
+    return caches.open(GETEILT).then(function (c) {
+      return Promise.all(dateien.slice(0, 10).map(function (f, i) {
+        return c.put(new URL('./geteilt/' + Date.now() + '-' + i, self.registration.scope).href,
+          new Response(f, { headers: { 'Content-Type': f.type || 'text/csv', 'X-Name': encodeURIComponent(f.name || 'geteilt.csv') } }));
+      }));
+    });
+  }).catch(function () { /* Weiterleiten trotzdem, die App meldet dann nichts */ }).then(function () {
+    return Response.redirect(new URL('./?geteilt=' + Date.now(), self.registration.scope).href, 303);
+  });
+}
+
 self.addEventListener('fetch', function (e) {
   var req = e.request;
+  if (req.method === 'POST' && /\/teilen$/.test(new URL(req.url).pathname)) { e.respondWith(teilenAnnehmen(req)); return; }
   if (req.method !== 'GET') return;
   var url = new URL(req.url);
   if (url.origin !== self.location.origin || url.href.indexOf(self.registration.scope) !== 0) return;
