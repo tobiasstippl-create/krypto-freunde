@@ -8411,7 +8411,8 @@ const TREFFER = (function () {
     } else if (p.wert > 0) {
       info.append(document.createTextNode('Dein Bestand heute: ' + eur(p.wert) + '. '));
       var ueb = el('button', null, 'Als Startbetrag nehmen'); ueb.type = 'button';
-      ueb.addEventListener('click', function () { sp.start = Math.round(p.wert); $('ov-sp-start').value = String(sp.start); spMerke(); rechne(); });
+      // Für die KESt zählt beim übernommenen Bestand der Einstand, nicht der heutige Wert (sonst bliebe der bisherige Kursgewinn unversteuert)
+      ueb.addEventListener('click', function () { sp.start = Math.round(p.wert); sp.startWert = sp.start; sp.startEinstand = p.einstand > 0 ? Math.round(p.einstand) : null; $('ov-sp-start').value = String(sp.start); spMerke(); rechne(); });
       info.append(ueb);
     }
     hist.textContent = 'Rendite der letzten Jahre wird geladen …';
@@ -8433,13 +8434,16 @@ const TREFFER = (function () {
       erg.append(el('p', 'note', 'Gib eine Rate oder einen Startbetrag, 1 bis 60 Jahre und eine Rendite zwischen −50 und 100 % ein.')); host.textContent = ''; $('ov-sp-legende').textContent = ''; $('ov-sp-cap').textContent = ''; return;
     }
     sp.rate = rate; sp.start = start; sp.jahre = jahre; sp.rendite = Math.round(r * 1000) / 10; spMerke();
-    var rm = Math.pow(1 + r, 1 / 12) - 1, v = start, ein = start, xs = [0], wv = [start], ev = [start];
+    // Startbetrag aus dem eigenen Bestand: eingezahlt (und steuerlich angeschafft) ist der Einstand, nicht der heutige Wert
+    var ausBestand = sp.startEinstand > 0 && start === sp.startWert, basis = ausBestand ? sp.startEinstand : start;
+    var rm = Math.pow(1 + r, 1 / 12) - 1, v = start, ein = basis, xs = [0], wv = [start], ev = [basis];
     for (var m = 1; m <= jahre * 12; m++) {
       v = (v + rate) * (1 + rm); ein += rate;
       if (m % 12 === 0 || jahre <= 3) { xs.push(m); wv.push(v); ev.push(ein); }
     }
     var gewinn = v - ein, kest = Math.max(0, gewinn) * 0.275;
-    [['Wert nach ' + jahre + ' Jahren', eur0(v)], ['Eingezahlt', eur0(ein)], ['Gewinn', (gewinn >= 0 ? '+' : '') + eur0(gewinn)], ['Nach 27,5 % KESt', eur0(v - kest)]].forEach(function (z) {
+    [['Wert nach ' + jahre + ' Jahren', eur0(v)], [ausBestand ? 'Eingezahlt (Einstand + Raten)' : 'Eingezahlt', eur0(ein)], ['Gewinn', (gewinn >= 0 ? '+' : '') + eur0(gewinn)],
+      ['KESt 27,5 % beim Verkauf', eur0(kest)], ['Nach KESt', eur0(v - kest)]].forEach(function (z) {
       var d = el('div'); d.append(el('span', null, z[0]), el('b', null, z[1])); erg.append(d);
     });
     chart(host, {
@@ -8455,7 +8459,9 @@ const TREFFER = (function () {
     $('ov-sp-cap').textContent = spCap(r);
   }
   function spCap(r) {
-    return 'Gleichbleibende Rendite von ' + pctS(r).replace('+', '') + ' pro Jahr, Rate am Monatsanfang, ohne Kosten des Sparplans und ohne Inflation. Echte Kurse schwanken stark; frühere Renditen sagen nichts Sicheres über künftige. KESt in Österreich erst beim Verkauf, Ausschüttungen und ausschüttungsgleiche Erträge laufend (hier nicht eingerechnet).';
+    var sb = zahl($('ov-sp-start').value);
+    return (sp.startEinstand > 0 && sb === sp.startWert ? 'Startbetrag = heutiger Wert deines Bestands; besteuert wird der Gewinn gegenüber dem Einstand von ' + eur0(sp.startEinstand) + ' (samt Gebühren, steuerlich zählen sie nicht ganz). ' : '')
+      + 'Gleichbleibende Rendite von ' + pctS(r).replace('+', '') + ' pro Jahr, Rate am Monatsanfang, ohne Kosten des Sparplans und ohne Inflation. Echte Kurse schwanken stark; frühere Renditen sagen nichts Sicheres über künftige. KESt in Österreich erst beim Verkauf, Ausschüttungen und ausschüttungsgleiche Erträge laufend (hier nicht eingerechnet).';
   }
   // Suche nach weiteren Wertpapieren (onvista)
   var suchUhr = 0;
@@ -8497,7 +8503,7 @@ const TREFFER = (function () {
   $('ov-kv-wahl').addEventListener('change', function () { opt.kv = this.value; merke(); zeichneKV(); });
   $('ov-sp-wahl').addEventListener('change', function () {
     if (this.value === '+') { this.value = sp.wahl || ''; $('ov-sp-neu').hidden = false; $('ov-sp-suche').focus(); return; }
-    sp.wahl = this.value; spMerke(); spInfo(); rechne();
+    sp.wahl = this.value; sp.startEinstand = sp.startWert = null; spMerke(); spInfo(); rechne();   // Einstand gehört zum vorher gewählten Bestand
   });
   ['rate', 'start', 'jahre', 'rendite'].forEach(function (f) { $('ov-sp-' + f).addEventListener('input', rechne); });
   $('ov-sp-suche').addEventListener('input', suche);
